@@ -17,6 +17,17 @@ import path from "node:path";
 
 const THU_MUC = path.join(process.cwd(), "out");
 
+/**
+ * Cloudflare Web Analytics tự chèn beacon vào trang ở tầng biên, kho mã không
+ * khai báo script này. Nếu đơn vị TẮT Web Analytics trong bảng điều khiển
+ * Cloudflare thì xoá hằng số này đi để chính sách trở lại chỉ-cùng-miền.
+ * Xem docs/BAO-MAT.md mục 3.
+ */
+const CLOUDFLARE_BEACON = {
+  script: "https://static.cloudflareinsights.com",
+  connect: "https://cloudflareinsights.com",
+};
+
 /** Các directive không phụ thuộc nội dung trang. */
 const CO_DINH = [
   "default-src 'self'",
@@ -25,7 +36,7 @@ const CO_DINH = [
   // Thuộc tính style= nội tuyến do next/image sinh ra không băm được.
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
-  "connect-src 'self'",
+  `connect-src 'self' ${CLOUDFLARE_BEACON.connect}`,
   "manifest-src 'self'",
   "object-src 'none'",
   "frame-src 'none'",
@@ -58,7 +69,7 @@ function bamScriptNoiTuyen(html) {
 }
 
 function dungChinhSach(bam) {
-  const scriptSrc = ["script-src 'self'", ...bam].join(" ");
+  const scriptSrc = ["script-src 'self'", CLOUDFLARE_BEACON.script, ...bam].join(" ");
   return [...CO_DINH, scriptSrc].join("; ");
 }
 

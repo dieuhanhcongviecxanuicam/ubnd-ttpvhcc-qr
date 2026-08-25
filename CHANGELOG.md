@@ -30,6 +30,14 @@ với kiến trúc tĩnh, đó mới là nơi có rủi ro thật, không phải
   `id-token:write` nên một action bị chiếm là chiếm luôn quyền xuất bản trang.
 - `npm run build` nay gồm cả bước sinh CSP.
 
+### Ghi nhận
+
+- Quá trình kiểm chứng CSP trên production phát hiện Cloudflare **tự chèn**
+  `beacon.min.js` từ `static.cloudflareinsights.com` vào mọi trang ở tầng biên,
+  dù kho mã không khai báo script nào bên ngoài. CSP đã được nới đúng một nguồn
+  này để không sinh lỗi cho người truy cập, kèm hướng dẫn tắt hẳn nếu đơn vị
+  không cần thống kê - xem `docs/BAO-MAT.md` mục 3.
+
 ## [1.6.0] - 2026-08-25
 
 ### Sửa lỗi

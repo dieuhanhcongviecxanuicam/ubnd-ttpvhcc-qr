@@ -44,5 +44,7 @@ thường không áp dụng được:
 ## Dữ liệu
 
 Dữ liệu thủ tục hành chính trên hệ thống là **thông tin công khai** lấy từ Cổng
-Dịch vụ công Quốc gia. Hệ thống không thu thập dữ liệu cá nhân, không dùng cookie
-và không cài công cụ đo lượt truy cập.
+Dịch vụ công Quốc gia. Hệ thống không thu thập dữ liệu cá nhân và không dùng cookie.
+
+Cloudflare Web Analytics đang bật ở tầng biên để đếm lượt truy cập; dịch vụ này
+không dùng cookie và không định danh cá nhân.

@@ -34,6 +34,22 @@ làm trang trắng, trong khi build vẫn báo thành công).
 > SSL trong console. Đây chỉ là ma sát khi thử cục bộ - trang vẫn hoạt động, và
 > trên production mọi thứ đã là HTTPS nên directive này không gây ảnh hưởng.
 
+### Cloudflare Web Analytics - cần quyết định
+
+Cloudflare **tự chèn** `beacon.min.js` từ `static.cloudflareinsights.com` vào mọi
+trang ở tầng biên; kho mã không khai báo script này. CSP hiện đang cho phép nó,
+nếu không mọi lượt truy cập đều sinh lỗi trong console.
+
+Đây là script bên thứ ba chạy trên máy người dân. Cloudflare Web Analytics không
+dùng cookie và không định danh cá nhân, nhưng vẫn là thu thập dữ liệu truy cập.
+
+**Đơn vị cần chọn một trong hai:**
+
+| Lựa chọn | Việc cần làm |
+|---|---|
+| **Không cần thống kê truy cập** (an toàn hơn) | Tắt Web Analytics trong Cloudflare, rồi xoá hằng số `CLOUDFLARE_BEACON` trong `scripts/them-csp.mjs`. Chính sách trở lại chỉ-cho-phép-cùng-miền. |
+| **Cần thống kê truy cập** | Giữ nguyên. Ghi nhận trong hồ sơ cấp độ an toàn thông tin rằng hệ thống có sử dụng dịch vụ đo lượt truy cập của bên thứ ba. |
+
 ### Hai directive phải đặt bằng header, không đặt được trong thẻ meta
 
 Trình duyệt **bỏ qua** `frame-ancestors` và `report-uri` khi chúng nằm trong thẻ
@@ -107,9 +123,13 @@ vẫn thấy biểu tượng ổ khoá.
 
 ## 7. Những gì hệ thống KHÔNG lưu
 
-Không tài khoản người dùng, không cơ sở dữ liệu, không cookie, không công cụ đo
-lượt truy cập, không biểu mẫu thu thập thông tin. Dữ liệu thủ tục hành chính là
-thông tin công khai từ Cổng Dịch vụ công Quốc gia.
+Không tài khoản người dùng, không cơ sở dữ liệu, không cookie, không biểu mẫu thu
+thập thông tin. Dữ liệu thủ tục hành chính là thông tin công khai từ Cổng Dịch vụ
+công Quốc gia.
+
+Ngoại lệ duy nhất: **Cloudflare Web Analytics** đang bật ở tầng biên (xem mục 3).
+Dịch vụ này không dùng cookie và không định danh cá nhân, nhưng vẫn là bên thứ ba
+ghi nhận lượt truy cập.
 
 Hệ quả: **không có dữ liệu cá nhân nào để rò rỉ**. Nếu về sau bổ sung biểu mẫu
 hoặc công cụ thống kê, phải đánh giá lại nghĩa vụ theo quy định về bảo vệ dữ liệu
