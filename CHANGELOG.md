@@ -2,6 +2,36 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.8.0] - 2026-08-26
+
+### Sửa lỗi
+
+- **117 vi phạm tương phản màu (WCAG 2.1 AA, mức serious).** Màu đồng `#A9793C`
+  dùng cho mã TTHC chỉ đạt 3.64:1 trên nền thẻ, dưới ngưỡng 4.5:1 cho chữ thường -
+  mà đây là thông tin người dân phải đọc chính xác. Đổi sang `#7E5822`, đạt tối
+  thiểu 4.96:1 trên mọi nền đang dùng kể cả các nền có pha sắc đồng. Kiểm định lại
+  bằng axe-core: **0 vi phạm** trên 8 trang ở cả khung 390px và 1280px.
+
+### Thêm mới
+
+- **Bộ test đầu tiên của dự án** (25 test), dùng bộ chạy có sẵn của Node thay vì
+  thêm framework:
+  - `tests/text.test.ts` - xử lý chuỗi tiếng Việt và thuật toán tô sáng từ khoá,
+    gồm phép kiểm ánh xạ vị trí không bao giờ vượt ngoài chuỗi gốc.
+  - `tests/du-lieu.test.ts` - **bất biến dữ liệu**: số đếm khớp danh sách, không
+    có mã mồ côi, mỗi TTHC thuộc đúng một lĩnh vực, slug duy nhất và khớp giữa
+    TypeScript với pipeline Python, mã QR đủ và không có file mồ côi. Đã cố tình
+    tái hiện lỗi "Chưa phân loại" và xoá một file QR để xác nhận test bắt được.
+- `CONTRIBUTING.md` và mẫu pull request, kèm mục nhắc kiểm tra ảnh hưởng tới mã QR
+  đã in - thứ không sửa được sau khi dán tại quầy.
+- Bước chạy test trong CI.
+
+### Thay đổi
+
+- Job CI đổi tên thành "Typecheck, lint, test, build"; đã cập nhật tên check tương
+  ứng trong cấu hình bảo vệ nhánh. **Đổi tên job mà quên bước này sẽ khoá cứng mọi
+  pull request** vì chờ một check không bao giờ xuất hiện - đã ghi vào CONTRIBUTING.
+
 ## [1.7.1] - 2026-08-26
 
 ### Thay đổi

@@ -13,12 +13,13 @@
     "start": "npx serve out",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "kiem-tra": "npm run typecheck && npm run lint",
+    "kiem-tra": "npm run typecheck && npm run lint && npm test",
     "du-lieu:trich-xuat": "python3 scripts/trich-xuat-du-lieu.py",
     "du-lieu:tao-qr": "python3 scripts/tao-ma-qr.py",
     "du-lieu:lam-moi": "npm run du-lieu:trich-xuat && npm run du-lieu:tao-qr",
     "kiem-tra-qr": "python3 scripts/kiem-tra-ma-qr.py",
-    "kiem-tra-csp": "node scripts/kiem-tra-csp.mjs"
+    "kiem-tra-csp": "node scripts/kiem-tra-csp.mjs",
+    "test": "node --import tsx --test tests/*.test.ts"
   },
   "dependencies": {
     "next": "^16.3.2",
@@ -30,8 +31,10 @@
     "@types/node": "^26.3.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
+    "axe-core": "^4.13.0",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.2",
+    "tsx": "^4.23.12",
     "typescript": "^6.0.3"
   }
 }

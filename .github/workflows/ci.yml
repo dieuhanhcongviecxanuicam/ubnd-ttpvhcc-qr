@@ -8,7 +8,7 @@ on:
 
 jobs:
   kiem-tra:
-    name: Typecheck, lint, build
+    name: Typecheck, lint, test, build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -26,6 +26,11 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      # Test bất biến dữ liệu chặn lại lớp lỗi từng lọt ra production: số thủ tục
+      # hiển thị trên trang lĩnh vực không khớp danh sách thực tế.
+      - name: Chạy test
+        run: npm test
 
       - name: Build thử (static export)
         run: npm run build
