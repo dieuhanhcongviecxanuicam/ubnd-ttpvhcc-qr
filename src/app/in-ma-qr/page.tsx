@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import NutIn from "@/components/NutIn";
+import ThanhCongCuIn from "@/components/ThanhCongCuIn";
 import SiteFooter from "@/components/SiteFooter";
 import { layMeta, layTatCaLinhVuc } from "@/lib/data";
 import { duongDan, SITE_URL, urlLinhVuc } from "@/lib/site-config";
@@ -31,18 +31,19 @@ export default function TrangInMaQr() {
             </nav>
             <h1>Bảng in mã QR theo lĩnh vực</h1>
             <p>
-              {meta.tong_so_linh_vuc} mã QR lĩnh vực + 1 mã QR tổng, bố cục sẵn cho
-              khổ A4. Kiểm tra URL dưới mỗi mã khớp với địa chỉ triển khai trước khi in.
+              {meta.tong_so_linh_vuc} mã QR lĩnh vực + 1 mã QR tổng. Chọn{" "}
+              <strong>In trang này</strong> để xếp nhiều mã trên một trang, hoặc{" "}
+              <strong>In từng mã</strong> để mỗi mã QR chiếm trọn một trang giấy
+              theo khổ bạn chọn trong hộp thoại in.
             </p>
           </div>
-          <NutIn />
+          <ThanhCongCuIn />
         </div>
 
         <div className="hop-luu-y khong-in">
           <strong>Trước khi in:</strong> các mã QR đang trỏ tới{" "}
-          <code>{SITE_URL}</code>. Nếu đơn vị triển khai trên tên miền khác, hãy đặt
-          biến <code>NEXT_PUBLIC_SITE_ORIGIN</code> rồi chạy lại{" "}
-          <code>npm run du-lieu:tao-qr</code> để sinh lại toàn bộ mã QR.
+          <code>{SITE_URL}</code>. Nếu đơn vị bạn cần triển khai trên tên miền khác,
+          vui lòng liên hệ Giám đốc TTPVHCC xã Núi Cấm để trao đổi.
         </div>
 
         <div className="in-luoi">

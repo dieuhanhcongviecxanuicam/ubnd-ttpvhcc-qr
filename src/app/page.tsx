@@ -15,15 +15,13 @@ export default function TrangChu() {
         <section className="hero">
           <div className="hero-grid">
             <div>
-              <p className="eyebrow">Danh mục TTHC cấp xã</p>
-              <h1>
-                Quét mã, tra cứu <em>thủ tục hành chính</em> trong vài giây
-              </h1>
-              <p>
-                Toàn bộ danh mục thủ tục hành chính được số hoá thành mã QR - một mã
-                QR tổng cho tất cả lĩnh vực, và một mã QR riêng cho từng lĩnh vực để
-                người dân quét trực tiếp tại bộ phận một cửa hoặc từ xa.
+              <p className="ten-don-vi">
+                <span className="don-vi-cap-tren">ỦY BAN NHÂN DÂN XÃ NÚI CẤM</span>
+                <span className="don-vi-chinh">TRUNG TÂM PHỤC VỤ HÀNH CHÍNH CÔNG</span>
               </p>
+              <h1>
+                Quét mã, tra cứu <em>thủ tục hành chính</em>
+              </h1>
 
               <dl className="thong-ke">
                 <div>
@@ -86,10 +84,6 @@ export default function TrangChu() {
           <div className="section-head">
             <div>
               <h2>Mã QR theo lĩnh vực</h2>
-              <p>
-                Mỗi lĩnh vực có mã QR riêng - dán tại quầy tương ứng để người dân quét
-                đúng nhóm thủ tục cần tra cứu.
-              </p>
             </div>
           </div>
           <LuoiLinhVuc danhSach={linhVuc} />

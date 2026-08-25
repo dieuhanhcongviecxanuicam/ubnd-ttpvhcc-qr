@@ -37,7 +37,7 @@ export default function LocTrongLinhVuc({ danhSach }: { danhSach: TthcTomTat[] }
       ) : (
         <div className="danh-sach-tthc">
           {ketQua.map((t) => (
-            <DongTthc key={t.ma_tthc} tthc={t} phu="cap_thuc_hien" />
+            <DongTthc key={t.ma_tthc} tthc={t} phu="cap_thuc_hien" tuKhoa={tuKhoa} />
           ))}
         </div>
       )}

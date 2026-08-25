@@ -128,7 +128,7 @@ export default function BoLocDanhMuc({
         <>
           <div className="danh-sach-tthc">
             {ketQua.slice(0, soHien).map((t) => (
-              <DongTthc key={t.ma_tthc} tthc={t} />
+              <DongTthc key={t.ma_tthc} tthc={t} tuKhoa={tuKhoa} />
             ))}
           </div>
           {soHien < ketQua.length && (

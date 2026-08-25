@@ -787,3 +787,166 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .phi-le-phi { color: var(--dong); font-weight: 600; margin-bottom: 2px; }
 .ccpl-phu { color: var(--muc-nhat); margin-top: 2px; }
 .kqth-co-quan { color: var(--muc-nhat); font-size: 12.5px; }
+
+/* ==========================================================================
+   TÔ SÁNG TỪ KHOÁ TÌM KIẾM
+   ========================================================================== */
+mark {
+  background: rgba(169, 121, 60, 0.26);
+  color: inherit;
+  font-weight: 700;
+  border-radius: 2px;
+  padding: 0 1px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.dong-tthc .ma mark { background: rgba(169, 121, 60, 0.32); }
+
+/* ==========================================================================
+   DANH SÁCH THẢ XUỐNG - mũi tên tuỳ biến, khống chế chiều ngang
+   ========================================================================== */
+.thanh-loc {
+  align-items: center;
+}
+.thanh-loc select {
+  /* Tắt mũi tên mặc định của hệ điều hành để dùng biểu tượng chevron thống nhất
+     trên mọi trình duyệt và thiết bị. */
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B655C' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 15px;
+  padding-right: 36px;
+  cursor: pointer;
+  /* Tên lĩnh vực dài tới hơn 60 ký tự sẽ kéo giãn thẻ select vượt khỏi màn hình
+     nếu không khống chế. */
+  max-width: 100%;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.thanh-loc select:hover { border-color: var(--dong); }
+
+@media (min-width: 641px) {
+  #loc-linhvuc { max-width: 300px; }
+  #loc-cap { max-width: 210px; }
+}
+
+@media (max-width: 640px) {
+  /* Xếp dọc để mỗi ô lọc chiếm trọn chiều ngang, không đẩy trang tràn sang phải. */
+  .thanh-loc {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .thanh-loc select,
+  .thanh-loc button {
+    width: 100%;
+  }
+  .thanh-loc .dem-ketqua {
+    margin-left: 0;
+    text-align: right;
+  }
+}
+
+/* ==========================================================================
+   THẺ NỘI DUNG TRÀN VIỀN TRÊN ĐIỆN THOẠI
+   Ở khung 360px, lề trang 24px cộng lề trong thẻ 24px ăn mất 96px - hơn một
+   phần tư chiều ngang. Cho thẻ chạm sát hai biên và thu gọn lề trong để phần
+   chữ rộng thêm khoảng 68px mỗi dòng.
+   ========================================================================== */
+@media (max-width: 640px) {
+  .tt-khoi,
+  .cta-dvc {
+    margin-left: -24px;
+    margin-right: -24px;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .tt-luoi { gap: 0; }
+  .tt-khoi-qr { margin-top: 0; }
+}
+
+/* ---------- Tên đơn vị trên trang chủ ---------- */
+.ten-don-vi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+  margin: 0 0 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--duong-vien);
+}
+.don-vi-cap-tren {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--muc-nhat);
+}
+.don-vi-chinh {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--son);
+  line-height: 1.25;
+}
+@media (max-width: 640px) {
+  .don-vi-cap-tren { font-size: 12px; }
+  .don-vi-chinh { font-size: 16px; }
+}
+
+/* ---------- Nhóm nút in ---------- */
+.nhom-nut-in {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.nhom-nut-in .btn-taixuong { margin-top: 0; }
+
+/* ==========================================================================
+   CHẾ ĐỘ IN TỪNG MÃ - mỗi mã QR chiếm trọn một trang giấy
+   Khổ giấy do người dùng chọn trong hộp thoại in; bố cục dùng đơn vị tương đối
+   nên tự co theo A4, A5 hay bất kỳ khổ nào.
+   ========================================================================== */
+@media print {
+  :root[data-che-do-in="tung-ma"] .in-luoi {
+    display: block;
+  }
+  :root[data-che-do-in="tung-ma"] .in-o {
+    break-after: page;
+    page-break-after: always;
+    /* Thấp hơn một trang để tránh sinh ra trang trắng xen giữa. */
+    min-height: 86vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    padding: 0;
+  }
+  :root[data-che-do-in="tung-ma"] .in-o:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+  :root[data-che-do-in="tung-ma"] .in-o img {
+    width: 62vw;
+    max-width: 120mm;
+    height: auto;
+    margin-bottom: 6mm;
+  }
+  :root[data-che-do-in="tung-ma"] .in-o .in-ten {
+    font-size: 15pt;
+    line-height: 1.35;
+    min-height: 0;
+    max-width: 80%;
+    margin-bottom: 3mm;
+  }
+  :root[data-che-do-in="tung-ma"] .in-o .in-so { font-size: 11pt; }
+  :root[data-che-do-in="tung-ma"] .in-o .in-url { font-size: 8pt; max-width: 80%; }
+}

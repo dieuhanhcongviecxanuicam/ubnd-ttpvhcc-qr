@@ -2,6 +2,37 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.5.0] - 2026-08-25
+
+### Sửa lỗi
+
+- **Danh sách thả xuống "Tất cả lĩnh vực" tràn khỏi màn hình điện thoại.** Tên
+  lĩnh vực dài hơn 60 ký tự kéo giãn thẻ `select` vượt quá bề ngang khung nhìn.
+  Nay khống chế bằng `max-width` kèm cắt chữ, và trên màn hình dưới 640px thì các
+  ô lọc xếp dọc chiếm trọn chiều ngang.
+
+### Thêm mới
+
+- **Tô sáng từ khoá theo thời gian thực** trong kết quả tìm kiếm. So khớp bỏ dấu
+  nên gõ "ho tich" vẫn tô đúng chữ "Hộ tịch" có dấu - thực hiện bằng cách chuẩn
+  hoá chuỗi kèm bảng ánh xạ vị trí về chuỗi gốc (`chuanHoaCoViTri` trong
+  `src/lib/text.ts`), áp dụng cho mã TTHC, tên thủ tục, tên lĩnh vực.
+- **Nút "In từng mã"** ở trang `/in-ma-qr`: mỗi mã QR chiếm trọn một trang giấy,
+  tự co theo khổ người dùng chọn trong hộp thoại in. Đã kiểm chứng bằng cách xuất
+  PDF thật: đúng 78 trang cho 78 mã ở cả A4 lẫn A5, không sinh trang trắng.
+
+### Thay đổi
+
+- Mũi tên trong danh sách thả xuống chuyển sang biểu tượng chevron tuỳ biến,
+  đồng nhất trên mọi trình duyệt và hệ điều hành.
+- Trên màn hình dưới 640px, các thẻ nội dung ở trang chi tiết TTHC tràn sát hai
+  biên màn hình. Lề trang 24px cộng lề trong thẻ 24px vốn ăn mất 96px - hơn một
+  phần tư chiều ngang ở khung 360px.
+- Trang chủ: bổ sung tên đơn vị "ỦY BAN NHÂN DÂN XÃ NÚI CẤM" và "TRUNG TÂM PHỤC
+  VỤ HÀNH CHÍNH CÔNG" căn giữa; gỡ các đoạn mô tả dài; rút gọn tiêu đề chính.
+- Favicon chuyển sang dùng bộ trong `brand/favicon/` nguyên bản thay vì sinh từ
+  logo. Logo giữ nguyên `logo-ttpvhcc.png`.
+
 ## [1.4.0] - 2026-08-25
 
 ### Thay đổi

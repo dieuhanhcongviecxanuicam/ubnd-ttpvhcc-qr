@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { duongDan } from "@/lib/site-config";
 import { boDau } from "@/lib/text";
 import type { LinhVuc } from "@/lib/types";
+import ChuKhop from "./ChuKhop";
 import IconTimKiem from "./IconTimKiem";
 
 /** Lưới mã QR theo lĩnh vực ở trang chủ, kèm ô lọc theo tên. */
@@ -49,7 +50,9 @@ export default function LuoiLinhVuc({ danhSach }: { danhSach: LinhVuc[] }) {
                 unoptimized
               />
               <div className="the-linhvuc-noidung">
-                <h3>{lv.ten_linh_vuc}</h3>
+                <h3>
+                  <ChuKhop chuoi={lv.ten_linh_vuc} tuKhoa={tuKhoa} />
+                </h3>
                 <div className="so-luong">{lv.so_luong_tthc} thủ tục</div>
               </div>
             </Link>

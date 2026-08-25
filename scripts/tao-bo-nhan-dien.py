@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Sinh toàn bộ bộ nhận diện (logo, favicon, icon PWA) từ MỘT file logo gốc.
+Chuẩn bị bộ nhận diện cho website từ thư mục brand/.
+
+Hai nguồn tách biệt, cố ý không trộn lẫn:
+  - brand/logo-ttpvhcc.png  -> logo hiển thị trên trang (nền được tách trong suốt)
+  - brand/favicon/          -> bộ favicon và icon PWA, dùng nguyên bản
+
+Favicon là dạng huy hiệu tròn nền đỏ, thiết kế riêng để đọc được ở cỡ 16px, nên
+KHÔNG sinh từ file logo - nếu thu nhỏ logo xuống 16px sẽ thành một vệt mờ.
 
 Việc tách nền dùng thuật toán loang từ viền ảnh (flood fill) thay vì đổi mọi
 pixel trắng thành trong suốt. Khác biệt quan trọng: các đường vân tay màu trắng
@@ -24,6 +31,7 @@ from scipy import ndimage
 
 GOC_DU_AN = Path(__file__).resolve().parent.parent
 LOGO_GOC = GOC_DU_AN / "brand" / "logo-ttpvhcc.png"
+THU_MUC_FAVICON = GOC_DU_AN / "brand" / "favicon"
 THU_MUC_RA = GOC_DU_AN / "public" / "brand"
 FAVICON_ICO = GOC_DU_AN / "public" / "favicon.ico"
 
@@ -32,15 +40,20 @@ NGUONG_NEN = 40
 # Dải chuyển tiếp để mép logo mượt, không răng cưa
 MEM_TU, MEM_DEN = 4, 40
 
-# Kích thước cần sinh: (tên file, cạnh)
-KICH_THUOC = [
-    ("logo.png", 128),              # logo trên thanh điều hướng
-    ("logo-512.png", 512),          # ảnh chia sẻ mạng xã hội
-    ("favicon-16x16.png", 16),
-    ("favicon-32x32.png", 32),
-    ("apple-touch-icon.png", 180),  # màn hình chính iOS
-    ("icon-192.png", 192),          # PWA / Android
-    ("icon-512.png", 512),
+# Logo sinh từ file gốc: (tên file, cạnh)
+KICH_THUOC_LOGO = [
+    ("logo.png", 128),      # logo trên thanh điều hướng
+    ("logo-512.png", 512),  # ảnh chia sẻ mạng xã hội
+]
+
+# Favicon chép nguyên bản: (file nguồn trong brand/favicon, tên file đích)
+CHEP_FAVICON = [
+    ("favicon-16x16.png", "brand/favicon-16x16.png"),
+    ("favicon-32x32.png", "brand/favicon-32x32.png"),
+    ("apple-touch-icon.png", "brand/apple-touch-icon.png"),   # màn hình chính iOS
+    ("android-chrome-192x192.png", "brand/icon-192.png"),     # PWA / Android
+    ("android-chrome-512x512.png", "brand/icon-512.png"),
+    ("favicon.ico", "favicon.ico"),                           # trình duyệt yêu cầu ở gốc
 ]
 
 
@@ -105,23 +118,36 @@ def main() -> int:
 
     THU_MUC_RA.mkdir(parents=True, exist_ok=True)
     tong = 0
-    for ten, canh in KICH_THUOC:
-        anh = sach.resize((canh, canh), Image.Resampling.LANCZOS)
-        if canh >= 64:
-            anh = toi_uu(anh)
+    for ten, canh in KICH_THUOC_LOGO:
+        anh = toi_uu(sach.resize((canh, canh), Image.Resampling.LANCZOS))
         duong_dan = THU_MUC_RA / ten
         anh.save(duong_dan, "PNG", optimize=True)
         kb = duong_dan.stat().st_size / 1024
         tong += kb
-        print(f"  → brand/{ten:<22} {canh:>3}px  {kb:6.1f} KB")
+        print(f"  → public/brand/{ten:<18} {canh:>3}px  {kb:6.1f} KB")
 
-    # favicon.ico gộp nhiều kích thước cho trình duyệt cũ và thanh địa chỉ
-    sach.resize((256, 256), Image.Resampling.LANCZOS).save(
-        FAVICON_ICO, "ICO", sizes=[(16, 16), (32, 32), (48, 48)]
-    )
-    kb = FAVICON_ICO.stat().st_size / 1024
-    tong += kb
-    print(f"  → favicon.ico              đa cỡ  {kb:6.1f} KB")
+    if not THU_MUC_FAVICON.is_dir():
+        print(f"LỖI: không tìm thấy {THU_MUC_FAVICON}", file=sys.stderr)
+        return 1
+
+    print(f"Favicon: {THU_MUC_FAVICON.relative_to(GOC_DU_AN)} (dùng nguyên bản)")
+    thieu = []
+    for nguon, dich in CHEP_FAVICON:
+        f = THU_MUC_FAVICON / nguon
+        if not f.exists():
+            thieu.append(nguon)
+            continue
+        ra = GOC_DU_AN / "public" / dich
+        ra.parent.mkdir(parents=True, exist_ok=True)
+        ra.write_bytes(f.read_bytes())
+        kb = ra.stat().st_size / 1024
+        tong += kb
+        print(f"  → public/{dich:<24} {kb:6.1f} KB")
+
+    if thieu:
+        print(f"LỖI: thiếu file favicon: {', '.join(thieu)}", file=sys.stderr)
+        return 1
+
     print(f"Tổng bộ nhận diện: {tong:.1f} KB")
     return 0
 
