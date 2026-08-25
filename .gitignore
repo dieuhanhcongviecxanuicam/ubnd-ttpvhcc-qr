@@ -34,3 +34,6 @@ Thumbs.db
 # Log
 npm-debug.log*
 yarn-error.log*
+
+# Cấu hình Claude Code riêng của từng máy - không commit
+.claude/settings.local.json
