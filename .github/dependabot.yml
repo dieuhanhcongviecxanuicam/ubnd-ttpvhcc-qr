@@ -1,0 +1,35 @@
+# Theo dõi lỗ hổng và bản vá cho cả ba nguồn phụ thuộc của dự án.
+# Riêng github-actions là quan trọng nhất: workflow triển khai giữ quyền
+# pages:write nên một action bị chiếm là chiếm luôn quyền xuất bản trang.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # Gom bản vá nhỏ vào một PR để không làm ngập hộp thư.
+      phu-thuoc-nho:
+        update-types: ["minor", "patch"]
+    commit-message:
+      prefix: "deps"
+
+  - package-ecosystem: pip
+    directory: "/scripts"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "deps(python)"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "ci"

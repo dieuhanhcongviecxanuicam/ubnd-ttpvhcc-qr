@@ -2,6 +2,34 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.7.0] - 2026-08-26
+
+Kiện toàn an toàn thông tin. Trọng tâm là chuỗi cung ứng và kiểm soát truy cập -
+với kiến trúc tĩnh, đó mới là nơi có rủi ro thật, không phải tầng ứng dụng.
+
+### Thêm mới
+
+- **Content-Security-Policy theo từng trang**, sinh tự động sau build bởi
+  `scripts/them-csp.mjs`. Băm SHA-256 từng khối script nội tuyến của Next nên
+  `script-src` **không cần** `'unsafe-inline'`. Đã kiểm chứng bằng trình duyệt
+  thật: 0 vi phạm trên 458 trang, mọi tương tác giữ nguyên.
+- `scripts/kiem-tra-csp.mjs` chạy trong CI, chặn hai kiểu hỏng âm thầm: trang
+  thiếu thẻ CSP, và băm không khớp script thật (trình duyệt chặn script làm trang
+  trắng nhưng build vẫn báo thành công).
+- Quét CodeQL cho JavaScript/TypeScript, chạy theo mỗi lần đẩy mã và hằng tuần.
+- Dependabot theo dõi npm, pip và chính GitHub Actions.
+- `pip-audit` và `npm audit` trong CI.
+- `SECURITY.md` nêu kênh báo lỗ hổng riêng tư và cam kết thời gian xử lý.
+- `docs/BAO-MAT.md`: kiến trúc phòng thủ, cấu hình header tại Cloudflare, lịch rà
+  soát định kỳ và quy trình xử lý khi nghi ngờ bị xâm nhập.
+
+### Thay đổi
+
+- **Ghim toàn bộ 9 GitHub Action theo commit SHA** thay vì nhãn phiên bản. Nhãn
+  có thể bị dịch sang commit khác; workflow triển khai giữ quyền `pages:write` và
+  `id-token:write` nên một action bị chiếm là chiếm luôn quyền xuất bản trang.
+- `npm run build` nay gồm cả bước sinh CSP.
+
 ## [1.6.0] - 2026-08-25
 
 ### Sửa lỗi

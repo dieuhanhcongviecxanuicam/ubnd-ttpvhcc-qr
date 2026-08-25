@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/them-csp.mjs",
     "start": "npx serve out",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
@@ -17,7 +17,8 @@
     "du-lieu:trich-xuat": "python3 scripts/trich-xuat-du-lieu.py",
     "du-lieu:tao-qr": "python3 scripts/tao-ma-qr.py",
     "du-lieu:lam-moi": "npm run du-lieu:trich-xuat && npm run du-lieu:tao-qr",
-    "kiem-tra-qr": "python3 scripts/kiem-tra-ma-qr.py"
+    "kiem-tra-qr": "python3 scripts/kiem-tra-ma-qr.py",
+    "kiem-tra-csp": "node scripts/kiem-tra-csp.mjs"
   },
   "dependencies": {
     "next": "^16.3.2",

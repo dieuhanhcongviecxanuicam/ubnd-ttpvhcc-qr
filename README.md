@@ -114,6 +114,7 @@ Chi tiết vận hành: xem [`docs/VAN-HANH.md`](docs/VAN-HANH.md).
 | `npm run kiem-tra` | Chạy cả typecheck và lint |
 | `npm run du-lieu:lam-moi` | Trích xuất lại dữ liệu và sinh lại mã QR |
 | `npm run kiem-tra-qr` | Đối chiếu nội dung mã QR với route thật |
+| `npm run kiem-tra-csp` | Kiểm chứng Content-Security-Policy của bản build |
 | `python3 scripts/tao-bo-nhan-dien.py` | Sinh lại logo, favicon, icon PWA từ file gốc |
 
 ## 6. Ghi chú kỹ thuật
@@ -143,6 +144,11 @@ hướng, kể cả đường dẫn chứa dấu chấm như `/tthc/1.000288`.
 
 **Mã QR màu đen tuyền** trên nền trắng: tương phản cao nhất nên máy quét đọc chắc
 hơn, kể cả khi bản in phai màu hoặc quầy thiếu sáng.
+
+**Bảo mật.** Chính sách CSP được sinh tự động sau mỗi lần build, băm SHA-256 từng
+khối script nội tuyến nên không cần `'unsafe-inline'`. GitHub Action ghim theo
+commit SHA. Chi tiết vận hành và phần cấu hình Cloudflare: [`docs/BAO-MAT.md`](docs/BAO-MAT.md).
+Báo lỗ hổng: [`SECURITY.md`](SECURITY.md).
 
 **Nguồn dữ liệu.** [Cổng Dịch vụ công Quốc gia](https://dichvucong.gov.vn) - dữ liệu
 thủ tục hành chính là thông tin công khai.

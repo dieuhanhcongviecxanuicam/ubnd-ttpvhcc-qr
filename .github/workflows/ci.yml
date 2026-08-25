@@ -11,9 +11,9 @@ jobs:
     name: Typecheck, lint, build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -36,19 +36,36 @@ jobs:
           test -f out/CNAME || { echo "THIẾU out/CNAME"; exit 1; }
           echo "CNAME = $(cat out/CNAME)"
 
+      # Chặn tình huống chính sách bị nới lỏng hoặc băm không khớp script thật -
+      # trình duyệt sẽ chặn script và trang trắng, trong khi build vẫn báo thành công.
+      - name: Kiểm chứng Content-Security-Policy
+        run: npm run kiem-tra-csp
+
+      # Rà lỗ hổng đã biết của phụ thuộc npm. Dùng --audit-level=high để bản vá
+      # mức thấp không chặn triển khai, nhưng Dependabot vẫn mở PR cho chúng.
+      - name: Rà lỗ hổng phụ thuộc npm
+        run: npm audit --audit-level=high
+
   kiem-tra-ma-qr:
     name: Đối chiếu mã QR với route
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: "3.12"
           cache: pip
 
       - name: Cài phụ thuộc Python
         run: pip install -r scripts/requirements-dev.txt
+
+      # Pillow là thư viện xử lý ảnh, nhóm có lịch sử lỗ hổng đáng kể - cần rà
+      # cùng với các phụ thuộc Python khác của pipeline dữ liệu.
+      - name: Rà lỗ hổng phụ thuộc Python
+        run: |
+          pip install pip-audit
+          pip-audit -r scripts/requirements.txt -r scripts/requirements-dev.txt
 
       # Chặn tình huống nguy hiểm nhất: mã QR đã in nhưng trỏ tới trang không tồn tại.
       - name: Giải mã ngược toàn bộ mã QR và đối chiếu URL
