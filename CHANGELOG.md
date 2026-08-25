@@ -2,6 +2,66 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.9.0] - 2026-08-26
+
+### Thêm mới
+
+- **Kiểm tra trợ năng tự động trong CI** (`scripts/kiem-tra-tro-nang.mjs`).
+  `axe-core` vốn đã nằm trong phụ thuộc nhưng **không được dùng ở đâu cả** - con
+  số "0 vi phạm WCAG AA" chỉ là kết quả một lần chạy tay. Trợ năng hỏng rất âm
+  thầm: khi thử `content-visibility` để tối ưu hiệu năng, nó loại bốn tiêu đề mục
+  khỏi cây trợ năng mà build vẫn xanh, 25/25 test vẫn qua, không bước CI nào phản
+  ứng. Chạy trên trình duyệt thật (không phải jsdom, vì luật tương phản màu cần
+  màu đã tính toán), khổ điện thoại, một trang cho mỗi loại bố cục. Đã kiểm chứng
+  nó **bắt được lỗi thật** bằng cách chèn vi phạm tương phản vào bản build.
+- **Kiểm tra khứ hồi pipeline dữ liệu trong CI** (`scripts/kiem-tra-pipeline.py`)
+  cùng bộ sinh Excel mẫu (`scripts/dung-excel-mau.py`). File Excel thật của đơn vị
+  không nằm trong Git nên bước trích xuất - phần đơn vị dùng thường xuyên nhất -
+  trước đây không có gì kiểm thử. Đã kiểm chứng bắt được hồi quy: đổi lệch một chỉ
+  số cột thì báo 370 chênh lệch ngoài dự kiến.
+- `docs/HIEU-NANG.md` - số liệu hiệu năng cơ sở đo bằng Lighthouse trên trang thật.
+
+### Thay đổi
+
+- **Node 20 -> 24.19.0.** Node 20 hết vòng đời 30/04/2026, tức gần bốn tháng không
+  còn bản vá bảo mật. Đã đối chiếu bản xuất tĩnh giữa hai phiên bản trên cả 458
+  trang: 358 trang giống hệt, 100 trang còn lại chỉ khác vị trí một thẻ `meta` và
+  số băm trong CSP. Bản dựng vốn không tất định (hai lần build cùng trên Node 20
+  cũng cho 914 băm khác nhau), nên chênh lệch này nằm trong mức nhiễu.
+- **Nhúng CSS vào HTML** (`experimental.inlineCss`). File CSS chặn hiển thị; bỏ
+  được một vòng yêu cầu. Trên trang thật: FCP giảm 42-48%, LCP giảm 22-46%, điểm
+  hiệu năng trang chủ 85 -> 89, lĩnh vực 87 -> 94, chi tiết 74 -> 77. Cái giá: TBT
+  trang chi tiết nhích 8%, và mỗi trang xem tiếp trong phiên tốn thêm ~5,9 KB do
+  CSS không còn cache dùng chung. Lượt truy cập đầu chỉ tăng 0,1 KB nhờ brotli.
+- `github/codeql-action` 3.37.8 -> 4.37.8. Dependabot tách thành hai PR nhưng
+  `init` và `analyze` **bắt buộc cùng phiên bản**, nâng riêng lẻ luôn thất bại với
+  `configuration error`. Phải gộp một commit.
+- `actions/upload-pages-artifact` 3.0.1 -> 5.0.0; `qrcode` >=8.2; `pillow` >=12.3.0.
+  Với hai gói Python đã kiểm riêng: sinh lại toàn bộ 156 file mã QR cho kết quả
+  **không lệch một byte**, thứ mà CI không phủ vì nó chỉ giải mã ngược ảnh có sẵn.
+
+### Sửa lỗi
+
+- `.tt-ma` khai `font-weight: 700` cho IBM Plex Mono nhưng `next/font` chỉ tải
+  weight 500 và 600. Đổi về 600. Ảnh chụp giống hệt từng pixel - trình duyệt vốn
+  đã dùng face 600 chứ không làm đậm giả.
+- Đính chính `docs/HIEU-NANG.md`: nút thắt trang chi tiết **không phải** TBT/
+  JavaScript như ghi ban đầu. Script Evaluation của trang chi tiết là 623 ms, còn
+  thấp hơn trang lĩnh vực (676 ms); chênh lệch nằm trọn ở Style & Layout
+  (1038 ms so với 354 ms).
+
+### Ghi chú cho lần sau
+
+- **Đừng dùng `content-visibility: auto`.** Nhanh nhất trong mọi phương án đã thử
+  (-52% layout) nhưng loại nội dung ngoài tầm nhìn khỏi cây trợ năng: 746 nút tụt
+  còn 200, và cuộn hết trang cũng không khôi phục.
+- `contain: layout style paint` và `font-display: optional` là ngõ cụt: thoạt đo
+  được -16% và -40%, chạy lại nhiều lần thì rơi vào nhiễu.
+- `npx serve out` **đo nhầm trang**: với `/tthc/1.000110` thì cả thư mục lẫn file
+  `.html` cùng tồn tại, và nó ưu tiên thư mục trong khi GitHub Pages làm ngược lại.
+- Đo Lighthouse ngay sau khi triển khai cho số xấu giả vì cache Cloudflare còn
+  nguội. Luôn đo lặp và bỏ lần đầu.
+
 ## [1.8.0] - 2026-08-26
 
 ### Sửa lỗi
