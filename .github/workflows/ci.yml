@@ -1,0 +1,53 @@
+name: Kiểm tra chất lượng
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  kiem-tra:
+    name: Typecheck, lint, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Cài phụ thuộc
+        run: npm ci
+
+      - name: Kiểm tra kiểu TypeScript
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build thử (static export)
+        run: npm run build
+        env:
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+
+  kiem-tra-ma-qr:
+    name: Đối chiếu mã QR với route
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Cài phụ thuộc Python
+        run: pip install -r scripts/requirements-dev.txt
+
+      # Chặn tình huống nguy hiểm nhất: mã QR đã in nhưng trỏ tới trang không tồn tại.
+      - name: Giải mã ngược toàn bộ mã QR và đối chiếu URL
+        run: python scripts/kiem-tra-ma-qr.py
+        env:
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}

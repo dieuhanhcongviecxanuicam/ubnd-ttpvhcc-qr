@@ -1,0 +1,36 @@
+{
+  "name": "ubnd-ttpvhcc-qr",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hệ thống tra cứu thủ tục hành chính qua mã QR — Trung tâm Phục vụ hành chính công",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "npx serve out",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "kiem-tra": "npm run typecheck && npm run lint",
+    "du-lieu:trich-xuat": "python3 scripts/trich-xuat-du-lieu.py",
+    "du-lieu:tao-qr": "python3 scripts/tao-ma-qr.py",
+    "du-lieu:lam-moi": "npm run du-lieu:trich-xuat && npm run du-lieu:tao-qr",
+    "kiem-tra-qr": "python3 scripts/kiem-tra-ma-qr.py"
+  },
+  "dependencies": {
+    "next": "^16.3.2",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.3.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.2",
+    "typescript": "^6.0.3"
+  }
+}

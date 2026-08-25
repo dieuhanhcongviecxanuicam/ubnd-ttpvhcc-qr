@@ -1,0 +1,60 @@
+name: Triển khai GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Cho phép GITHUB_TOKEN publish lên GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Chỉ chạy một lượt triển khai tại một thời điểm, không huỷ lượt đang chạy dở
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build static export
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Cài phụ thuộc
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          # Trang được phục vụ tại https://<user>.github.io/<repo>/ nên cần tiền tố.
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+          NEXT_PUBLIC_SITE_ORIGIN: https://${{ github.repository_owner }}.github.io
+
+      # Bỏ qua xử lý Jekyll — nếu không, GitHub Pages sẽ nuốt thư mục _next/
+      - name: Thêm .nojekyll
+        run: touch out/.nojekyll
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    name: Triển khai
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
