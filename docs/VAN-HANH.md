@@ -87,7 +87,7 @@ miền cũ.
 ## 5. Chuẩn bị môi trường (làm một lần)
 
 ```bash
-# Node.js 20 trở lên
+# Node.js 24 trở lên (bản LTS, xem .nvmrc)
 npm install
 
 # Python
