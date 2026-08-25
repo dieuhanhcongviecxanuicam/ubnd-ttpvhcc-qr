@@ -1,6 +1,11 @@
 # Hướng dẫn vận hành
 
 Địa chỉ hệ thống: **https://ttpvhcc.xanuicam.vn**
+Kho mã nguồn: **https://github.com/dieuhanhcongviecxanuicam/ubnd-ttpvhcc-qr**
+
+Hạ tầng hiện tại: mã nguồn trên GitHub, tự động triển khai lên GitHub Pages,
+tên miền `ttpvhcc.xanuicam.vn` trỏ qua Cloudflare ở chế độ **DNS only** với bản ghi
+`CNAME ttpvhcc → dieuhanhcongviecxanuicam.github.io`.
 
 Tài liệu dành cho cán bộ phụ trách hệ thống. Ba việc thường gặp nhất nằm ở mục 1–3.
 
@@ -62,7 +67,7 @@ Rồi cập nhật ba chỗ cho khớp:
 2. `src/lib/site-config.ts` — sửa giá trị mặc định của `SITE_ORIGIN`
 3. Cài đặt **Settings → Pages → Custom domain** trên GitHub
 
-Và trỏ bản ghi DNS `CNAME` của tên miền mới về `tsudev-tsudev.github.io`.
+Và trỏ bản ghi DNS `CNAME` của tên miền mới về `dieuhanhcongviecxanuicam.github.io`.
 
 Cuối cùng: **thu hồi và thay thế toàn bộ mã QR đã dán** — mã cũ vẫn trỏ về tên
 miền cũ.

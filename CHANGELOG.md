@@ -2,6 +2,16 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.2.0] — 2026-08-25
+
+### Thay đổi
+
+- Chuyển quyền sở hữu kho mã nguồn sang tài khoản **dieuhanhcongviecxanuicam**;
+  địa chỉ repo mới: `github.com/dieuhanhcongviecxanuicam/ubnd-ttpvhcc-qr`.
+- Cập nhật `LICENSE` và tài liệu vận hành theo chủ sở hữu mới.
+- Ghi nhận cấu hình DNS đang dùng: Cloudflare chế độ *DNS only*, bản ghi
+  `CNAME ttpvhcc → dieuhanhcongviecxanuicam.github.io`.
+
 ## [1.1.0] — 2026-08-25
 
 Chuyển sang tên miền chính thức **ttpvhcc.xanuicam.vn**.
