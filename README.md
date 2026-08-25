@@ -44,8 +44,11 @@ ubnd-ttpvhcc-qr/
 │   ├── linh-vuc.json            #   77 lĩnh vực: tên, slug, danh sách mã TTHC
 │   ├── meta.json                #   Số liệu tổng hợp hiển thị trên site
 │   └── source/                  #   File Excel nguồn (không đưa lên Git)
+├── brand/                       # File gốc thiết kế logo (xem brand/README.md)
 ├── public/
 │   ├── CNAME                    # Tên miền riêng — bắt buộc cho GitHub Pages
+│   ├── favicon.ico              # Biểu tượng trình duyệt
+│   ├── brand/                   # Logo, favicon, icon PWA website phục vụ
 │   └── qr/                      # 78 mã QR × 2 định dạng (PNG in ấn, SVG web)
 ├── scripts/                     # Pipeline dữ liệu bằng Python
 │   ├── trich-xuat-du-lieu.py    #   Excel  → data/*.json
@@ -127,6 +130,11 @@ chứ không dùng OpenCV: bộ giải mã của OpenCV đọc hụt mã QR từ
 
 **Font.** Lora + Inter + IBM Plex Mono được tự host lúc build (`next/font`) thay vì
 gọi Google Fonts lúc chạy, nên trang hiển thị đúng cả trong mạng nội bộ không có Internet.
+
+**Nhận diện thương hiệu.** File gốc để sinh lại bộ biểu tượng nằm ở `brand/`; file
+website thực sự phục vụ nằm ở `public/brand/` và `public/favicon.ico`. Trang có
+khai báo `manifest.webmanifest` nên cán bộ một cửa thêm được vào màn hình chính
+điện thoại và mở như ứng dụng.
 
 **Nguồn dữ liệu.** [Cổng Dịch vụ công Quốc gia](https://dichvucong.gov.vn) — dữ liệu
 thủ tục hành chính là thông tin công khai.

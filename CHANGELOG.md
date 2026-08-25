@@ -2,6 +2,29 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.3.0] — 2026-08-25
+
+### Sửa lỗi
+
+- **Mã QR bị méo trên điện thoại.** Phần reset ảnh thiếu `height: auto`, trong khi
+  `next/image` gắn sẵn thuộc tính `width`/`height` vào thẻ — nên khi CSS chỉ đặt
+  `width: 100%`, chiều cao giữ nguyên 200px và ảnh bị kéo dãn. Ở khung 360px, mã
+  QR trang lĩnh vực rộng còn ~92px nhưng cao 200px, không quét được.
+- **Hai dòng chữ dính liền nhau** trong danh sách thủ tục (`…cấp xãCấp xã`): markup
+  dùng `<span>` (inline) trong khi CSS viết cho thẻ block, khiến `margin-top` mất
+  tác dụng. Đã đặt `display: block` cho `.ten` và `.linh-vuc-nhan`.
+
+### Thay đổi
+
+- Trang lĩnh vực trên màn hình dưới 640px nay xếp mã QR lên trên tiêu đề thay vì
+  chia hai cột — mã QR đạt ~210px, đủ lớn để quét từ màn hình.
+- Thay vòng tròn chữ "QR" bằng logo chính thức của đơn vị trên thanh điều hướng.
+- Bổ sung bộ nhận diện: `favicon.ico`, favicon 16/32px, apple-touch-icon 180px,
+  icon PWA 192/512px, ảnh chia sẻ mạng xã hội, và `manifest.webmanifest`.
+- Sắp xếp lại tài nguyên thương hiệu: file gốc thiết kế ở `brand/`, file website
+  phục vụ ở `public/brand/`. Gỡ bỏ các bản dư thừa (ảnh nền đăng nhập 3,8 MB không
+  dùng đến vì dự án không có trang đăng nhập, và các biến thể webp không tham chiếu).
+
 ## [1.2.0] — 2026-08-25
 
 ### Thay đổi

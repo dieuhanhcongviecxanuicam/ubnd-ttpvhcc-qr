@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Inter, Lora } from "next/font/google";
 import SiteHeader from "@/components/SiteHeader";
-import { SITE_CONFIG, SITE_URL } from "@/lib/site-config";
+import { duongDan, SITE_CONFIG, SITE_URL } from "@/lib/site-config";
 import "./globals.css";
 
 /**
@@ -47,14 +47,32 @@ export const metadata: Metadata = {
     "hành chính công",
     "tra cứu TTHC",
   ],
+  icons: {
+    icon: [
+      { url: duongDan("/favicon.ico"), sizes: "48x48" },
+      { url: duongDan("/brand/favicon-32x32.png"), type: "image/png", sizes: "32x32" },
+      { url: duongDan("/brand/favicon-16x16.png"), type: "image/png", sizes: "16x16" },
+    ],
+    apple: [{ url: duongDan("/brand/apple-touch-icon.png"), sizes: "180x180" }],
+  },
+  manifest: duongDan("/manifest.webmanifest"),
+  appleWebApp: { capable: true, title: SITE_CONFIG.ten, statusBarStyle: "default" },
   openGraph: {
     type: "website",
     locale: "vi_VN",
     siteName: SITE_CONFIG.ten,
     title: SITE_CONFIG.tenDayDu,
     description: SITE_CONFIG.moTa,
+    images: [
+      {
+        url: duongDan("/brand/logo-512.png"),
+        width: 512,
+        height: 512,
+        alt: SITE_CONFIG.tenDayDu,
+      },
+    ],
   },
-  twitter: { card: "summary" },
+  twitter: { card: "summary", images: [duongDan("/brand/logo-512.png")] },
   robots: { index: true, follow: true },
 };
 
