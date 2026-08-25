@@ -44,7 +44,7 @@ ubnd-ttpvhcc-qr/
 │   ├── linh-vuc.json            #   77 lĩnh vực: tên, slug, danh sách mã TTHC
 │   ├── meta.json                #   Số liệu tổng hợp hiển thị trên site
 │   └── source/                  #   File Excel nguồn (không đưa lên Git)
-├── brand/                       # File gốc thiết kế logo (xem brand/README.md)
+├── brand/                       # logo-ttpvhcc.png - file gốc duy nhất (xem brand/README.md)
 ├── public/
 │   ├── CNAME                    # Tên miền riêng - bắt buộc cho GitHub Pages
 │   ├── favicon.ico              # Biểu tượng trình duyệt
@@ -57,10 +57,10 @@ ubnd-ttpvhcc-qr/
 ├── src/
 │   ├── app/                     # Route (App Router)
 │   │   ├── page.tsx             #   /                     trang chủ + QR tổng
-│   │   ├── danh-muc/            #   /danh-muc/            tra cứu toàn bộ danh mục
-│   │   ├── linh-vuc/[slug]/     #   /linh-vuc/<slug>/     77 trang - ĐÍCH CỦA MÃ QR
-│   │   ├── tthc/[ma]/           #   /tthc/<mã>/           376 trang chi tiết
-│   │   ├── in-ma-qr/            #   /in-ma-qr/            bảng in A4 toàn bộ mã QR
+│   │   ├── danh-muc/            #   /danh-muc             tra cứu toàn bộ danh mục
+│   │   ├── linh-vuc/[slug]/     #   /linh-vuc/<slug>      77 trang - ĐÍCH CỦA MÃ QR
+│   │   ├── tthc/[ma]/           #   /tthc/<mã>            376 trang chi tiết
+│   │   ├── in-ma-qr/            #   /in-ma-qr             bảng in A4 toàn bộ mã QR
 │   │   └── globals.css          #   Hệ thống thiết kế "Dấu son & Mã QR"
 │   ├── components/              # Thành phần giao diện dùng lại
 │   └── lib/                     # Truy xuất dữ liệu, cấu hình, tiện ích chuỗi
@@ -114,6 +114,7 @@ Chi tiết vận hành: xem [`docs/VAN-HANH.md`](docs/VAN-HANH.md).
 | `npm run kiem-tra` | Chạy cả typecheck và lint |
 | `npm run du-lieu:lam-moi` | Trích xuất lại dữ liệu và sinh lại mã QR |
 | `npm run kiem-tra-qr` | Đối chiếu nội dung mã QR với route thật |
+| `python3 scripts/tao-bo-nhan-dien.py` | Sinh lại logo, favicon, icon PWA từ file gốc |
 
 ## 6. Ghi chú kỹ thuật
 
@@ -131,10 +132,17 @@ chứ không dùng OpenCV: bộ giải mã của OpenCV đọc hụt mã QR từ
 **Font.** Lora + Inter + IBM Plex Mono được tự host lúc build (`next/font`) thay vì
 gọi Google Fonts lúc chạy, nên trang hiển thị đúng cả trong mạng nội bộ không có Internet.
 
-**Nhận diện thương hiệu.** File gốc để sinh lại bộ biểu tượng nằm ở `brand/`; file
-website thực sự phục vụ nằm ở `public/brand/` và `public/favicon.ico`. Trang có
-khai báo `manifest.webmanifest` nên cán bộ một cửa thêm được vào màn hình chính
-điện thoại và mở như ứng dụng.
+**Nhận diện thương hiệu.** Toàn bộ logo, favicon và icon PWA sinh ra từ một file
+gốc `brand/logo-ttpvhcc.png` bằng `scripts/tao-bo-nhan-dien.py`. Trang có khai báo
+`manifest.webmanifest` nên cán bộ một cửa thêm được vào màn hình chính điện thoại
+và mở như ứng dụng.
+
+**URL không có dấu "/" ở cuối.** Next xuất ra tệp `/<route>.html` và GitHub Pages
+phục vụ tệp đó cho đường dẫn không đuôi - đã kiểm chứng trả 200 và không chuyển
+hướng, kể cả đường dẫn chứa dấu chấm như `/tthc/1.000288`.
+
+**Mã QR màu đen tuyền** trên nền trắng: tương phản cao nhất nên máy quét đọc chắc
+hơn, kể cả khi bản in phai màu hoặc quầy thiếu sáng.
 
 **Nguồn dữ liệu.** [Cổng Dịch vụ công Quốc gia](https://dichvucong.gov.vn) - dữ liệu
 thủ tục hành chính là thông tin công khai.

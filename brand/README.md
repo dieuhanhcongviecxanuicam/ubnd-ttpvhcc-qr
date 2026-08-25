@@ -1,25 +1,38 @@
 # Nguồn thiết kế thương hiệu
 
-Thư mục này chỉ chứa **file gốc** để sinh lại bộ biểu tượng khi cần:
+Thư mục này chỉ chứa **một file gốc duy nhất**:
 
-| File | Dùng để |
+| File | Mô tả |
 |---|---|
-| `logo-master.webp` | Logo (1493×1517) - sinh `public/brand/logo*.png` |
-| `favicon-master.webp` | Biểu tượng vuông (2007×2007) - sinh favicon và icon PWA |
+| `logo-ttpvhcc.png` | Logo Trung tâm Phục vụ hành chính công, 1254x1254, nền trắng |
 
-**File website thực sự phục vụ nằm ở `public/`**, không phải ở đây:
+Toàn bộ logo, favicon và icon PWA mà website phục vụ đều được sinh ra từ file này
+bằng một lệnh:
+
+```bash
+python3 scripts/tao-bo-nhan-dien.py
+```
+
+Script tự tách nền trắng bằng thuật toán loang từ viền ảnh (không phải đổi mọi
+pixel trắng thành trong suốt), cắt viền thừa, rồi xuất ra `public/`:
 
 ```
 public/
-├── favicon.ico                  # Trình duyệt tự yêu cầu ở đường dẫn gốc
+├── favicon.ico                  # Đa cỡ 16/32/48, trình duyệt tự yêu cầu ở gốc
 └── brand/
     ├── favicon-16x16.png
     ├── favicon-32x32.png
-    ├── apple-touch-icon.png     # 180×180, màn hình chính iOS
+    ├── apple-touch-icon.png     # 180x180, màn hình chính iOS
     ├── icon-192.png             # PWA / Android
-    ├── icon-512.png             # PWA / Android, ảnh chia sẻ mạng xã hội
-    ├── logo.png                 # 128×128, logo trên thanh điều hướng
-    └── logo-512.png
+    ├── icon-512.png             # PWA / Android
+    ├── logo.png                 # 128x128, logo trên thanh điều hướng
+    └── logo-512.png             # Ảnh chia sẻ mạng xã hội
 ```
 
-Sửa logo thì thay file gốc ở đây rồi xuất lại các kích thước sang `public/brand/`.
+**Đổi logo:** thay `logo-ttpvhcc.png` rồi chạy lại script - không phải sửa file
+nào khác. Nếu logo mới có nền không phải màu trắng, chỉnh `NGUONG_NEN` trong
+`scripts/tao-bo-nhan-dien.py`.
+
+Định dạng đầu ra là PNG cho tất cả: favicon, apple-touch-icon và manifest PWA đều
+bắt buộc PNG theo chuẩn, nên dùng chung một định dạng giúp tránh trùng lặp và
+nhầm lẫn khi cập nhật.
