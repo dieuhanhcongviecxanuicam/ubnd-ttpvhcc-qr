@@ -18,10 +18,10 @@
  * Nếu Chromium báo thiếu libasound.so.2 (hay gặp trên WSL), xem
  * docs/HIEU-NANG.md mục 6 để biết cách nạp thư viện.
  */
-import { readFile } from "node:fs/promises";
+import { createReadStream } from "node:fs";
+import { readFile, readdir } from "node:fs/promises";
 import { createServer } from "node:http";
 import { createRequire } from "node:module";
-import fs from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
 
@@ -38,57 +38,66 @@ const CAC_TRANG = [
   ["/404", "trang 404"],
 ];
 
+const KIEU = {
+  ".html": "text/html; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".ico": "image/x-icon",
+  ".woff2": "font/woff2",
+  ".txt": "text/plain; charset=utf-8",
+};
+
 /**
- * Phục vụ out/ theo đúng cách GitHub Pages phân giải URL: ưu tiên `P.html` rồi
- * mới tới `P`. Đây không phải chi tiết vụn vặt - với /tthc/1.000110 thì cả thư
- * mục lẫn file .html cùng tồn tại, và máy chủ tĩnh thông thường trả về danh
+ * Lập bảng tra: đường dẫn URL -> tệp thật, bằng cách duyệt out/ một lần lúc khởi
+ * động.
+ *
+ * Bảng này phục vụ hai mục đích cùng lúc.
+ *
+ * Thứ nhất, nó mô phỏng đúng cách GitHub Pages phân giải URL: `/tthc/1.000110`
+ * ra tệp `tthc/1.000110.html`. Không phải chi tiết vụn vặt - ở đường dẫn đó cả
+ * thư mục lẫn tệp .html cùng tồn tại, và máy chủ tĩnh thông thường trả về danh
  * sách thư mục, khiến ta kiểm tra nhầm một trang gần như trống.
+ *
+ * Thứ hai, nó loại bỏ hẳn lớp lỗ hổng path traversal thay vì canh gác nó: đầu
+ * vào từ URL chỉ được dùng làm KHOÁ TRA, không bao giờ chạm tới filesystem. Bản
+ * trước ghép req.url vào đường dẫn rồi kiểm tra tiền tố, CodeQL vẫn cảnh báo
+ * js/path-injection - và cảnh báo đó đúng về nguyên tắc: canh gác dễ hỏng khi
+ * ai đó sửa sau này, còn không có đường dẫn nào để canh thì không hỏng được.
  */
-function moMayChu() {
-  const KIEU = {
-    ".html": "text/html; charset=utf-8",
-    ".css": "text/css; charset=utf-8",
-    ".js": "text/javascript; charset=utf-8",
-    ".json": "application/json; charset=utf-8",
-    ".svg": "image/svg+xml",
-    ".png": "image/png",
-    ".ico": "image/x-icon",
-    ".woff2": "font/woff2",
-    ".txt": "text/plain; charset=utf-8",
-  };
-  // Chỉ chấp nhận đường dẫn nằm trong out/. Máy chủ này tuy chỉ chạy cục bộ và
-  // trong CI, nhưng req.url do phía gọi kiểm soát nên `..` vẫn thoát ra ngoài
-  // thư mục được - CodeQL bắt đúng (js/path-injection). Giải bằng resolve rồi
-  // đối chiếu tiền tố, không phải bằng cách lọc chuỗi.
-  const trongThuMuc = (p) => {
-    const tuyetDoi = path.resolve(p);
-    return tuyetDoi === THU_MUC || tuyetDoi.startsWith(THU_MUC + path.sep) ? tuyetDoi : null;
-  };
-
-  const may = createServer((req, res) => {
-    const duongDan = decodeURIComponent(req.url.split("?")[0]).replace(/^\/+/, "");
-    const goc = trongThuMuc(path.join(THU_MUC, duongDan));
-    let tep = null;
-    if (goc === null) {
-      res.writeHead(403).end("ngoai pham vi");
-      return;
+async function lapBangTra(thuMuc, tienTo = "") {
+  const bang = new Map();
+  for (const muc of await readdir(thuMuc, { withFileTypes: true })) {
+    const tuyetDoi = path.join(thuMuc, muc.name);
+    const khoa = tienTo ? `${tienTo}/${muc.name}` : muc.name;
+    if (muc.isDirectory()) {
+      for (const [k, v] of await lapBangTra(tuyetDoi, khoa)) bang.set(k, v);
+      continue;
     }
-    if (duongDan === "") tep = trongThuMuc(path.join(THU_MUC, "index.html"));
-    else if (fs.existsSync(`${goc}.html`)) tep = trongThuMuc(`${goc}.html`);
-    else if (fs.existsSync(goc) && fs.statSync(goc).isFile()) tep = goc;
-    else if (fs.existsSync(path.join(goc, "index.html"))) tep = trongThuMuc(path.join(goc, "index.html"));
+    bang.set(khoa, tuyetDoi);
+    if (muc.name === "index.html") bang.set(tienTo, tuyetDoi);
+    else if (muc.name.endsWith(".html")) bang.set(khoa.slice(0, -".html".length), tuyetDoi);
+  }
+  return bang;
+}
 
-    if (!tep) {
+function moMayChu(bang) {
+  const may = createServer((req, res) => {
+    const khoa = decodeURIComponent(req.url.split("?")[0]).replace(/^\/+/, "");
+    const tep = bang.get(khoa);
+    if (tep === undefined) {
       res.writeHead(404).end("khong tim thay");
       return;
     }
     res.writeHead(200, { "content-type": KIEU[path.extname(tep)] ?? "application/octet-stream" });
-    fs.createReadStream(tep).pipe(res);
+    createReadStream(tep).pipe(res);
   });
   return new Promise((ok) => may.listen(0, "127.0.0.1", () => ok(may)));
 }
 
-const may = await moMayChu();
+const may = await moMayChu(await lapBangTra(THU_MUC));
 const goc = `http://127.0.0.1:${may.address().port}`;
 const nguonAxe = await readFile(require.resolve("axe-core/axe.min.js"), "utf8");
 
