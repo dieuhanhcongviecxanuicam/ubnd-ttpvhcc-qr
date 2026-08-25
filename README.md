@@ -111,7 +111,8 @@ Chi tiết vận hành: xem [`docs/VAN-HANH.md`](docs/VAN-HANH.md).
 | `npm start` | Xem thử bản đã build |
 | `npm run typecheck` | Kiểm tra kiểu TypeScript |
 | `npm run lint` | ESLint |
-| `npm run kiem-tra` | Chạy cả typecheck và lint |
+| `npm test` | Chạy test |
+| `npm run kiem-tra` | Typecheck, lint và test - chạy trước mỗi lần đẩy mã |
 | `npm run du-lieu:lam-moi` | Trích xuất lại dữ liệu và sinh lại mã QR |
 | `npm run kiem-tra-qr` | Đối chiếu nội dung mã QR với route thật |
 | `npm run kiem-tra-csp` | Kiểm chứng Content-Security-Policy của bản build |
@@ -144,6 +145,17 @@ hướng, kể cả đường dẫn chứa dấu chấm như `/tthc/1.000288`.
 
 **Mã QR màu đen tuyền** trên nền trắng: tương phản cao nhất nên máy quét đọc chắc
 hơn, kể cả khi bản in phai màu hoặc quầy thiếu sáng.
+
+**Trợ năng.** Kiểm định bằng axe-core theo WCAG 2.1 AA: **0 vi phạm** trên 8 trang,
+ở cả khung điện thoại và máy tính. Mọi màu chữ đạt tối thiểu 4.96:1.
+
+**Test.** Dùng bộ chạy test có sẵn của Node, không thêm framework. Đáng chú ý nhất
+là nhóm bất biến dữ liệu trong `tests/du-lieu.test.ts`: đối chiếu `so_luong_tthc`
+với số mã giải được trong `danh_sach_ma_tthc`. Đây chính là lớp lỗi từng lọt ra
+production, khi trang lĩnh vực hiển thị "7 thủ tục" nhưng danh sách trống.
+
+**Đóng góp.** Nhánh `main` được bảo vệ, mọi thay đổi đi qua pull request - xem
+[`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 **Bảo mật.** Chính sách CSP được sinh tự động sau mỗi lần build, băm SHA-256 từng
 khối script nội tuyến nên không cần `'unsafe-inline'`. GitHub Action ghim theo

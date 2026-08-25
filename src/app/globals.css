@@ -12,7 +12,11 @@
   --muc-nhat: #6B655C;   /* mực nhạt - chữ phụ */
   --son: #9B2226;        /* đỏ son - màu chủ đạo */
   --son-dam: #7A1B1E;    /* đỏ son đậm - hover */
-  --dong: #A9793C;       /* đồng - điểm nhấn vàng đồng */
+  /* Đồng đậm. Sắc #A9793C ban đầu chỉ đạt 3.64:1 trên nền thẻ - dưới ngưỡng
+     4.5:1 của WCAG AA cho chữ thường, mà màu này dùng cho mã TTHC là thông tin
+     người dân phải đọc chính xác. Sắc hiện tại đạt tối thiểu 4.96:1 trên mọi
+     nền đang dùng, kể cả các nền có pha sắc đồng. */
+  --dong: #7E5822;
   --reu: #47573A;        /* rêu phong - thẻ phụ */
   --luc: #1E7A46;        /* xanh lá - trạng thái hợp lệ (Đã công khai) */
   --luc-nen: #E3F5EA;    /* nền nhạt cho thẻ trạng thái hợp lệ */
@@ -528,7 +532,7 @@ h1, h2, h3, h4 {
   font-size: 10.5px;
   padding: 1px 6px;
   border-radius: 3px;
-  background: rgba(169,121,60,0.12);
+  background: rgba(138, 95, 40, 0.14);
   color: var(--dong);
   margin-left: 6px;
 }
@@ -700,7 +704,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .hop-luu-y {
   border: 1px solid var(--dong);
   border-left-width: 3px;
-  background: rgba(169, 121, 60, 0.07);
+  background: rgba(138, 95, 40, 0.08);
   border-radius: 4px;
   padding: 14px 18px;
   font-size: 13.5px;
