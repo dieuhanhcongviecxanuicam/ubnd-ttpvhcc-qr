@@ -46,6 +46,16 @@ jobs:
       - name: Kiểm chứng Content-Security-Policy
         run: npm run kiem-tra-csp
 
+      # Trợ năng hỏng rất âm thầm: build vẫn xanh, test vẫn qua, trang vẫn hiển
+      # thị bình thường với người sáng mắt. Dự án từng phải sửa 117 vi phạm
+      # tương phản màu, và lần thử tối ưu bằng content-visibility đã loại bốn
+      # tiêu đề mục khỏi cây trợ năng mà không bước CI nào phản ứng.
+      - name: Cài Chromium cho kiểm tra trợ năng
+        run: npx playwright install --with-deps chromium
+
+      - name: Kiểm tra trợ năng WCAG 2.1 AA
+        run: npm run kiem-tra-tro-nang
+
       # Rà lỗ hổng đã biết của phụ thuộc npm. Dùng --audit-level=high để bản vá
       # mức thấp không chặn triển khai, nhưng Dependabot vẫn mở PR cho chúng.
       - name: Rà lỗ hổng phụ thuộc npm
@@ -75,3 +85,9 @@ jobs:
       # Chặn tình huống nguy hiểm nhất: mã QR đã in nhưng trỏ tới trang không tồn tại.
       - name: Giải mã ngược toàn bộ mã QR và đối chiếu URL
         run: python scripts/kiem-tra-ma-qr.py
+
+      # File Excel thật của đơn vị không nằm trong Git, nên bước trích xuất -
+      # phần đơn vị dùng thường xuyên nhất - vốn không có gì kiểm thử. Dựng lại
+      # Excel từ dữ liệu đang có rồi chạy khứ hồi để chặn hồi quy.
+      - name: Chạy khứ hồi pipeline trích xuất dữ liệu
+        run: python scripts/kiem-tra-pipeline.py
