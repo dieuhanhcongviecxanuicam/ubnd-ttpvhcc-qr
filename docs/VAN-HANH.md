@@ -101,6 +101,15 @@ bản ghi có lĩnh vực rỗng, do bộ trích xuất bản mới chuẩn hoá
 
 Nhớ `git checkout data/` sau khi thử, đừng commit dữ liệu sinh từ file mẫu.
 
+Toàn bộ quy trình trên đã được đóng gói thành một lệnh, chạy trong thư mục tạm
+nên không đụng vào `data/`:
+
+```bash
+python3 scripts/kiem-tra-pipeline.py
+```
+
+CI chạy lệnh này mỗi lần có pull request.
+
 ## 6. Chuẩn bị môi trường (làm một lần)
 
 ```bash

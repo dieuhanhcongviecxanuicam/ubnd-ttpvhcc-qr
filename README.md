@@ -117,6 +117,8 @@ cơ sở đo bằng Lighthouse: [`docs/HIEU-NANG.md`](docs/HIEU-NANG.md).
 | `npm run du-lieu:lam-moi` | Trích xuất lại dữ liệu và sinh lại mã QR |
 | `npm run kiem-tra-qr` | Đối chiếu nội dung mã QR với route thật |
 | `npm run kiem-tra-csp` | Kiểm chứng Content-Security-Policy của bản build |
+| `npm run kiem-tra-tro-nang` | Chạy axe-core trên bản build, chặn hồi quy WCAG 2.1 AA |
+| `python3 scripts/kiem-tra-pipeline.py` | Chạy khứ hồi pipeline trích xuất dữ liệu |
 | `python3 scripts/tao-bo-nhan-dien.py` | Sinh lại logo, favicon, icon PWA từ file gốc |
 
 ## 6. Ghi chú kỹ thuật
