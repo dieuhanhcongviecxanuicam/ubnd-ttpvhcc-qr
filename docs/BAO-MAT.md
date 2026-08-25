@@ -7,14 +7,14 @@ toàn thông tin riêng.
 
 ## 1. Kiến trúc phòng thủ
 
-| Lớp | Biện pháp | Đặt ở đâu |
-|---|---|---|
-| Tên miền | DNSSEC, CAA, khoá chuyển nhượng | Cloudflare + nhà đăng ký |
-| Biên mạng | Chống DDoS, HSTS, header bảo mật | Cloudflare |
-| Phục vụ nội dung | Chỉ tệp tĩnh, không thành phần thực thi | GitHub Pages |
-| Trình duyệt | CSP theo từng trang, dùng băm script | Sinh lúc build |
-| Chuỗi build | Ghim Action theo SHA, quét phụ thuộc, CodeQL | GitHub Actions |
-| Truy cập | Branch protection, bắt buộc PR, 2FA | Cài đặt kho mã |
+| Lớp              | Biện pháp                                    | Đặt ở đâu                |
+| ---------------- | -------------------------------------------- | ------------------------ |
+| Tên miền         | DNSSEC, CAA, khoá chuyển nhượng              | Cloudflare + nhà đăng ký |
+| Biên mạng        | Chống DDoS, HSTS, header bảo mật             | Cloudflare               |
+| Phục vụ nội dung | Chỉ tệp tĩnh, không thành phần thực thi      | GitHub Pages             |
+| Trình duyệt      | CSP theo từng trang, dùng băm script         | Sinh lúc build           |
+| Chuỗi build      | Ghim Action theo SHA, quét phụ thuộc, CodeQL | GitHub Actions           |
+| Truy cập         | Branch protection, bắt buộc PR, 2FA          | Cài đặt kho mã           |
 
 ## 2. Content-Security-Policy
 
@@ -45,10 +45,10 @@ dùng cookie và không định danh cá nhân, nhưng vẫn là thu thập dữ
 
 **Đơn vị cần chọn một trong hai:**
 
-| Lựa chọn | Việc cần làm |
-|---|---|
+| Lựa chọn                                      | Việc cần làm                                                                                                                                     |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Không cần thống kê truy cập** (an toàn hơn) | Tắt Web Analytics trong Cloudflare, rồi xoá hằng số `CLOUDFLARE_BEACON` trong `scripts/them-csp.mjs`. Chính sách trở lại chỉ-cho-phép-cùng-miền. |
-| **Cần thống kê truy cập** | Giữ nguyên. Ghi nhận trong hồ sơ cấp độ an toàn thông tin rằng hệ thống có sử dụng dịch vụ đo lượt truy cập của bên thứ ba. |
+| **Cần thống kê truy cập**                     | Giữ nguyên. Ghi nhận trong hồ sơ cấp độ an toàn thông tin rằng hệ thống có sử dụng dịch vụ đo lượt truy cập của bên thứ ba.                      |
 
 ### Hai directive phải đặt bằng header, không đặt được trong thẻ meta
 
@@ -66,15 +66,15 @@ Cloudflare, không nằm trong kho mã.
 
 Thêm các header tĩnh sau:
 
-| Header | Giá trị | Chặn được gì |
-|---|---|---|
-| `Content-Security-Policy` | `frame-ancestors 'none'` | Nhúng trang vào iframe của site lừa đảo để mượn uy tín cơ quan nhà nước |
-| `X-Frame-Options` | `DENY` | Như trên, cho trình duyệt cũ |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` | Rò rỉ đường dẫn đang xem sang site bên ngoài |
-| `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), interest-cohort=()` | Mã lạ xin quyền thiết bị |
-| `Cross-Origin-Opener-Policy` | `same-origin` | Cửa sổ khác thao túng ngữ cảnh trang |
-| `Cross-Origin-Resource-Policy` | `same-site` | Site khác nhúng tài nguyên của hệ thống |
-| `X-Content-Type-Options` | `nosniff` | Đã có sẵn từ GitHub Pages, đặt lại để chắc chắn |
+| Header                         | Giá trị                                                        | Chặn được gì                                                            |
+| ------------------------------ | -------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `Content-Security-Policy`      | `frame-ancestors 'none'`                                       | Nhúng trang vào iframe của site lừa đảo để mượn uy tín cơ quan nhà nước |
+| `X-Frame-Options`              | `DENY`                                                         | Như trên, cho trình duyệt cũ                                            |
+| `Referrer-Policy`              | `strict-origin-when-cross-origin`                              | Rò rỉ đường dẫn đang xem sang site bên ngoài                            |
+| `Permissions-Policy`           | `camera=(), microphone=(), geolocation=(), interest-cohort=()` | Mã lạ xin quyền thiết bị                                                |
+| `Cross-Origin-Opener-Policy`   | `same-origin`                                                  | Cửa sổ khác thao túng ngữ cảnh trang                                    |
+| `Cross-Origin-Resource-Policy` | `same-site`                                                    | Site khác nhúng tài nguyên của hệ thống                                 |
+| `X-Content-Type-Options`       | `nosniff`                                                      | Đã có sẵn từ GitHub Pages, đặt lại để chắc chắn                         |
 
 **Kiểm tra sau khi đặt:**
 
@@ -85,7 +85,7 @@ curl -sI https://ttpvhcc.xanuicam.vn/ | grep -iE 'content-security|x-frame|refer
 ### Chế độ SSL/TLS
 
 **Cloudflare → SSL/TLS → Overview** phải ở mức **Full** trở lên. Nếu để
-*Flexible*, chặng từ Cloudflare tới GitHub Pages đi bằng HTTP thuần dù người dùng
+_Flexible_, chặng từ Cloudflare tới GitHub Pages đi bằng HTTP thuần dù người dùng
 vẫn thấy biểu tượng ổ khoá.
 
 ## 4. Kiểm soát truy cập
@@ -99,14 +99,14 @@ vẫn thấy biểu tượng ổ khoá.
 
 ## 5. Rà soát định kỳ
 
-| Việc | Tần suất | Cách làm |
-|---|---|---|
-| Duyệt PR của Dependabot | Hằng tuần | Đọc changelog rồi hợp nhất; CI tự chặn nếu hỏng |
-| Xem cảnh báo CodeQL và secret scanning | Hằng tuần | Tab **Security** của kho mã |
-| Kiểm chứng mã QR | Mỗi lần đổi dữ liệu | `python3 scripts/kiem-tra-ma-qr.py` |
-| Kiểm tra header bảo mật | Hằng quý | Lệnh `curl` ở mục 3 |
-| Rà quyền truy cập | Hằng quý | Settings → Collaborators |
-| Diễn tập khôi phục | Hằng năm | Dựng lại hệ thống từ kho mã và tệp Excel nguồn |
+| Việc                                   | Tần suất            | Cách làm                                        |
+| -------------------------------------- | ------------------- | ----------------------------------------------- |
+| Duyệt PR của Dependabot                | Hằng tuần           | Đọc changelog rồi hợp nhất; CI tự chặn nếu hỏng |
+| Xem cảnh báo CodeQL và secret scanning | Hằng tuần           | Tab **Security** của kho mã                     |
+| Kiểm chứng mã QR                       | Mỗi lần đổi dữ liệu | `python3 scripts/kiem-tra-ma-qr.py`             |
+| Kiểm tra header bảo mật                | Hằng quý            | Lệnh `curl` ở mục 3                             |
+| Rà quyền truy cập                      | Hằng quý            | Settings → Collaborators                        |
+| Diễn tập khôi phục                     | Hằng năm            | Dựng lại hệ thống từ kho mã và tệp Excel nguồn  |
 
 ## 6. Khi nghi ngờ bị xâm nhập
 
@@ -127,9 +127,8 @@ Không tài khoản người dùng, không cơ sở dữ liệu, không cookie, 
 thập thông tin. Dữ liệu thủ tục hành chính là thông tin công khai từ Cổng Dịch vụ
 công Quốc gia.
 
-Ngoại lệ duy nhất: **Cloudflare Web Analytics** đang bật ở tầng biên (xem mục 3).
-Dịch vụ này không dùng cookie và không định danh cá nhân, nhưng vẫn là bên thứ ba
-ghi nhận lượt truy cập.
+Cloudflare Web Analytics đã được tắt, nên hiện **không có bên thứ ba nào** ghi
+nhận lượt truy cập.
 
 Hệ quả: **không có dữ liệu cá nhân nào để rò rỉ**. Nếu về sau bổ sung biểu mẫu
 hoặc công cụ thống kê, phải đánh giá lại nghĩa vụ theo quy định về bảo vệ dữ liệu
