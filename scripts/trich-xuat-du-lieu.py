@@ -10,9 +10,9 @@ Cách dùng:
 Nếu không truyền đường dẫn, script tự tìm file .xlsx đầu tiên trong data/source/.
 
 Đầu ra (ghi vào data/):
-    tthc.json      — danh sách TTHC, đã ghép các bảng con
-    linh-vuc.json  — nhóm theo lĩnh vực, kèm slug dùng cho URL và tên file QR
-    meta.json      — số liệu tổng hợp, hiển thị ở trang chủ và chân trang
+    tthc.json      - danh sách TTHC, đã ghép các bảng con
+    linh-vuc.json  - nhóm theo lĩnh vực, kèm slug dùng cho URL và tên file QR
+    meta.json      - số liệu tổng hợp, hiển thị ở trang chủ và chân trang
 """
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ THU_MUC_RA = GOC_DU_AN / "data"
 
 
 def tao_slug(text: Any) -> str:
-    """Chuyển tên tiếng Việt thành slug URL — phải khớp taoSlug() trong src/lib/text.ts."""
+    """Chuyển tên tiếng Việt thành slug URL - phải khớp taoSlug() trong src/lib/text.ts."""
     if not text:
         return ""
     text = str(text).strip().lower()
@@ -72,7 +72,7 @@ def gan_bang_con(theo_ma, nhom, khoa: str, anh_xa) -> None:
 
 
 def o(r: Iterable, i: int) -> Any:
-    """Lấy ô thứ i của dòng, trả về "" nếu dòng ngắn hơn — tránh IndexError khi
+    """Lấy ô thứ i của dòng, trả về "" nếu dòng ngắn hơn - tránh IndexError khi
     file Excel nguồn thiếu cột."""
     r = list(r)
     return lam_sach(r[i]) if len(r) > i else ""

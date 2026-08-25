@@ -86,7 +86,7 @@ export interface Meta {
 
 /**
  * Bản rút gọn của TTHC, chỉ giữ các trường cần cho tìm kiếm/hiển thị danh sách.
- * Đây là thứ được gửi xuống trình duyệt — thay vì toàn bộ 5,3 MB dữ liệu chi tiết.
+ * Đây là thứ được gửi xuống trình duyệt - thay vì toàn bộ 5,3 MB dữ liệu chi tiết.
  */
 export interface TthcTomTat {
   ma_tthc: string;

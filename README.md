@@ -1,6 +1,6 @@
 # ubnd-ttpvhcc-qr
 
-**Hệ thống tra cứu thủ tục hành chính qua mã QR** — Trung tâm Phục vụ hành chính công.
+**Hệ thống tra cứu thủ tục hành chính qua mã QR** - Trung tâm Phục vụ hành chính công.
 
 🌐 **https://ttpvhcc.xanuicam.vn**
 
@@ -12,7 +12,7 @@ lĩnh vực cần làm, xem trình tự, hồ sơ, lệ phí, căn cứ pháp l�
 sang Cổng Dịch vụ công Quốc gia để nộp trực tuyến.
 
 - **376** thủ tục hành chính · **77** lĩnh vực · **78** mã QR
-- Website tĩnh (Next.js static export) — không cần server, không cần cơ sở dữ liệu
+- Website tĩnh (Next.js static export) - không cần server, không cần cơ sở dữ liệu
 - Toàn bộ 455 trang được sinh sẵn lúc build → mở tức thì trên điện thoại, tốt cho SEO
 
 ---
@@ -39,14 +39,14 @@ npm start            # xem thử bản đã build
 
 ```
 ubnd-ttpvhcc-qr/
-├── data/                        # Dữ liệu JSON — đọc lúc build, không gửi xuống trình duyệt
+├── data/                        # Dữ liệu JSON - đọc lúc build, không gửi xuống trình duyệt
 │   ├── tthc.json                #   376 TTHC kèm các bảng con (5,3 MB)
 │   ├── linh-vuc.json            #   77 lĩnh vực: tên, slug, danh sách mã TTHC
 │   ├── meta.json                #   Số liệu tổng hợp hiển thị trên site
 │   └── source/                  #   File Excel nguồn (không đưa lên Git)
 ├── brand/                       # File gốc thiết kế logo (xem brand/README.md)
 ├── public/
-│   ├── CNAME                    # Tên miền riêng — bắt buộc cho GitHub Pages
+│   ├── CNAME                    # Tên miền riêng - bắt buộc cho GitHub Pages
 │   ├── favicon.ico              # Biểu tượng trình duyệt
 │   ├── brand/                   # Logo, favicon, icon PWA website phục vụ
 │   └── qr/                      # 78 mã QR × 2 định dạng (PNG in ấn, SVG web)
@@ -58,7 +58,7 @@ ubnd-ttpvhcc-qr/
 │   ├── app/                     # Route (App Router)
 │   │   ├── page.tsx             #   /                     trang chủ + QR tổng
 │   │   ├── danh-muc/            #   /danh-muc/            tra cứu toàn bộ danh mục
-│   │   ├── linh-vuc/[slug]/     #   /linh-vuc/<slug>/     77 trang — ĐÍCH CỦA MÃ QR
+│   │   ├── linh-vuc/[slug]/     #   /linh-vuc/<slug>/     77 trang - ĐÍCH CỦA MÃ QR
 │   │   ├── tthc/[ma]/           #   /tthc/<mã>/           376 trang chi tiết
 │   │   ├── in-ma-qr/            #   /in-ma-qr/            bảng in A4 toàn bộ mã QR
 │   │   └── globals.css          #   Hệ thống thiết kế "Dấu son & Mã QR"
@@ -77,7 +77,7 @@ python3 scripts/kiem-tra-ma-qr.py            # xác nhận QR trỏ đúng
 git commit -am "Cập nhật danh mục TTHC" && git push   # CI tự triển khai
 ```
 
-Không cần sửa mã nguồn — số liệu, danh sách lĩnh vực và các trang chi tiết đều
+Không cần sửa mã nguồn - số liệu, danh sách lĩnh vực và các trang chi tiết đều
 sinh ra từ `data/`.
 
 Chuẩn bị môi trường Python một lần:
@@ -119,7 +119,7 @@ Chi tiết vận hành: xem [`docs/VAN-HANH.md`](docs/VAN-HANH.md).
 
 **Vì sao pre-render toàn bộ.** Bản MVP trước tải cả `tthc.json` (5,3 MB) trên mọi
 trang rồi mới dựng nội dung bằng JavaScript. Nay dữ liệu chỉ được đọc lúc build;
-trình duyệt nhận HTML đã có sẵn nội dung — 36–204 KB mỗi trang thay vì 5,3 MB.
+trình duyệt nhận HTML đã có sẵn nội dung - 36-204 KB mỗi trang thay vì 5,3 MB.
 Điều này quan trọng vì phần lớn người dùng quét QR bằng điện thoại dùng mạng di động.
 
 **Vì sao cần `kiem-tra-ma-qr.py`.** Mã QR một khi đã in và dán tại quầy thì không
@@ -136,7 +136,7 @@ website thực sự phục vụ nằm ở `public/brand/` và `public/favicon.ic
 khai báo `manifest.webmanifest` nên cán bộ một cửa thêm được vào màn hình chính
 điện thoại và mở như ứng dụng.
 
-**Nguồn dữ liệu.** [Cổng Dịch vụ công Quốc gia](https://dichvucong.gov.vn) — dữ liệu
+**Nguồn dữ liệu.** [Cổng Dịch vụ công Quốc gia](https://dichvucong.gov.vn) - dữ liệu
 thủ tục hành chính là thông tin công khai.
 
 ## 7. Hạ tầng
@@ -146,7 +146,7 @@ thủ tục hành chính là thông tin công khai.
 | Kho mã nguồn | `github.com/dieuhanhcongviecxanuicam/ubnd-ttpvhcc-qr` |
 | Hosting | GitHub Pages, triển khai bằng GitHub Actions |
 | Tên miền | `ttpvhcc.xanuicam.vn` |
-| DNS | Cloudflare — `CNAME ttpvhcc → dieuhanhcongviecxanuicam.github.io`, chế độ **DNS only** (không bật proxy) |
+| DNS | Cloudflare - `CNAME ttpvhcc → dieuhanhcongviecxanuicam.github.io`, chế độ **DNS only** (không bật proxy) |
 | HTTPS | Chứng chỉ Let's Encrypt do GitHub Pages tự cấp và tự gia hạn |
 
 > Để bản ghi DNS ở chế độ **DNS only**. Bật proxy của Cloudflare sẽ chặn GitHub
@@ -154,5 +154,5 @@ thủ tục hành chính là thông tin công khai.
 
 ## 8. Giấy phép
 
-[MIT](LICENSE) — mã nguồn. Dữ liệu thủ tục hành chính thuộc về cơ quan nhà nước
+[MIT](LICENSE) - mã nguồn. Dữ liệu thủ tục hành chính thuộc về cơ quan nhà nước
 có thẩm quyền công bố.

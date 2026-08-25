@@ -1,5 +1,5 @@
 /**
- * Tiện ích xử lý chuỗi tiếng Việt — dùng chung giữa build-time và client.
+ * Tiện ích xử lý chuỗi tiếng Việt - dùng chung giữa build-time và client.
  */
 
 /**
@@ -14,7 +14,7 @@ export function boDau(chuoi: string | null | undefined): string {
     .replace(/đ/g, "d");
 }
 
-/** Chuyển tên tiếng Việt thành slug URL — khớp với slugify() trong pipeline Python. */
+/** Chuyển tên tiếng Việt thành slug URL - khớp với slugify() trong pipeline Python. */
 export function taoSlug(chuoi: string): string {
   return boDau(chuoi)
     .replace(/[^a-z0-9]+/g, "-")

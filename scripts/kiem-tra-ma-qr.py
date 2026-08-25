@@ -4,7 +4,7 @@
 Kiểm chứng mã QR: giải mã ngược từng file PNG và đối chiếu với URL mà website
 thực sự phục vụ.
 
-Đây là lớp bảo vệ chống lại lỗi nguy hiểm nhất của hệ thống — mã QR đã in và dán
+Đây là lớp bảo vệ chống lại lỗi nguy hiểm nhất của hệ thống - mã QR đã in và dán
 tại bộ phận một cửa nhưng trỏ tới địa chỉ không tồn tại. Hãy chạy script này mỗi
 lần sinh lại mã QR hoặc trước khi đem in.
 
@@ -57,7 +57,7 @@ def main() -> int:
     base_url = lay_base_url(args.base_url)
 
     def giai_ma(duong_dan: Path) -> str | None:
-        """Giải mã bằng zxing-cpp — cùng engine với phần lớn ứng dụng quét QR trên
+        """Giải mã bằng zxing-cpp - cùng engine với phần lớn ứng dụng quét QR trên
         điện thoại, nên kết quả sát với trải nghiệm thực tế của người dân."""
         if not duong_dan.exists():
             return None
@@ -72,7 +72,7 @@ def main() -> int:
         can_kiem_tra.append(
             (
                 THU_MUC_QR / f"lv-{lv['slug']}.png",
-                f"{base_url}/linh-vuc/{lv['slug']}/",
+                f"{base_url}/linh-vuc/{lv['slug']}",
             )
         )
 

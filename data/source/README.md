@@ -12,4 +12,4 @@ python3 scripts/tao-ma-qr.py
 ```
 
 Sheet mà script cần đọc: `TTHC2-CAPXA` (bắt buộc), `Cách thức thực hiện`,
-`Trình tự thực hiện`, `TPHS`, `KQTH`, `CCPL`, `TTHC` (tuỳ chọn — thiếu thì bỏ qua).
+`Trình tự thực hiện`, `TPHS`, `KQTH`, `CCPL`, `TTHC` (tuỳ chọn - thiếu thì bỏ qua).

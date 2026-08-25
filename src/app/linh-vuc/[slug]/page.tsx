@@ -13,7 +13,7 @@ import { duongDan, urlLinhVuc } from "@/lib/site-config";
 
 type Props = { params: Promise<{ slug: string }> };
 
-/** Sinh sẵn toàn bộ trang lĩnh vực lúc build — đây chính là đích đến của mã QR lĩnh vực. */
+/** Sinh sẵn toàn bộ trang lĩnh vực lúc build - đây chính là đích đến của mã QR lĩnh vực. */
 export function generateStaticParams() {
   return layTatCaLinhVuc().map((lv) => ({ slug: lv.slug }));
 }
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: lv.ten_linh_vuc,
     description: `Danh sách ${lv.so_luong_tthc} thủ tục hành chính thuộc lĩnh vực ${lv.ten_linh_vuc}. Quét mã QR để tra cứu nhanh.`,
-    alternates: { canonical: `/linh-vuc/${lv.slug}/` },
+    alternates: { canonical: `/linh-vuc/${lv.slug}` },
   };
 }
 

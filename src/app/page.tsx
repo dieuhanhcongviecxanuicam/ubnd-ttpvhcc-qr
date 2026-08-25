@@ -20,7 +20,7 @@ export default function TrangChu() {
                 Quét mã, tra cứu <em>thủ tục hành chính</em> trong vài giây
               </h1>
               <p>
-                Toàn bộ danh mục thủ tục hành chính được số hoá thành mã QR — một mã
+                Toàn bộ danh mục thủ tục hành chính được số hoá thành mã QR - một mã
                 QR tổng cho tất cả lĩnh vực, và một mã QR riêng cho từng lĩnh vực để
                 người dân quét trực tiếp tại bộ phận một cửa hoặc từ xa.
               </p>
@@ -41,10 +41,10 @@ export default function TrangChu() {
               </dl>
 
               <div className="hang-nut">
-                <Link href="/danh-muc/" className="btn-taixuong">
+                <Link href="/danh-muc" className="btn-taixuong">
                   Xem toàn bộ danh mục
                 </Link>
-                <Link href="/in-ma-qr/" className="btn-taixuong btn-phu">
+                <Link href="/in-ma-qr" className="btn-taixuong btn-phu">
                   In bộ mã QR
                 </Link>
               </div>
@@ -53,7 +53,7 @@ export default function TrangChu() {
             <div className="qr-tong-the">
               <span className="qr-goc-1" />
               <span className="qr-goc-2" />
-              <p className="qr-nhan">Mã QR tổng — toàn bộ danh mục</p>
+              <p className="qr-nhan">Mã QR tổng - toàn bộ danh mục</p>
               <Image
                 src={duongDan("/qr/master.png")}
                 alt="Mã QR dẫn đến toàn bộ danh mục thủ tục hành chính"
@@ -87,7 +87,7 @@ export default function TrangChu() {
             <div>
               <h2>Mã QR theo lĩnh vực</h2>
               <p>
-                Mỗi lĩnh vực có mã QR riêng — dán tại quầy tương ứng để người dân quét
+                Mỗi lĩnh vực có mã QR riêng - dán tại quầy tương ứng để người dân quét
                 đúng nhóm thủ tục cần tra cứu.
               </p>
             </div>

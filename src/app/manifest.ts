@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
 import { duongDan, SITE_CONFIG } from "@/lib/site-config";
 
-/** Bắt buộc với output: "export" — báo Next đây là tệp sinh sẵn lúc build. */
+/** Bắt buộc với output: "export" - báo Next đây là tệp sinh sẵn lúc build. */
 export const dynamic = "force-static";
 
 /**
- * Manifest PWA — cho phép cán bộ một cửa thêm trang vào màn hình chính điện thoại
+ * Manifest PWA - cho phép cán bộ một cửa thêm trang vào màn hình chính điện thoại
  * và mở như một ứng dụng, không có thanh địa chỉ.
  */
 export default function manifest(): MetadataRoute.Manifest {

@@ -36,7 +36,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Bỏ qua xử lý Jekyll — nếu không, GitHub Pages sẽ nuốt thư mục _next/
+      # Bỏ qua xử lý Jekyll - nếu không, GitHub Pages sẽ nuốt thư mục _next/
       - name: Thêm .nojekyll
         run: touch out/.nojekyll
 

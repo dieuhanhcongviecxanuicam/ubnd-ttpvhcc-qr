@@ -1,5 +1,5 @@
 /**
- * Cấu hình Next.js — chế độ static export để triển khai lên GitHub Pages.
+ * Cấu hình Next.js - chế độ static export để triển khai lên GitHub Pages.
  *
  * basePath: khi chạy trên GitHub Pages dạng project site, trang được phục vụ tại
  * https://<user>.github.io/<repo>/ nên toàn bộ đường dẫn phải có tiền tố /<repo>.
@@ -11,9 +11,9 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "export",
-  // Sinh ra thư mục dạng /linh-vuc/<slug>/index.html — bắt buộc để URL đẹp
-  // nhúng trong mã QR hoạt động trên static hosting.
-  trailingSlash: true,
+  // URL không có dấu "/" ở cuối. Next xuất ra tệp dạng /linh-vuc/<slug>.html;
+  // GitHub Pages tự phục vụ tệp đó cho đường dẫn /linh-vuc/<slug>.
+  trailingSlash: false,
   basePath,
   images: { unoptimized: true },
   reactStrictMode: true,

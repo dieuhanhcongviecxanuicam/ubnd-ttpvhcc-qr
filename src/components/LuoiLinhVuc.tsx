@@ -39,7 +39,7 @@ export default function LuoiLinhVuc({ danhSach }: { danhSach: LinhVuc[] }) {
       ) : (
         <div className="luoi-linhvuc">
           {ketQua.map((lv) => (
-            <Link className="the-linhvuc" key={lv.slug} href={`/linh-vuc/${lv.slug}/`}>
+            <Link className="the-linhvuc" key={lv.slug} href={`/linh-vuc/${lv.slug}`}>
               <Image
                 className="mini-qr"
                 src={duongDan(`/qr/lv-${lv.slug}.png`)}

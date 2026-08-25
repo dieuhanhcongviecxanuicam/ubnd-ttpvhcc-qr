@@ -4,10 +4,10 @@
 Sinh mã QR (PNG + SVG) cho trang chủ và từng lĩnh vực.
 
 Địa chỉ nhúng trong mã QR phải khớp CHÍNH XÁC với route mà Next.js xuất ra
-(chế độ static export + trailingSlash), cụ thể:
+(chế độ static export, không có dấu "/" ở cuối), cụ thể:
 
     QR tổng      ->  {BASE_URL}/
-    QR lĩnh vực  ->  {BASE_URL}/linh-vuc/<slug>/
+    QR lĩnh vực  ->  {BASE_URL}/linh-vuc/<slug>
 
 Cách dùng:
     python3 scripts/tao-ma-qr.py
@@ -15,7 +15,7 @@ Cách dùng:
 
 Nếu không truyền --base-url, script đọc biến môi trường:
     NEXT_PUBLIC_SITE_ORIGIN  (mặc định https://ttpvhcc.xanuicam.vn)
-    NEXT_PUBLIC_BASE_PATH    (mặc định rỗng — tên miền riêng phục vụ từ gốc)
+    NEXT_PUBLIC_BASE_PATH    (mặc định rỗng - tên miền riêng phục vụ từ gốc)
 """
 from __future__ import annotations
 
@@ -32,7 +32,9 @@ GOC_DU_AN = Path(__file__).resolve().parent.parent
 THU_MUC_DU_LIEU = GOC_DU_AN / "data"
 THU_MUC_QR = GOC_DU_AN / "public" / "qr"
 
-MAU_QR = "#7A1E2B"   # đỏ son đậm — đồng bộ với --son-dam trong hệ thống thiết kế
+# Đen tuyền trên nền trắng cho độ tương phản cao nhất - máy quét đọc nhanh và
+# chắc chắn hơn mọi màu khác, kể cả khi bản in bị phai hoặc thiếu sáng.
+MAU_QR = "#000000"
 MAU_NEN = "#FFFFFF"
 
 ORIGIN_MAC_DINH = "https://ttpvhcc.xanuicam.vn"
@@ -54,7 +56,7 @@ def sinh_ma_qr(noi_dung: str, ten_file_goc: Path) -> None:
         version=None,
         error_correction=qrcode.constants.ERROR_CORRECT_M,
         # Vùng yên tĩnh 4 module là mức tối thiểu theo ISO/IEC 18004. Bản trước
-        # để 2 module — vẫn quét được nhưng dễ lỗi khi in sát nội dung khác.
+        # để 2 module - vẫn quét được nhưng dễ lỗi khi in sát nội dung khác.
         border=4,
     )
 
@@ -68,7 +70,7 @@ def sinh_ma_qr(noi_dung: str, ten_file_goc: Path) -> None:
     qr_svg = qrcode.QRCode(box_size=10, image_factory=SvgPathImage, **tuy_chon)
     qr_svg.add_data(noi_dung)
     qr_svg.make(fit=True)
-    # Đồng bộ màu với bản PNG — mặc định SvgPathImage vẽ màu đen.
+    # Đồng bộ màu với bản PNG - mặc định SvgPathImage vẽ màu đen.
     anh_svg = qr_svg.make_image(fill_color=MAU_QR, back_color=MAU_NEN)
     anh_svg.save(f"{ten_file_goc}.svg")
 
@@ -106,7 +108,7 @@ def main() -> int:
     danh_sach = json.loads(file_linh_vuc.read_text(encoding="utf-8"))
     for lv in danh_sach:
         slug = lv["slug"]
-        sinh_ma_qr(f"{base_url}/linh-vuc/{slug}/", THU_MUC_QR / f"lv-{slug}")
+        sinh_ma_qr(f"{base_url}/linh-vuc/{slug}", THU_MUC_QR / f"lv-{slug}")
 
     print(f"  QR lĩnh vực  -> {len(danh_sach)} mã")
     print(f"Đã ghi {2 * (len(danh_sach) + 1)} file vào {THU_MUC_QR}")

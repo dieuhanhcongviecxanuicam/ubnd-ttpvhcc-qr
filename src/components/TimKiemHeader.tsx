@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import IconTimKiem from "./IconTimKiem";
 
-/** Ô tìm kiếm nhanh trên thanh điều hướng — Enter thì chuyển sang trang danh mục. */
+/** Ô tìm kiếm nhanh trên thanh điều hướng - Enter thì chuyển sang trang danh mục. */
 export default function TimKiemHeader() {
   const router = useRouter();
   const [tuKhoa, setTuKhoa] = useState("");
@@ -12,7 +12,7 @@ export default function TimKiemHeader() {
   function guiTimKiem(e: React.FormEvent) {
     e.preventDefault();
     const q = tuKhoa.trim();
-    if (q) router.push(`/danh-muc/?q=${encodeURIComponent(q)}`);
+    if (q) router.push(`/danh-muc?q=${encodeURIComponent(q)}`);
   }
 
   return (

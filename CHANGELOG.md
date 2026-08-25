@@ -2,12 +2,30 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
-## [1.3.0] — 2026-08-25
+## [1.4.0] - 2026-08-25
+
+### Thay đổi
+
+- **Mã QR chuyển sang màu đen tuyền** thay cho đỏ son. Tương phản cao nhất trên
+  nền trắng nên máy quét đọc nhanh và chắc hơn, kể cả khi bản in phai màu hoặc
+  thiếu sáng tại quầy.
+- **URL bỏ dấu "/" ở cuối**: `/in-ma-qr/` thành `/in-ma-qr`. Toàn bộ 78 mã QR đã
+  sinh lại theo địa chỉ mới, cùng sitemap, canonical và liên kết nội bộ.
+- **Logo mới** `logo-ttpvhcc.png` thay cho bộ cũ. Nền trắng được tách bằng thuật
+  toán loang từ viền ảnh, giữ mép mượt, hiển thị sạch trên cả nền sáng lẫn nền tối.
+  Favicon và icon PWA cũng sinh lại từ logo mới để đồng bộ nhận diện.
+- Thêm `scripts/tao-bo-nhan-dien.py` - sinh toàn bộ logo, favicon, icon PWA từ
+  một file gốc duy nhất bằng một lệnh.
+- Thay toàn bộ dấu gạch dài "-" và "-" thành gạch ngắn "-" trong mã nguồn và tài
+  liệu (81 ký tự, 29 file). Dữ liệu TTHC không bị đụng tới vì là văn bản công bố
+  chính thức - kiểm tra cho thấy dữ liệu vốn không chứa ký tự này.
+
+## [1.3.0] - 2026-08-25
 
 ### Sửa lỗi
 
 - **Mã QR bị méo trên điện thoại.** Phần reset ảnh thiếu `height: auto`, trong khi
-  `next/image` gắn sẵn thuộc tính `width`/`height` vào thẻ — nên khi CSS chỉ đặt
+  `next/image` gắn sẵn thuộc tính `width`/`height` vào thẻ - nên khi CSS chỉ đặt
   `width: 100%`, chiều cao giữ nguyên 200px và ảnh bị kéo dãn. Ở khung 360px, mã
   QR trang lĩnh vực rộng còn ~92px nhưng cao 200px, không quét được.
 - **Hai dòng chữ dính liền nhau** trong danh sách thủ tục (`…cấp xãCấp xã`): markup
@@ -17,7 +35,7 @@
 ### Thay đổi
 
 - Trang lĩnh vực trên màn hình dưới 640px nay xếp mã QR lên trên tiêu đề thay vì
-  chia hai cột — mã QR đạt ~210px, đủ lớn để quét từ màn hình.
+  chia hai cột - mã QR đạt ~210px, đủ lớn để quét từ màn hình.
 - Thay vòng tròn chữ "QR" bằng logo chính thức của đơn vị trên thanh điều hướng.
 - Bổ sung bộ nhận diện: `favicon.ico`, favicon 16/32px, apple-touch-icon 180px,
   icon PWA 192/512px, ảnh chia sẻ mạng xã hội, và `manifest.webmanifest`.
@@ -25,7 +43,7 @@
   phục vụ ở `public/brand/`. Gỡ bỏ các bản dư thừa (ảnh nền đăng nhập 3,8 MB không
   dùng đến vì dự án không có trang đăng nhập, và các biến thể webp không tham chiếu).
 
-## [1.2.0] — 2026-08-25
+## [1.2.0] - 2026-08-25
 
 ### Thay đổi
 
@@ -35,14 +53,14 @@
 - Ghi nhận cấu hình DNS đang dùng: Cloudflare chế độ *DNS only*, bản ghi
   `CNAME ttpvhcc → dieuhanhcongviecxanuicam.github.io`.
 
-## [1.1.0] — 2026-08-25
+## [1.1.0] - 2026-08-25
 
 Chuyển sang tên miền chính thức **ttpvhcc.xanuicam.vn**.
 
 ### Sửa lỗi
 
 - **Công cụ kiểm chứng mã QR báo lỗi giả.** `kiem-tra-ma-qr.py` dùng bộ giải mã
-  của OpenCV, vốn đọc hụt mã QR từ version 5 trở lên — hai lĩnh vực có slug dài
+  của OpenCV, vốn đọc hụt mã QR từ version 5 trở lên - hai lĩnh vực có slug dài
   (`giao-duc-nghe-nghiep-g07-ld06`, `quan-ly-chuong-trinh-muc-tieu-quoc-gia`) bị
   báo sai dù mã hoàn toàn hợp lệ. Đã chuyển sang **zxing-cpp**, cùng engine với
   phần lớn ứng dụng quét QR trên điện thoại.
@@ -50,13 +68,13 @@ Chuyển sang tên miền chính thức **ttpvhcc.xanuicam.vn**.
 ### Thay đổi
 
 - Toàn bộ 78 mã QR sinh lại theo tên miền `https://ttpvhcc.xanuicam.vn`.
-- Vùng yên tĩnh quanh mã QR tăng từ 2 lên **4 module** theo ISO/IEC 18004 —
+- Vùng yên tĩnh quanh mã QR tăng từ 2 lên **4 module** theo ISO/IEC 18004 -
   giảm rủi ro quét lỗi khi in sát nội dung khác.
 - Thêm `public/CNAME`; CI và workflow triển khai đều kiểm tra file này còn nằm
   trong bản build, vì thiếu nó là GitHub Pages gỡ cấu hình tên miền riêng.
-- Bỏ `NEXT_PUBLIC_BASE_PATH` khỏi workflow — tên miền riêng phục vụ ngay từ gốc.
+- Bỏ `NEXT_PUBLIC_BASE_PATH` khỏi workflow - tên miền riêng phục vụ ngay từ gốc.
 
-## [1.0.0] — 2026-08-25
+## [1.0.0] - 2026-08-25
 
 Chuẩn hoá toàn bộ dự án từ bản MVP tĩnh sang kiến trúc Next.js triển khai được.
 
@@ -64,7 +82,7 @@ Chuẩn hoá toàn bộ dự án từ bản MVP tĩnh sang kiến trúc Next.js 
 
 - **Toàn bộ 77 mã QR lĩnh vực trỏ tới trang không tồn tại.** Mã QR mã hoá đường
   dẫn `/linh-vuc/<slug>` trong khi website chỉ phục vụ `linh-vuc.html?slug=<slug>`
-  — mọi mã QR lĩnh vực nếu đem in sẽ dẫn tới lỗi 404. Nay website sinh sẵn đúng
+  - mọi mã QR lĩnh vực nếu đem in sẽ dẫn tới lỗi 404. Nay website sinh sẵn đúng
   route `/linh-vuc/<slug>/` và có script tự đối chiếu để lỗi này không tái diễn.
 - Đường dẫn tuyệt đối `/home/claude/...` và `/mnt/user-data/...` trong hai script
   Python khiến chúng không chạy được trên máy khác; chuyển sang đường dẫn tương đối.
@@ -74,7 +92,7 @@ Chuẩn hoá toàn bộ dự án từ bản MVP tĩnh sang kiến trúc Next.js 
 
 ### Thêm mới
 
-- Kiến trúc Next.js 16 (App Router) với static export — 455 trang sinh sẵn lúc build.
+- Kiến trúc Next.js 16 (App Router) với static export - 455 trang sinh sẵn lúc build.
 - Trang `/in-ma-qr/`: bảng in khổ A4 toàn bộ mã QR kèm tên lĩnh vực và URL đối chiếu.
 - `scripts/kiem-tra-ma-qr.py`: giải mã ngược ảnh QR và đối chiếu với route thật.
 - Lọc theo cấp thực hiện, phân trang, xoá bộ lọc ở trang danh mục.

@@ -32,7 +32,7 @@ export default function TrangDanhMuc() {
               <h1>Toàn bộ danh mục thủ tục hành chính</h1>
               <p>
                 {meta.tong_so_tthc} thủ tục thuộc {meta.tong_so_linh_vuc} lĩnh vực.
-                Gõ không dấu vẫn tìm được — ví dụ &laquo;ho tich&raquo;, &laquo;dat dai&raquo;.
+                Gõ không dấu vẫn tìm được - ví dụ &laquo;ho tich&raquo;, &laquo;dat dai&raquo;.
               </p>
             </div>
           </div>

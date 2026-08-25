@@ -7,7 +7,7 @@ Hạ tầng hiện tại: mã nguồn trên GitHub, tự động triển khai l�
 tên miền `ttpvhcc.xanuicam.vn` trỏ qua Cloudflare ở chế độ **DNS only** với bản ghi
 `CNAME ttpvhcc → dieuhanhcongviecxanuicam.github.io`.
 
-Tài liệu dành cho cán bộ phụ trách hệ thống. Ba việc thường gặp nhất nằm ở mục 1–3.
+Tài liệu dành cho cán bộ phụ trách hệ thống. Ba việc thường gặp nhất nằm ở mục 1-3.
 
 ---
 
@@ -29,7 +29,7 @@ python3 scripts/tao-ma-qr.py
 # 4. Xác nhận mã QR trỏ đúng
 python3 scripts/kiem-tra-ma-qr.py
 
-# 5. Đẩy lên — hệ thống tự triển khai sau khoảng 2–3 phút
+# 5. Đẩy lên - hệ thống tự triển khai sau khoảng 2-3 phút
 git add data public/qr
 git commit -m "Cập nhật danh mục TTHC theo Quyết định số ..."
 git push
@@ -42,12 +42,12 @@ QR nào không khớp.
 ## 2. In mã QR để dán tại quầy
 
 1. Mở trang `/in-ma-qr/` trên website.
-2. Đối chiếu URL nhỏ dưới mỗi mã QR — phải đúng tên miền đang triển khai.
+2. Đối chiếu URL nhỏ dưới mỗi mã QR - phải đúng tên miền đang triển khai.
 3. Bấm **In trang này**, chọn khổ A4, bật *In hình nền/màu nền* để mã QR rõ nét.
 4. Muốn in riêng một lĩnh vực: mở trang lĩnh vực đó và bấm **PNG** (in ấn) hoặc
    **SVG** (phóng to cỡ lớn không bị vỡ nét).
 
-Trước khi dán, hãy dùng điện thoại quét thử ít nhất 2–3 mã bất kỳ.
+Trước khi dán, hãy dùng điện thoại quét thử ít nhất 2-3 mã bất kỳ.
 
 ## 3. Chuyển sang tên miền chính thức
 
@@ -63,13 +63,13 @@ python3 scripts/kiem-tra-ma-qr.py --base-url $TEN_MIEN
 
 Rồi cập nhật ba chỗ cho khớp:
 
-1. `public/CNAME` — ghi tên miền mới (không kèm `https://`)
-2. `src/lib/site-config.ts` — sửa giá trị mặc định của `SITE_ORIGIN`
+1. `public/CNAME` - ghi tên miền mới (không kèm `https://`)
+2. `src/lib/site-config.ts` - sửa giá trị mặc định của `SITE_ORIGIN`
 3. Cài đặt **Settings → Pages → Custom domain** trên GitHub
 
 Và trỏ bản ghi DNS `CNAME` của tên miền mới về `dieuhanhcongviecxanuicam.github.io`.
 
-Cuối cùng: **thu hồi và thay thế toàn bộ mã QR đã dán** — mã cũ vẫn trỏ về tên
+Cuối cùng: **thu hồi và thay thế toàn bộ mã QR đã dán** - mã cũ vẫn trỏ về tên
 miền cũ.
 
 ## 4. Xử lý sự cố

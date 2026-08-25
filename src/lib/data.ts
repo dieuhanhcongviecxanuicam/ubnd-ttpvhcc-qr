@@ -1,8 +1,8 @@
 /**
- * Truy xuất dữ liệu TTHC — CHỈ chạy lúc build (server component / SSG).
+ * Truy xuất dữ liệu TTHC - CHỈ chạy lúc build (server component / SSG).
  *
  * Toàn bộ dữ liệu chi tiết (~5,3 MB) được đọc tại đây và render sẵn thành HTML
- * tĩnh. Trình duyệt người dân không bao giờ phải tải file JSON lớn này — đó là
+ * tĩnh. Trình duyệt người dân không bao giờ phải tải file JSON lớn này - đó là
  * khác biệt then chốt so với bản MVP tĩnh trước đây.
  */
 import "server-only";
@@ -86,7 +86,7 @@ function tomTat(t: Tthc): TthcTomTat {
   };
 }
 
-/** Toàn bộ 376 TTHC ở dạng tóm tắt — khoảng 90 KB thay vì 5,3 MB. */
+/** Toàn bộ 376 TTHC ở dạng tóm tắt - khoảng 90 KB thay vì 5,3 MB. */
 export function layChiMucTimKiem(): TthcTomTat[] {
   return nap().tthc.map(tomTat);
 }
@@ -98,7 +98,7 @@ export function layTthcTheoLinhVuc(tenLinhVuc: string): TthcTomTat[] {
     .map(tomTat);
 }
 
-/** Các cấp thực hiện có trong dữ liệu — dùng dựng bộ lọc trang danh mục. */
+/** Các cấp thực hiện có trong dữ liệu - dùng dựng bộ lọc trang danh mục. */
 export function layDanhSachCapThucHien(): string[] {
   const tap = new Set<string>();
   for (const t of nap().tthc) {

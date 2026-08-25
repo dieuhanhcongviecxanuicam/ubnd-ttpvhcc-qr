@@ -13,7 +13,7 @@ import { duongDan } from "@/lib/site-config";
 
 type Props = { params: Promise<{ ma: string }> };
 
-/** Pre-render toàn bộ trang chi tiết — nội dung nằm sẵn trong HTML, tốt cho SEO
+/** Pre-render toàn bộ trang chi tiết - nội dung nằm sẵn trong HTML, tốt cho SEO
  *  và cho người dân dùng mạng chậm (không phải tải JSON rồi mới render). */
 export function generateStaticParams() {
   return layTatCaTthc().map((t) => ({ ma: t.ma_tthc }));
@@ -27,9 +27,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t.ten_tthc,
     description:
-      `Thủ tục ${t.ma_tthc} — ${t.ten_tthc}. Lĩnh vực ${t.linh_vuc}. ` +
+      `Thủ tục ${t.ma_tthc} - ${t.ten_tthc}. Lĩnh vực ${t.linh_vuc}. ` +
       `Trình tự, hồ sơ, lệ phí và căn cứ pháp lý.`,
-    alternates: { canonical: `/tthc/${t.ma_tthc}/` },
+    alternates: { canonical: `/tthc/${t.ma_tthc}` },
   };
 }
 
@@ -48,7 +48,7 @@ export default async function TrangChiTietTthc({ params }: Props) {
           <nav className="duong-dan" aria-label="Đường dẫn">
             <Link href="/">Trang chủ</Link> /{" "}
             {lv ? (
-              <Link href={`/linh-vuc/${lv.slug}/`}>{lv.ten_linh_vuc}</Link>
+              <Link href={`/linh-vuc/${lv.slug}`}>{lv.ten_linh_vuc}</Link>
             ) : (
               t.linh_vuc
             )}{" "}
@@ -116,7 +116,7 @@ export default async function TrangChiTietTthc({ params }: Props) {
                 {t.cach_thuc_thuc_hien.map((c, i) => (
                   <div className="cttth-item" key={i}>
                     <div className="cttth-hang">
-                      <span>{c.hinh_thuc_nop || "—"}</span>
+                      <span>{c.hinh_thuc_nop || "-"}</span>
                       <span className="thoigian">{c.thoi_gian}</span>
                     </div>
                     {c.phi_le_phi && (
@@ -228,7 +228,7 @@ export default async function TrangChiTietTthc({ params }: Props) {
                   &raquo;
                 </p>
                 <Link
-                  href={`/linh-vuc/${lv.slug}/`}
+                  href={`/linh-vuc/${lv.slug}`}
                   className="btn-taixuong btn-phu"
                 >
                   Xem lĩnh vực
@@ -256,7 +256,7 @@ function ThongTin({
   return (
     <div className={`thong-tin-o${toanHang ? " o-toan-hang" : ""}`}>
       <dt>{nhan}</dt>
-      <dd>{giaTri || "—"}</dd>
+      <dd>{giaTri || "-"}</dd>
     </div>
   );
 }

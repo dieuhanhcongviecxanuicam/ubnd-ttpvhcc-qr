@@ -1,6 +1,6 @@
 /* ==========================================================================
-   TRA CỨU TTHC — Hệ thống thiết kế
-   Ý tưởng: "Dấu son & Mã QR" — con dấu đỏ hành chính truyền thống gặp mã QR
+   TRA CỨU TTHC - Hệ thống thiết kế
+   Ý tưởng: "Dấu son & Mã QR" - con dấu đỏ hành chính truyền thống gặp mã QR
    số hoá. Mỗi lĩnh vực là một "con dấu" riêng; TTHC được đánh mã như văn bản.
    ========================================================================== */
 
@@ -607,7 +607,7 @@ h1, h2, h3, h4 {
   .dong-tthc .mui-ten { display: none; }
 }
 /* Trên điện thoại, xếp mã QR lên trên tiêu đề. Ở bố cục hai cột, cột QR chỉ
-   rộng 120px — quá nhỏ để người khác quét từ màn hình, và tiêu đề lĩnh vực bị
+   rộng 120px - quá nhỏ để người khác quét từ màn hình, và tiêu đề lĩnh vực bị
    ép xuống còn vài ký tự mỗi dòng. */
 @media (max-width: 640px) {
   .lv-hero {
@@ -638,7 +638,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 }
 
 /* ==========================================================================
-   BỔ SUNG — các thành phần thêm ở bản Next.js
+   BỔ SUNG - các thành phần thêm ở bản Next.js
    ========================================================================== */
 
 /* ---------- Liên kết bỏ qua điều hướng (trợ năng bàn phím) ---------- */

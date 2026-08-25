@@ -27,7 +27,7 @@ export default function BoLocDanhMuc({
   const [cap, setCap] = useState("");
 
   // Từ khoá đến từ ô tìm kiếm trên thanh điều hướng (?q=...). Trang được xuất
-  // tĩnh nên giá trị này chỉ có sau khi hydrate — dùng mẫu "điều chỉnh state khi
+  // tĩnh nên giá trị này chỉ có sau khi hydrate - dùng mẫu "điều chỉnh state khi
   // giá trị ngoài thay đổi" của React thay vì useEffect + setState.
   const tuKhoaUrl = searchParams.get("q") ?? "";
   const [tuKhoaUrlTruoc, setTuKhoaUrlTruoc] = useState(tuKhoaUrl);

@@ -12,7 +12,7 @@ export default function KhongTimThay() {
           <Link href="/" className="btn-taixuong">
             Về trang chủ
           </Link>
-          <Link href="/danh-muc/" className="btn-taixuong btn-phu">
+          <Link href="/danh-muc" className="btn-taixuong btn-phu">
             Tra cứu danh mục
           </Link>
         </div>

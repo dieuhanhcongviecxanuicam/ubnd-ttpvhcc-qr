@@ -4,8 +4,8 @@ Thư mục này chỉ chứa **file gốc** để sinh lại bộ biểu tượn
 
 | File | Dùng để |
 |---|---|
-| `logo-master.webp` | Logo (1493×1517) — sinh `public/brand/logo*.png` |
-| `favicon-master.webp` | Biểu tượng vuông (2007×2007) — sinh favicon và icon PWA |
+| `logo-master.webp` | Logo (1493×1517) - sinh `public/brand/logo*.png` |
+| `favicon-master.webp` | Biểu tượng vuông (2007×2007) - sinh favicon và icon PWA |
 
 **File website thực sự phục vụ nằm ở `public/`**, không phải ở đây:
 

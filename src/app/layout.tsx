@@ -6,7 +6,7 @@ import "./globals.css";
 
 /**
  * Font được tải sẵn và tự host lúc build (next/font) thay vì gọi Google Fonts
- * lúc chạy — trang hiển thị được cả khi mạng nội bộ chặn Internet, và không
+ * lúc chạy - trang hiển thị được cả khi mạng nội bộ chặn Internet, và không
  * còn hiện tượng nhảy chữ khi tải.
  */
 const lora = Lora({
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: `${SITE_CONFIG.tenDayDu}`,
-    template: `%s — ${SITE_CONFIG.ten}`,
+    template: `%s - ${SITE_CONFIG.ten}`,
   },
   description: SITE_CONFIG.moTa,
   applicationName: SITE_CONFIG.tenDayDu,

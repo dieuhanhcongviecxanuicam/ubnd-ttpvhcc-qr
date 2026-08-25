@@ -11,7 +11,7 @@ export default function DongTthc({
   phu?: "linh_vuc" | "cap_thuc_hien";
 }) {
   return (
-    <Link className="dong-tthc" href={`/tthc/${tthc.ma_tthc}/`}>
+    <Link className="dong-tthc" href={`/tthc/${tthc.ma_tthc}`}>
       <span className="ma">{tthc.ma_tthc}</span>
       <span>
         <span className="ten">{tthc.ten_tthc}</span>
