@@ -17,17 +17,6 @@ import path from "node:path";
 
 const THU_MUC = path.join(process.cwd(), "out");
 
-/**
- * Cloudflare Web Analytics tự chèn beacon vào trang ở tầng biên, kho mã không
- * khai báo script này. Nếu đơn vị TẮT Web Analytics trong bảng điều khiển
- * Cloudflare thì xoá hằng số này đi để chính sách trở lại chỉ-cùng-miền.
- * Xem docs/BAO-MAT.md mục 3.
- */
-const CLOUDFLARE_BEACON = {
-  script: "https://static.cloudflareinsights.com",
-  connect: "https://cloudflareinsights.com",
-};
-
 /** Các directive không phụ thuộc nội dung trang. */
 const CO_DINH = [
   "default-src 'self'",
@@ -36,7 +25,7 @@ const CO_DINH = [
   // Thuộc tính style= nội tuyến do next/image sinh ra không băm được.
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
-  `connect-src 'self' ${CLOUDFLARE_BEACON.connect}`,
+  "connect-src 'self'",
   "manifest-src 'self'",
   "object-src 'none'",
   "frame-src 'none'",
@@ -63,13 +52,15 @@ function bamScriptNoiTuyen(html) {
   while ((khop = re.exec(html)) !== null) {
     const noiDung = khop[1];
     if (noiDung.length === 0) continue;
-    bam.add(`'sha256-${createHash("sha256").update(noiDung, "utf8").digest("base64")}'`);
+    bam.add(
+      `'sha256-${createHash("sha256").update(noiDung, "utf8").digest("base64")}'`,
+    );
   }
   return [...bam];
 }
 
 function dungChinhSach(bam) {
-  const scriptSrc = ["script-src 'self'", CLOUDFLARE_BEACON.script, ...bam].join(" ");
+  const scriptSrc = ["script-src 'self'", ...bam].join(" ");
   return [...CO_DINH, scriptSrc].join("; ");
 }
 
@@ -82,7 +73,9 @@ async function main() {
   for await (const tep of duyetHtml(THU_MUC)) {
     const html = await readFile(tep, "utf8");
     if (!html.includes(CHEN_SAU)) {
-      console.error(`LỖI: không tìm thấy <head> trong ${path.relative(THU_MUC, tep)}`);
+      console.error(
+        `LỖI: không tìm thấy <head> trong ${path.relative(THU_MUC, tep)}`,
+      );
       process.exitCode = 1;
       continue;
     }
@@ -95,7 +88,9 @@ async function main() {
     soTrang += 1;
   }
 
-  console.log(`CSP: đã chèn vào ${soTrang} trang, băm ${tongBam} khối script nội tuyến.`);
+  console.log(
+    `CSP: đã chèn vào ${soTrang} trang, băm ${tongBam} khối script nội tuyến.`,
+  );
 }
 
 await main();
