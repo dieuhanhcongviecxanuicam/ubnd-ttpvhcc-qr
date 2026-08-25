@@ -60,11 +60,14 @@ Trình duyệt **bỏ qua** `frame-ancestors` và `report-uri` khi chúng nằm 
 GitHub Pages không cho đặt header HTTP tuỳ ý. Phần này cấu hình một lần trên
 Cloudflare, không nằm trong kho mã.
 
-**Cloudflare → Rules → Transform Rules → Modify Response Header → Create rule**
+**Đã cấu hình và xác minh hoạt động ngày 26/08/2026** - đủ 7/7 header trên mọi
+đường dẫn, kể cả ảnh QR, sitemap và trang 404.
 
+Vị trí: **Cloudflare → Rules → Transform Rules → Modify Response Header**
+(lưu ý: *Response*, không phải *Request*).
 Áp dụng cho: `Hostname equals ttpvhcc.xanuicam.vn`
 
-Thêm các header tĩnh sau:
+Các header đang đặt:
 
 | Header                         | Giá trị                                                        | Chặn được gì                                                            |
 | ------------------------------ | -------------------------------------------------------------- | ----------------------------------------------------------------------- |
@@ -76,11 +79,22 @@ Thêm các header tĩnh sau:
 | `Cross-Origin-Resource-Policy` | `same-site`                                                    | Site khác nhúng tài nguyên của hệ thống                                 |
 | `X-Content-Type-Options`       | `nosniff`                                                      | Đã có sẵn từ GitHub Pages, đặt lại để chắc chắn                         |
 
-**Kiểm tra sau khi đặt:**
+> **Quan trọng - đừng mở rộng header CSP này.** Trang đã có CSP đầy đủ trong thẻ
+> `meta` do build sinh ra (mục 2). Khi có hai chính sách CSP cùng lúc, trình duyệt
+> áp dụng **giao** của cả hai. Nếu thêm directive khác vào header Cloudflare, ví dụ
+> `default-src 'self'`, nó sẽ không biết các băm script của từng trang và **chặn
+> luôn script của chính trang**, làm trang trắng. Header ở đây chỉ nên chứa đúng
+> `frame-ancestors` - directive duy nhất mà thẻ `meta` không làm được.
+
+**Kiểm tra định kỳ:**
 
 ```bash
 curl -sI https://ttpvhcc.xanuicam.vn/ | grep -iE 'content-security|x-frame|referrer|permissions|cross-origin'
 ```
+
+Kiểm tra chống nhúng khung có thực sự hoạt động: mở một trang HTML bất kỳ ở máy
+khác chứa `<iframe src="https://ttpvhcc.xanuicam.vn/"></iframe>`, iframe phải
+trống và console báo *"Framing ... violates ... frame-ancestors 'none'"*.
 
 ### Chế độ SSL/TLS
 
@@ -119,9 +133,20 @@ vẫn thấy biểu tượng ổ khoá.
 4. Khôi phục bằng cách `git revert` về commit lành rồi để CI triển khai lại.
 5. **Kiểm tra lại mã QR**: `python3 scripts/kiem-tra-ma-qr.py`. Nếu tên miền từng
    bị chiếm, phải rà xem mã QR đã dán tại quầy có còn trỏ đúng không.
-6. Lập biên bản sự cố và báo cáo theo quy định về ứng cứu sự cố an toàn thông tin.
+6. Lập biên bản sự cố và báo cáo theo quy định về ứng cứu sự cố an toàn thông tin,
+   đối chiếu với cấp độ an toàn hệ thống thông tin đã được phê duyệt của đơn vị.
 
-## 7. Những gì hệ thống KHÔNG lưu
+## 7. Hồ sơ cấp độ an toàn thông tin
+
+Đơn vị **đã được cấp Quyết định phê duyệt cấp độ an toàn hệ thống thông tin** hợp
+lệ, không cần lập hồ sơ đề xuất mới.
+
+Cần rà lại hồ sơ khi hệ thống thay đổi bản chất, đặc biệt nếu về sau bổ sung:
+biểu mẫu thu thập thông tin công dân, tài khoản đăng nhập, cơ sở dữ liệu, hoặc
+công cụ đo lượt truy cập của bên thứ ba. Ở trạng thái hiện tại hệ thống không có
+những thành phần đó.
+
+## 8. Những gì hệ thống KHÔNG lưu
 
 Không tài khoản người dùng, không cơ sở dữ liệu, không cookie, không biểu mẫu thu
 thập thông tin. Dữ liệu thủ tục hành chính là thông tin công khai từ Cổng Dịch vụ
