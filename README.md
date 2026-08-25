@@ -100,7 +100,8 @@ python3 scripts/kiem-tra-ma-qr.py --base-url https://ten-mien-moi.gov.vn
 Sau đó sửa `public/CNAME` thành tên miền mới, cập nhật `SITE_ORIGIN` trong
 `src/lib/site-config.ts`, rồi trỏ DNS về GitHub Pages.
 
-Chi tiết vận hành: xem [`docs/VAN-HANH.md`](docs/VAN-HANH.md).
+Chi tiết vận hành: xem [`docs/VAN-HANH.md`](docs/VAN-HANH.md). Số liệu hiệu năng
+cơ sở đo bằng Lighthouse: [`docs/HIEU-NANG.md`](docs/HIEU-NANG.md).
 
 ## 5. Lệnh có sẵn
 

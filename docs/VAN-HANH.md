@@ -84,7 +84,24 @@ miền cũ.
 | Số thủ tục hiển thị sai | `data/meta.json` chưa được sinh lại | Chạy lại `scripts/trich-xuat-du-lieu.py` |
 | Script báo "slug lĩnh vực bị trùng" | Hai lĩnh vực khác nhau cho ra cùng một slug | Sửa tên lĩnh vực trong file Excel cho phân biệt được |
 
-## 5. Chuẩn bị môi trường (làm một lần)
+## 5. Kiểm thử pipeline khi chưa có file Excel
+
+File Excel thật của đơn vị không nằm trong Git, nên muốn thử bước trích xuất mà
+không có file đó thì dựng một file mẫu từ chính dữ liệu đang có:
+
+```bash
+python3 scripts/dung-excel-mau.py . /tmp/mau.xlsx
+python3 scripts/trich-xuat-du-lieu.py /tmp/mau.xlsx --ngay-xuat 06/08/2026
+git diff --stat data/
+```
+
+Kết quả đúng: `meta.json` và `linh-vuc.json` không đổi; `tthc.json` chỉ lệch 7
+bản ghi có lĩnh vực rỗng, do bộ trích xuất bản mới chuẩn hoá chúng thành
+"Chưa phân loại". Lệch nhiều hơn thế là dấu hiệu pipeline đã hỏng.
+
+Nhớ `git checkout data/` sau khi thử, đừng commit dữ liệu sinh từ file mẫu.
+
+## 6. Chuẩn bị môi trường (làm một lần)
 
 ```bash
 # Node.js 24 trở lên (bản LTS, xem .nvmrc)
@@ -96,7 +113,7 @@ source .venv/bin/activate
 pip install -r scripts/requirements-dev.txt
 ```
 
-## 6. Sao lưu
+## 7. Sao lưu
 
 Cần giữ lại: **file Excel nguồn** (`data/source/`, không nằm trong Git) và toàn bộ
 kho mã nguồn trên GitHub. Có hai thứ này là dựng lại được toàn bộ hệ thống.
