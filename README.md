@@ -2,6 +2,8 @@
 
 **Hệ thống tra cứu thủ tục hành chính qua mã QR** — Trung tâm Phục vụ hành chính công.
 
+🌐 **https://ttpvhcc.xanuicam.vn**
+
 Người dân quét mã QR dán tại quầy một cửa để mở ngay danh sách thủ tục của đúng
 lĩnh vực cần làm, xem trình tự, hồ sơ, lệ phí, căn cứ pháp lý, rồi chuyển thẳng
 sang Cổng Dịch vụ công Quốc gia để nộp trực tuyến.
@@ -26,12 +28,9 @@ npm run build        # xuất trang tĩnh vào thư mục out/
 npm start            # xem thử bản đã build
 ```
 
-> **Lưu ý khi build cho GitHub Pages:** trang nằm dưới đường dẫn con
-> `/ubnd-ttpvhcc-qr` nên phải đặt biến môi trường:
-> ```bash
-> NEXT_PUBLIC_BASE_PATH=/ubnd-ttpvhcc-qr npm run build
-> ```
-> Workflow CI/CD đã tự làm việc này, chỉ cần khi build thủ công.
+> Hệ thống chạy trên tên miền riêng `ttpvhcc.xanuicam.vn` phục vụ từ gốc, nên
+> không cần cấu hình thêm gì. Nếu muốn tạm triển khai lên GitHub Pages dạng
+> đường dẫn con thì đặt `NEXT_PUBLIC_BASE_PATH=/ubnd-ttpvhcc-qr` khi build.
 
 ## 2. Cấu trúc dự án
 
@@ -42,11 +41,13 @@ ubnd-ttpvhcc-qr/
 │   ├── linh-vuc.json            #   77 lĩnh vực: tên, slug, danh sách mã TTHC
 │   ├── meta.json                #   Số liệu tổng hợp hiển thị trên site
 │   └── source/                  #   File Excel nguồn (không đưa lên Git)
-├── public/qr/                   # 78 mã QR × 2 định dạng (PNG in ấn, SVG web)
+├── public/
+│   ├── CNAME                    # Tên miền riêng — bắt buộc cho GitHub Pages
+│   └── qr/                      # 78 mã QR × 2 định dạng (PNG in ấn, SVG web)
 ├── scripts/                     # Pipeline dữ liệu bằng Python
 │   ├── trich-xuat-du-lieu.py    #   Excel  → data/*.json
 │   ├── tao-ma-qr.py             #   JSON   → public/qr/*
-│   └── kiem-tra-ma-qr.py        #   Giải mã ngược QR, đối chiếu URL
+│   └── kiem-tra-ma-qr.py        #   Giải mã ngược QR (zxing), đối chiếu URL
 ├── src/
 │   ├── app/                     # Route (App Router)
 │   │   ├── page.tsx             #   /                     trang chủ + QR tổng
@@ -86,16 +87,12 @@ pip install -r scripts/requirements-dev.txt
 sinh lại toàn bộ mã QR rồi in lại:
 
 ```bash
-python3 scripts/tao-ma-qr.py --base-url https://tthc.donvi.gov.vn
-python3 scripts/kiem-tra-ma-qr.py --base-url https://tthc.donvi.gov.vn
+python3 scripts/tao-ma-qr.py      --base-url https://ten-mien-moi.gov.vn
+python3 scripts/kiem-tra-ma-qr.py --base-url https://ten-mien-moi.gov.vn
 ```
 
-Đồng thời đặt biến môi trường khi build (bỏ `NEXT_PUBLIC_BASE_PATH` vì tên miền
-riêng phục vụ ở gốc):
-
-```bash
-NEXT_PUBLIC_SITE_ORIGIN=https://tthc.donvi.gov.vn npm run build
-```
+Sau đó sửa `public/CNAME` thành tên miền mới, cập nhật `SITE_ORIGIN` trong
+`src/lib/site-config.ts`, rồi trỏ DNS về GitHub Pages.
 
 Chi tiết vận hành: xem [`docs/VAN-HANH.md`](docs/VAN-HANH.md).
 
@@ -121,7 +118,9 @@ trình duyệt nhận HTML đã có sẵn nội dung — 36–204 KB mỗi trang
 
 **Vì sao cần `kiem-tra-ma-qr.py`.** Mã QR một khi đã in và dán tại quầy thì không
 sửa được. Script này giải mã ngược từng ảnh QR và đối chiếu với đường dẫn website
-thực sự phục vụ, chạy tự động trong CI mỗi lần đẩy mã lên.
+thực sự phục vụ, chạy tự động trong CI mỗi lần đẩy mã lên. Script dùng **zxing-cpp**
+chứ không dùng OpenCV: bộ giải mã của OpenCV đọc hụt mã QR từ version 5 trở lên
+(gặp thực tế với các lĩnh vực có slug dài) và sẽ báo lỗi giả.
 
 **Font.** Lora + Inter + IBM Plex Mono được tự host lúc build (`next/font`) thay vì
 gọi Google Fonts lúc chạy, nên trang hiển thị đúng cả trong mạng nội bộ không có Internet.

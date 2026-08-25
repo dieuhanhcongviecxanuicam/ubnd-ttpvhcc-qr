@@ -31,16 +31,19 @@ jobs:
       - name: Cài phụ thuộc
         run: npm ci
 
+      # Tên miền riêng ttpvhcc.xanuicam.vn phục vụ ngay từ gốc nên không cần
+      # NEXT_PUBLIC_BASE_PATH. Giá trị mặc định trong src/lib/site-config.ts đã đúng.
       - name: Build
         run: npm run build
-        env:
-          # Trang được phục vụ tại https://<user>.github.io/<repo>/ nên cần tiền tố.
-          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
-          NEXT_PUBLIC_SITE_ORIGIN: https://${{ github.repository_owner }}.github.io
 
       # Bỏ qua xử lý Jekyll — nếu không, GitHub Pages sẽ nuốt thư mục _next/
       - name: Thêm .nojekyll
         run: touch out/.nojekyll
+
+      # public/CNAME được Next chép sang out/ khi build. Thiếu file này là
+      # GitHub Pages gỡ cấu hình tên miền riêng ngay ở lượt triển khai kế tiếp.
+      - name: Xác nhận CNAME
+        run: test -f out/CNAME && cat out/CNAME
 
       - uses: actions/configure-pages@v5
 

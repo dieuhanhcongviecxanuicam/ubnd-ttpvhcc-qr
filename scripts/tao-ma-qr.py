@@ -11,11 +11,11 @@ Sinh mã QR (PNG + SVG) cho trang chủ và từng lĩnh vực.
 
 Cách dùng:
     python3 scripts/tao-ma-qr.py
-    python3 scripts/tao-ma-qr.py --base-url https://tthc.angiang.gov.vn
+    python3 scripts/tao-ma-qr.py --base-url https://ttpvhcc.xanuicam.vn
 
 Nếu không truyền --base-url, script đọc biến môi trường:
-    NEXT_PUBLIC_SITE_ORIGIN  (mặc định https://tsudev-tsudev.github.io)
-    NEXT_PUBLIC_BASE_PATH    (mặc định /ubnd-ttpvhcc-qr)
+    NEXT_PUBLIC_SITE_ORIGIN  (mặc định https://ttpvhcc.xanuicam.vn)
+    NEXT_PUBLIC_BASE_PATH    (mặc định rỗng — tên miền riêng phục vụ từ gốc)
 """
 from __future__ import annotations
 
@@ -35,8 +35,8 @@ THU_MUC_QR = GOC_DU_AN / "public" / "qr"
 MAU_QR = "#7A1E2B"   # đỏ son đậm — đồng bộ với --son-dam trong hệ thống thiết kế
 MAU_NEN = "#FFFFFF"
 
-ORIGIN_MAC_DINH = "https://tsudev-tsudev.github.io"
-BASE_PATH_MAC_DINH = "/ubnd-ttpvhcc-qr"
+ORIGIN_MAC_DINH = "https://ttpvhcc.xanuicam.vn"
+BASE_PATH_MAC_DINH = ""
 
 
 def lay_base_url(tham_so: str | None) -> str:
@@ -53,7 +53,9 @@ def sinh_ma_qr(noi_dung: str, ten_file_goc: Path) -> None:
     tuy_chon = dict(
         version=None,
         error_correction=qrcode.constants.ERROR_CORRECT_M,
-        border=2,
+        # Vùng yên tĩnh 4 module là mức tối thiểu theo ISO/IEC 18004. Bản trước
+        # để 2 module — vẫn quét được nhưng dễ lỗi khi in sát nội dung khác.
+        border=4,
     )
 
     qr_png = qrcode.QRCode(box_size=12, **tuy_chon)
@@ -75,7 +77,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--base-url",
-        help="Gốc URL triển khai, ví dụ https://tthc.angiang.gov.vn",
+        help="Gốc URL triển khai, ví dụ https://ttpvhcc.xanuicam.vn",
     )
     args = parser.parse_args()
 

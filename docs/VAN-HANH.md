@@ -1,5 +1,7 @@
 # Hướng dẫn vận hành
 
+Địa chỉ hệ thống: **https://ttpvhcc.xanuicam.vn**
+
 Tài liệu dành cho cán bộ phụ trách hệ thống. Ba việc thường gặp nhất nằm ở mục 1–3.
 
 ---
@@ -48,15 +50,19 @@ Trước khi dán, hãy dùng điện thoại quét thử ít nhất 2–3 mã b
 và in lại toàn bộ mã QR.
 
 ```bash
-export TEN_MIEN=https://tthc.donvi.gov.vn
+export TEN_MIEN=https://ten-mien-moi.gov.vn
 
 python3 scripts/tao-ma-qr.py      --base-url $TEN_MIEN
 python3 scripts/kiem-tra-ma-qr.py --base-url $TEN_MIEN
 ```
 
-Sau đó sửa `.github/workflows/deploy.yml`: bỏ dòng `NEXT_PUBLIC_BASE_PATH` và đặt
-`NEXT_PUBLIC_SITE_ORIGIN: https://tthc.donvi.gov.vn`, rồi trỏ bản ghi DNS về
-GitHub Pages (hoặc chuyển sang hạ tầng của đơn vị bằng cách chép thư mục `out/`).
+Rồi cập nhật ba chỗ cho khớp:
+
+1. `public/CNAME` — ghi tên miền mới (không kèm `https://`)
+2. `src/lib/site-config.ts` — sửa giá trị mặc định của `SITE_ORIGIN`
+3. Cài đặt **Settings → Pages → Custom domain** trên GitHub
+
+Và trỏ bản ghi DNS `CNAME` của tên miền mới về `tsudev-tsudev.github.io`.
 
 Cuối cùng: **thu hồi và thay thế toàn bộ mã QR đã dán** — mã cũ vẫn trỏ về tên
 miền cũ.
@@ -68,6 +74,8 @@ miền cũ.
 | Quét QR ra trang lỗi 404 | QR sinh theo tên miền khác với nơi đang triển khai | `python3 scripts/kiem-tra-ma-qr.py` rồi sinh lại, in lại |
 | Website không cập nhật sau khi push | Workflow triển khai thất bại | Xem tab **Actions** trên GitHub |
 | Trang trắng, thiếu định dạng | Thiếu `.nojekyll` nên GitHub Pages bỏ qua thư mục `_next/` | Kiểm tra bước "Thêm .nojekyll" trong `deploy.yml` |
+| Tên miền riêng tự mất sau khi triển khai | Thiếu `public/CNAME` nên GitHub Pages gỡ cấu hình | Khôi phục `public/CNAME`, CI đã có bước chặn lỗi này |
+| Trình duyệt báo cảnh báo chứng chỉ | GitHub chưa cấp được chứng chỉ HTTPS | Bật *Enforce HTTPS* trong Settings → Pages sau khi DNS đã phân giải |
 | Số thủ tục hiển thị sai | `data/meta.json` chưa được sinh lại | Chạy lại `scripts/trich-xuat-du-lieu.py` |
 | Script báo "slug lĩnh vực bị trùng" | Hai lĩnh vực khác nhau cho ra cùng một slug | Sửa tên lĩnh vực trong file Excel cho phân biệt được |
 

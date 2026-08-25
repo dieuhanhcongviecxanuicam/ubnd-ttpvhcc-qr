@@ -29,8 +29,12 @@ jobs:
 
       - name: Build thử (static export)
         run: npm run build
-        env:
-          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+
+      # CNAME phải có mặt trong out/, nếu không GitHub Pages sẽ gỡ tên miền riêng.
+      - name: Xác nhận CNAME được xuất kèm
+        run: |
+          test -f out/CNAME || { echo "THIẾU out/CNAME"; exit 1; }
+          echo "CNAME = $(cat out/CNAME)"
 
   kiem-tra-ma-qr:
     name: Đối chiếu mã QR với route
@@ -49,5 +53,3 @@ jobs:
       # Chặn tình huống nguy hiểm nhất: mã QR đã in nhưng trỏ tới trang không tồn tại.
       - name: Giải mã ngược toàn bộ mã QR và đối chiếu URL
         run: python scripts/kiem-tra-ma-qr.py
-        env:
-          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}

@@ -2,6 +2,27 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.1.0] — 2026-08-25
+
+Chuyển sang tên miền chính thức **ttpvhcc.xanuicam.vn**.
+
+### Sửa lỗi
+
+- **Công cụ kiểm chứng mã QR báo lỗi giả.** `kiem-tra-ma-qr.py` dùng bộ giải mã
+  của OpenCV, vốn đọc hụt mã QR từ version 5 trở lên — hai lĩnh vực có slug dài
+  (`giao-duc-nghe-nghiep-g07-ld06`, `quan-ly-chuong-trinh-muc-tieu-quoc-gia`) bị
+  báo sai dù mã hoàn toàn hợp lệ. Đã chuyển sang **zxing-cpp**, cùng engine với
+  phần lớn ứng dụng quét QR trên điện thoại.
+
+### Thay đổi
+
+- Toàn bộ 78 mã QR sinh lại theo tên miền `https://ttpvhcc.xanuicam.vn`.
+- Vùng yên tĩnh quanh mã QR tăng từ 2 lên **4 module** theo ISO/IEC 18004 —
+  giảm rủi ro quét lỗi khi in sát nội dung khác.
+- Thêm `public/CNAME`; CI và workflow triển khai đều kiểm tra file này còn nằm
+  trong bản build, vì thiếu nó là GitHub Pages gỡ cấu hình tên miền riêng.
+- Bỏ `NEXT_PUBLIC_BASE_PATH` khỏi workflow — tên miền riêng phục vụ ngay từ gốc.
+
 ## [1.0.0] — 2026-08-25
 
 Chuẩn hoá toàn bộ dự án từ bản MVP tĩnh sang kiến trúc Next.js triển khai được.

@@ -10,7 +10,7 @@ lần sinh lại mã QR hoặc trước khi đem in.
 
 Cách dùng:
     python3 scripts/kiem-tra-ma-qr.py
-    python3 scripts/kiem-tra-ma-qr.py --base-url https://tthc.angiang.gov.vn
+    python3 scripts/kiem-tra-ma-qr.py --base-url https://ttpvhcc.xanuicam.vn
 
 Yêu cầu: pip install -r scripts/requirements-dev.txt
 """
@@ -23,10 +23,11 @@ import sys
 from pathlib import Path
 
 try:
-    import cv2
+    import zxingcpp
+    from PIL import Image
 except ImportError:
     print(
-        "LỖI: cần opencv để giải mã QR.\n"
+        "LỖI: cần zxing-cpp và pillow để giải mã QR.\n"
         "    pip install -r scripts/requirements-dev.txt",
         file=sys.stderr,
     )
@@ -36,8 +37,8 @@ GOC_DU_AN = Path(__file__).resolve().parent.parent
 THU_MUC_QR = GOC_DU_AN / "public" / "qr"
 FILE_LINH_VUC = GOC_DU_AN / "data" / "linh-vuc.json"
 
-ORIGIN_MAC_DINH = "https://tsudev-tsudev.github.io"
-BASE_PATH_MAC_DINH = "/ubnd-ttpvhcc-qr"
+ORIGIN_MAC_DINH = "https://ttpvhcc.xanuicam.vn"
+BASE_PATH_MAC_DINH = ""
 
 
 def lay_base_url(tham_so: str | None) -> str:
@@ -54,16 +55,15 @@ def main() -> int:
     args = parser.parse_args()
 
     base_url = lay_base_url(args.base_url)
-    bo_giai_ma = cv2.QRCodeDetector()
 
     def giai_ma(duong_dan: Path) -> str | None:
+        """Giải mã bằng zxing-cpp — cùng engine với phần lớn ứng dụng quét QR trên
+        điện thoại, nên kết quả sát với trải nghiệm thực tế của người dân."""
         if not duong_dan.exists():
             return None
-        anh = cv2.imread(str(duong_dan))
-        if anh is None:
-            return None
-        noi_dung, _, _ = bo_giai_ma.detectAndDecode(anh)
-        return noi_dung
+        with Image.open(duong_dan) as anh:
+            ket_qua = zxingcpp.read_barcode(anh.convert("RGB"))
+        return ket_qua.text if ket_qua else None
 
     can_kiem_tra: list[tuple[Path, str]] = [
         (THU_MUC_QR / "master.png", f"{base_url}/")

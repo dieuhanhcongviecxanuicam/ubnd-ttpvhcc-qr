@@ -1,3 +1,8 @@
 # Phụ thuộc chỉ dùng khi kiểm thử/kiểm chứng, không cần cho pipeline sinh dữ liệu
 -r requirements.txt
-opencv-python-headless>=4.10   # giải mã ngược mã QR trong scripts/kiem-tra-ma-qr.py
+
+# Giải mã ngược mã QR trong scripts/kiem-tra-ma-qr.py.
+# Dùng zxing-cpp chứ không dùng OpenCV: bộ giải mã của OpenCV đọc hụt mã QR từ
+# version 5 trở lên (đã gặp thực tế với các lĩnh vực có slug dài), trong khi
+# zxing là engine đứng sau phần lớn ứng dụng quét QR trên điện thoại.
+zxing-cpp>=2.2

@@ -6,12 +6,16 @@
  * môi trường rồi chạy lại `npm run du-lieu:tao-qr` — không phải sửa mã nguồn.
  */
 
-/** Tiền tố đường dẫn (GitHub Pages project site). Rỗng khi dùng domain riêng. */
+/**
+ * Tiền tố đường dẫn. Rỗng vì hệ thống chạy trên tên miền riêng
+ * (ttpvhcc.xanuicam.vn) phục vụ ngay từ gốc. Chỉ cần đặt biến này khi tạm
+ * triển khai lên GitHub Pages dạng project site.
+ */
 export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 /** Gốc tên miền, không có dấu "/" ở cuối. */
 export const SITE_ORIGIN =
-  process.env.NEXT_PUBLIC_SITE_ORIGIN ?? "https://tsudev-tsudev.github.io";
+  process.env.NEXT_PUBLIC_SITE_ORIGIN ?? "https://ttpvhcc.xanuicam.vn";
 
 /** URL đầy đủ của trang chủ — đây chính là địa chỉ được nhúng vào mã QR tổng. */
 export const SITE_URL = `${SITE_ORIGIN}${BASE_PATH}`;
