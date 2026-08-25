@@ -4,6 +4,9 @@
 
 🌐 **https://ttpvhcc.xanuicam.vn**
 
+[![Kiểm tra chất lượng](https://github.com/dieuhanhcongviecxanuicam/ubnd-ttpvhcc-qr/actions/workflows/ci.yml/badge.svg)](https://github.com/dieuhanhcongviecxanuicam/ubnd-ttpvhcc-qr/actions/workflows/ci.yml)
+[![Triển khai GitHub Pages](https://github.com/dieuhanhcongviecxanuicam/ubnd-ttpvhcc-qr/actions/workflows/deploy.yml/badge.svg)](https://github.com/dieuhanhcongviecxanuicam/ubnd-ttpvhcc-qr/actions/workflows/deploy.yml)
+
 Người dân quét mã QR dán tại quầy một cửa để mở ngay danh sách thủ tục của đúng
 lĩnh vực cần làm, xem trình tự, hồ sơ, lệ phí, căn cứ pháp lý, rồi chuyển thẳng
 sang Cổng Dịch vụ công Quốc gia để nộp trực tuyến.
@@ -128,7 +131,20 @@ gọi Google Fonts lúc chạy, nên trang hiển thị đúng cả trong mạng
 **Nguồn dữ liệu.** [Cổng Dịch vụ công Quốc gia](https://dichvucong.gov.vn) — dữ liệu
 thủ tục hành chính là thông tin công khai.
 
-## 7. Giấy phép
+## 7. Hạ tầng
+
+| Thành phần | Cấu hình |
+|---|---|
+| Kho mã nguồn | `github.com/dieuhanhcongviecxanuicam/ubnd-ttpvhcc-qr` |
+| Hosting | GitHub Pages, triển khai bằng GitHub Actions |
+| Tên miền | `ttpvhcc.xanuicam.vn` |
+| DNS | Cloudflare — `CNAME ttpvhcc → dieuhanhcongviecxanuicam.github.io`, chế độ **DNS only** (không bật proxy) |
+| HTTPS | Chứng chỉ Let's Encrypt do GitHub Pages tự cấp và tự gia hạn |
+
+> Để bản ghi DNS ở chế độ **DNS only**. Bật proxy của Cloudflare sẽ chặn GitHub
+> xác thực tên miền nên không cấp được chứng chỉ, dễ gây vòng lặp chuyển hướng.
+
+## 8. Giấy phép
 
 [MIT](LICENSE) — mã nguồn. Dữ liệu thủ tục hành chính thuộc về cơ quan nhà nước
 có thẩm quyền công bố.
