@@ -7,7 +7,7 @@ mốc mà đối chiếu. **Chưa tối ưu gì cả** - đây là hiện trạn
 
 | Hạng mục | Giá trị |
 |---|---|
-| Ngày đo | 25/08/2026 |
+| Ngày đo | 25/08/2026 (trước) và 26/08/2026 (sau khi tối ưu) |
 | Công cụ | Lighthouse 12.8.2 |
 | Trình duyệt | Chrome for Testing 151.0.7922.34, chế độ headless |
 | Thiết bị mô phỏng | **Mobile** (điện thoại) |
@@ -20,29 +20,38 @@ bằng cách quét mã QR bằng điện thoại ngay tại quầy.
 Không đo bằng `python -m http.server` tại máy: kết quả sẽ sai lệch vì thiếu tầng
 nén, cache và định tuyến URL của GitHub Pages với Cloudflare.
 
-Số liệu ở mục 2 và 3 là **trước khi tối ưu**, giữ lại làm mốc đối chiếu. Thay
-đổi đã áp dụng và số đo của nó nằm ở mục 4.
+Mục 2 và 3 ghi số liệu **trước và sau** lần tối ưu ở mục 4. Mỗi con số "sau" là
+trung vị của 3 lần đo trên trang thật.
+
+> Đo ngay sau khi triển khai sẽ ra số xấu giả: lần đo đầu tiên gặp cache
+> Cloudflare còn nguội (trang chi tiết ra 68 điểm, FCP 2,6 s), ba lần sau ổn
+> định ở 77 điểm và FCP 1,3 s. Luôn đo lặp và bỏ lần đầu.
 
 ## 2. Điểm số
 
 | Trang | Hiệu năng | Trợ năng | Thực hành tốt | SEO |
 |---|---|---|---|---|
-| Trang chủ `/` | 85 | **100** | **100** | 92 |
-| Lĩnh vực `/linh-vuc/ho-tich` | 87 | **100** | **100** | 92 |
-| Chi tiết `/tthc/1.000110` | 74 | **100** | **100** | 92 |
+| Trang chủ `/` | 85 → **89** | **100** | **100** | 92 |
+| Lĩnh vực `/linh-vuc/ho-tich` | 87 → **94** | **100** | **100** | 92 |
+| Chi tiết `/tthc/1.000110` | 74 → **77** | **100** | **100** | 92 |
 
 Trợ năng đạt 100/100 trên cả ba trang, khớp với kết quả 0 vi phạm WCAG 2.1 AA
 của bộ test axe-core trong `tests/`.
 
 ## 3. Chỉ số Web Vitals
 
-| Trang | FCP | LCP | TBT | CLS | Speed Index | Tổng tải |
-|---|---|---|---|---|---|---|
-| Trang chủ | 2,4 s | 2,4 s | 400 ms | 0,066 | 2,4 s | 534 KiB |
-| Lĩnh vực | 2,3 s | 2,3 s | 380 ms | 0 | 2,3 s | 463 KiB |
-| Chi tiết TTHC | 2,3 s | 2,3 s | **980 ms** | 0 | 2,3 s | 507 KiB |
+| Trang | FCP | LCP | TBT |
+|---|---|---|---|
+| Trang chủ | 2,4 s → **1,3 s** (-46%) | 2,4 s → **1,3 s** (-46%) | 400 → 409 ms |
+| Lĩnh vực | 2,3 s → **1,2 s** (-48%) | 2,3 s → **1,8 s** (-22%) | 380 → **285 ms** (-25%) |
+| Chi tiết TTHC | 2,3 s → **1,3 s** (-42%) | 2,3 s → **1,3 s** (-42%) | 980 → 1060 ms (+8%) |
 
-LCP dưới 2,5 s ở cả ba trang - đạt ngưỡng "tốt" của Core Web Vitals.
+LCP dưới 2,5 s ở cả ba trang - đạt ngưỡng "tốt" của Core Web Vitals, và sau khi
+tối ưu thì còn rộng hơn nhiều.
+
+TBT của trang chi tiết nhích lên 8%: đó là cái giá đã biết trước của việc nhúng
+CSS, vì trình duyệt phải phân tích thêm phần HTML phình ra. Đổi lại LCP - chỉ số
+Core Web Vitals quan trọng nhất - giảm 42%. Đánh đổi có lợi.
 
 Điểm hiệu năng của trang chi tiết thấp hơn hẳn (74). Bảng đo đầu tiên quy
 nguyên nhân cho TBT 980 ms, tức JavaScript. **Đó là quy kết sai**, đã đo lại
@@ -76,6 +85,9 @@ trung vị, các bản đo **xen kẽ trong cùng phiên** để triệt nhiễu
 | `contain: layout style paint` | +2%, trong nhiễu | Loại |
 | `font-display: optional` | không đo được lợi ích | Loại |
 | `experimental.inlineCss` | **FCP và LCP đều -61%** | **Đã áp dụng** |
+
+Số -61% là đo tại máy. Trên trang thật, mức cải thiện là **-42% đến -48% FCP** và
+**-22% đến -46% LCP** tuỳ trang (xem mục 2 và 3).
 
 **Đừng thử lại `content-visibility`.** Nó nhanh nhất nhưng loại nội dung ngoài
 tầm nhìn khỏi cây trợ năng: 746 nút tụt còn 200, mất hẳn bốn tiêu đề mục (Cách
