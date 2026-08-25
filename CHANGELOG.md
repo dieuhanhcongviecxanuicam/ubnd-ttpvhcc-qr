@@ -2,6 +2,26 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.7.1] - 2026-08-26
+
+### Thay đổi
+
+- Siết CSP về **chỉ cho phép cùng miền** sau khi đơn vị tắt Cloudflare Web
+  Analytics. Xác minh trên production: 0 request ra ngoài miền.
+- Cập nhật `docs/BAO-MAT.md`: 7 header bảo mật đã cấu hình xong tại Cloudflare và
+  xác minh hoạt động trên mọi đường dẫn. Bổ sung cảnh báo **không được mở rộng
+  header CSP tại Cloudflare** - trang đã có CSP đầy đủ trong thẻ meta, hai chính
+  sách cùng lúc sẽ được trình duyệt lấy giao, thêm directive vào header sẽ chặn
+  luôn script của chính trang.
+- Ghi nhận đơn vị đã có Quyết định phê duyệt cấp độ an toàn hệ thống thông tin.
+
+### Kiểm chứng
+
+- Chống nhúng khung: dựng trang lạ chứa iframe trỏ tới hệ thống, trình duyệt chặn
+  đúng với thông báo vi phạm `frame-ancestors 'none'`.
+- 7/7 header trên mọi loại đường dẫn: trang HTML, ảnh QR, sitemap, manifest, 404.
+- Trang chạy sạch: 0 vi phạm CSP, 0 lỗi JavaScript, 0 request ra ngoài miền.
+
 ## [1.7.0] - 2026-08-26
 
 Kiện toàn an toàn thông tin. Trọng tâm là chuỗi cung ứng và kiểm soát truy cập -
