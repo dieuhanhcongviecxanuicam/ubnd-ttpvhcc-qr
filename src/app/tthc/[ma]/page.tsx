@@ -8,6 +8,7 @@ import {
   laySlugLinhVuc,
   layTatCaTthc,
   layTthcTheoMa,
+  tenLinhVucCua,
 } from "@/lib/data";
 import { duongDan } from "@/lib/site-config";
 
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t.ten_tthc,
     description:
-      `Thủ tục ${t.ma_tthc} - ${t.ten_tthc}. Lĩnh vực ${t.linh_vuc}. ` +
+      `Thủ tục ${t.ma_tthc} - ${t.ten_tthc}. Lĩnh vực ${tenLinhVucCua(t)}. ` +
       `Trình tự, hồ sơ, lệ phí và căn cứ pháp lý.`,
     alternates: { canonical: `/tthc/${t.ma_tthc}` },
   };
@@ -38,7 +39,8 @@ export default async function TrangChiTietTthc({ params }: Props) {
   const t = layTthcTheoMa(decodeURIComponent(ma));
   if (!t) notFound();
 
-  const slugLinhVuc = laySlugLinhVuc(t.linh_vuc);
+  const ten_linh_vuc = tenLinhVucCua(t);
+  const slugLinhVuc = laySlugLinhVuc(ten_linh_vuc);
   const lv = slugLinhVuc ? layLinhVucTheoSlug(slugLinhVuc) : undefined;
 
   return (
@@ -50,7 +52,7 @@ export default async function TrangChiTietTthc({ params }: Props) {
             {lv ? (
               <Link href={`/linh-vuc/${lv.slug}`}>{lv.ten_linh_vuc}</Link>
             ) : (
-              t.linh_vuc
+              ten_linh_vuc
             )}{" "}
             / Chi tiết
           </nav>
@@ -64,7 +66,7 @@ export default async function TrangChiTietTthc({ params }: Props) {
             <section className="tt-khoi">
               <h2>Thông tin chung</h2>
               <dl className="thong-tin-luoi">
-                <ThongTin nhan="Lĩnh vực" giaTri={t.linh_vuc} />
+                <ThongTin nhan="Lĩnh vực" giaTri={ten_linh_vuc} />
                 <ThongTin nhan="Cấp thực hiện" giaTri={t.cap_thuc_hien} />
                 <ThongTin nhan="Cơ quan ban hành" giaTri={t.co_quan_ban_hanh} />
                 <ThongTin nhan="Cơ quan thực hiện" giaTri={t.co_quan_thuc_hien} />

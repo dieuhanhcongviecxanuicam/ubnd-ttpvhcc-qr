@@ -13,6 +13,17 @@ import type { LinhVuc, Meta, Tthc, TthcTomTat } from "./types";
 
 const THU_MUC_DU_LIEU = path.join(process.cwd(), "data");
 
+/**
+ * Tên nhóm dành cho thủ tục chưa được gán lĩnh vực trong dữ liệu nguồn.
+ * Phải khớp đúng chuỗi mà scripts/trich-xuat-du-lieu.py dùng khi gom nhóm.
+ */
+export const LINH_VUC_CHUA_PHAN_LOAI = "Chưa phân loại";
+
+/** Tên lĩnh vực hiển thị của một thủ tục, chuẩn hoá trường hợp bỏ trống. */
+export function tenLinhVucCua(t: Tthc): string {
+  return (t.linh_vuc || "").trim() || LINH_VUC_CHUA_PHAN_LOAI;
+}
+
 function docJSON<T>(tenFile: string): T {
   const duongDan = path.join(THU_MUC_DU_LIEU, tenFile);
   return JSON.parse(fs.readFileSync(duongDan, "utf-8")) as T;
@@ -75,14 +86,15 @@ export function layTthcTheoMa(ma: string): Tthc | undefined {
 
 /** Rút gọn một TTHC về bản tóm tắt gửi xuống client cho chức năng tìm kiếm. */
 function tomTat(t: Tthc): TthcTomTat {
+  const ten_linh_vuc = tenLinhVucCua(t);
   return {
     ma_tthc: t.ma_tthc,
     ten_tthc: t.ten_tthc,
-    linh_vuc: t.linh_vuc,
-    slug_linh_vuc: laySlugLinhVuc(t.linh_vuc) ?? "",
+    linh_vuc: ten_linh_vuc,
+    slug_linh_vuc: laySlugLinhVuc(ten_linh_vuc) ?? "",
     cap_thuc_hien: t.cap_thuc_hien,
     // Dựng sẵn chuỗi không dấu lúc build để lọc phía client chạy tức thì.
-    tim_kiem: boDau(`${t.ma_tthc} ${t.ten_tthc} ${t.linh_vuc} ${t.tu_khoa}`),
+    tim_kiem: boDau(`${t.ma_tthc} ${t.ten_tthc} ${ten_linh_vuc} ${t.tu_khoa}`),
   };
 }
 
@@ -91,10 +103,20 @@ export function layChiMucTimKiem(): TthcTomTat[] {
   return nap().tthc.map(tomTat);
 }
 
-/** Danh sách TTHC thuộc một lĩnh vực, dạng tóm tắt. */
-export function layTthcTheoLinhVuc(tenLinhVuc: string): TthcTomTat[] {
-  return nap()
-    .tthc.filter((t) => t.linh_vuc === tenLinhVuc)
+/**
+ * Danh sách TTHC thuộc một lĩnh vực, dạng tóm tắt.
+ *
+ * Lấy theo `danh_sach_ma_tthc` của chính lĩnh vực đó chứ không lọc theo tên.
+ * Lọc theo tên từng gây lỗi: 7 thủ tục được gom vào nhóm "Chưa phân loại" nhưng
+ * trường `linh_vuc` của chúng để rỗng, nên không bản ghi nào khớp và trang lĩnh
+ * vực hiện "7 thủ tục" mà danh sách trống. Dùng chung một nguồn thì số đếm và
+ * danh sách không thể lệch nhau nữa.
+ */
+export function layTthcTheoLinhVuc(lv: LinhVuc): TthcTomTat[] {
+  const { theoMa } = nap();
+  return lv.danh_sach_ma_tthc
+    .map((ma) => theoMa.get(ma))
+    .filter((t): t is Tthc => t !== undefined)
     .map(tomTat);
 }
 

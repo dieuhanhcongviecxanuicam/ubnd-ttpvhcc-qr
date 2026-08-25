@@ -214,7 +214,12 @@ def main() -> int:
     # ---------- 4. Nhóm theo lĩnh vực ----------
     theo_linh_vuc: dict[str, list[str]] = defaultdict(list)
     for t in danh_sach:
-        theo_linh_vuc[t["linh_vuc"] or "Chưa phân loại"].append(t["ma_tthc"])
+        # Ghi thẳng tên nhóm vào bản ghi thay vì chỉ dùng khi gom. Trước đây
+        # trường này để rỗng, khiến trang lĩnh vực "Chưa phân loại" đếm ra 7 thủ
+        # tục nhưng không hiển thị được thủ tục nào.
+        if not t["linh_vuc"]:
+            t["linh_vuc"] = "Chưa phân loại"
+        theo_linh_vuc[t["linh_vuc"]].append(t["ma_tthc"])
 
     linh_vuc = [
         {

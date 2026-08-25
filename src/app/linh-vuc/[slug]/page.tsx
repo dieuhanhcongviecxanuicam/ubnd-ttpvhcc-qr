@@ -35,7 +35,7 @@ export default async function TrangLinhVuc({ params }: Props) {
   const lv = layLinhVucTheoSlug(slug);
   if (!lv) notFound();
 
-  const danhSach = layTthcTheoLinhVuc(lv.ten_linh_vuc);
+  const danhSach = layTthcTheoLinhVuc(lv);
 
   return (
     <>

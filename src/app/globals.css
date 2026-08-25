@@ -13,7 +13,11 @@
   --son: #9B2226;        /* đỏ son - màu chủ đạo */
   --son-dam: #7A1B1E;    /* đỏ son đậm - hover */
   --dong: #A9793C;       /* đồng - điểm nhấn vàng đồng */
-  --reu: #47573A;        /* rêu phong - trạng thái/thẻ phụ */
+  --reu: #47573A;        /* rêu phong - thẻ phụ */
+  --luc: #1E7A46;        /* xanh lá - trạng thái hợp lệ (Đã công khai) */
+  --luc-nen: #E3F5EA;    /* nền nhạt cho thẻ trạng thái hợp lệ */
+  --vang: #FFE566;       /* vàng tô sáng từ khoá tìm kiếm */
+  --vang-dam: #F5C518;   /* vàng đậm - viền và nhấn mạnh phần khớp */
   --duong-vien: #DFD9C8; /* viền */
   --trang: #FFFFFF;
 
@@ -437,18 +441,19 @@ h1, h2, h3, h4 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(71,87,58,0.1);
-  color: var(--reu);
+  background: var(--luc-nen);
+  color: var(--luc);
+  border: 1px solid rgba(30, 122, 70, 0.25);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 5px 12px;
   border-radius: 999px;
   margin-top: 10px;
 }
 .the-trangthai::before {
   content: "";
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--reu);
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--luc);
 }
 
 .tt-luoi {
@@ -792,15 +797,16 @@ a:focus-visible, button:focus-visible, input:focus-visible {
    TÔ SÁNG TỪ KHOÁ TÌM KIẾM
    ========================================================================== */
 mark {
-  background: rgba(169, 121, 60, 0.26);
-  color: inherit;
+  background: var(--vang);
+  color: var(--muc);
   font-weight: 700;
   border-radius: 2px;
-  padding: 0 1px;
+  padding: 0 2px;
+  box-shadow: 0 0 0 1px var(--vang-dam) inset;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
-.dong-tthc .ma mark { background: rgba(169, 121, 60, 0.32); }
+.dong-tthc .ma mark { color: var(--muc); }
 
 /* ==========================================================================
    DANH SÁCH THẢ XUỐNG - mũi tên tuỳ biến, khống chế chiều ngang

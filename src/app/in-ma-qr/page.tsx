@@ -30,20 +30,14 @@ export default function TrangInMaQr() {
               <Link href="/">Trang chủ</Link> / In bộ mã QR
             </nav>
             <h1>Bảng in mã QR theo lĩnh vực</h1>
-            <p>
-              {meta.tong_so_linh_vuc} mã QR lĩnh vực + 1 mã QR tổng. Chọn{" "}
-              <strong>In trang này</strong> để xếp nhiều mã trên một trang, hoặc{" "}
-              <strong>In từng mã</strong> để mỗi mã QR chiếm trọn một trang giấy
-              theo khổ bạn chọn trong hộp thoại in.
+            <p className="hop-luu-y khong-in">
+              <strong>Trước khi in:</strong> các mã QR đang trỏ tới{" "}
+              <code>{SITE_URL}</code> ({meta.tong_so_linh_vuc} mã QR lĩnh vực + 1
+              mã QR tổng). Nếu đơn vị bạn cần triển khai trên tên miền khác, vui
+              lòng liên hệ Giám đốc TTPVHCC xã Núi Cấm để trao đổi.
             </p>
           </div>
           <ThanhCongCuIn />
-        </div>
-
-        <div className="hop-luu-y khong-in">
-          <strong>Trước khi in:</strong> các mã QR đang trỏ tới{" "}
-          <code>{SITE_URL}</code>. Nếu đơn vị bạn cần triển khai trên tên miền khác,
-          vui lòng liên hệ Giám đốc TTPVHCC xã Núi Cấm để trao đổi.
         </div>
 
         <div className="in-luoi">

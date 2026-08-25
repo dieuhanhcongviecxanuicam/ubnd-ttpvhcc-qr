@@ -2,6 +2,30 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.6.0] - 2026-08-25
+
+### Sửa lỗi
+
+- **Lĩnh vực "Chưa phân loại" hiện "7 thủ tục" nhưng danh sách trống.** Bảy thủ
+  tục được gom vào nhóm này lúc trích xuất, nhưng trường `linh_vuc` của chúng để
+  rỗng, trong khi trang lĩnh vực lại lọc bản ghi theo tên lĩnh vực - không cái
+  nào khớp. Nay danh sách lấy theo `danh_sach_ma_tthc` của chính lĩnh vực đó, tức
+  cùng một nguồn với số đếm, nên hai con số không thể lệch nhau nữa. Đã đối chiếu
+  toàn bộ 77 lĩnh vực: 0 trường hợp lệch.
+- Trang chi tiết của bảy thủ tục nói trên trước đây bỏ trống mục "Lĩnh vực" và
+  không có liên kết quay lại; nay hiển thị "Chưa phân loại" kèm liên kết.
+- `scripts/trich-xuat-du-lieu.py` ghi thẳng tên nhóm vào bản ghi, để lần sinh dữ
+  liệu sau không tái diễn tình trạng lệch này.
+
+### Thay đổi
+
+- Thẻ trạng thái "Đã công khai" chuyển sang xanh lá rõ ràng (`#1E7A46` trên nền
+  `#E3F5EA`, kèm viền và chấm tròn) thay cho màu rêu nhạt khó nhận ra.
+- Tô sáng từ khoá tìm kiếm chuyển sang vàng nổi bật (`#FFE566` viền `#F5C518`)
+  thay cho màu đồng nhạt - dễ nhận ra phần khớp khi lướt danh sách dài.
+- Trang `/in-ma-qr`: gộp ghi chú trước khi in vào vị trí đoạn mô tả, bổ sung số
+  lượng mã QR vào chính ghi chú đó và gỡ đoạn mô tả cũ.
+
 ## [1.5.0] - 2026-08-25
 
 ### Sửa lỗi
