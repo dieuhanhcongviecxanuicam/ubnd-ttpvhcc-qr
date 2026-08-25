@@ -26,7 +26,7 @@ import path from "node:path";
 import { chromium } from "playwright";
 
 const require = createRequire(import.meta.url);
-const THU_MUC = path.join(process.cwd(), "out");
+const THU_MUC = path.resolve(process.cwd(), "out");
 
 /** Một trang cho mỗi loại bố cục - phủ hết template mà không phải quét cả 458 trang. */
 const CAC_TRANG = [
@@ -56,14 +56,27 @@ function moMayChu() {
     ".woff2": "font/woff2",
     ".txt": "text/plain; charset=utf-8",
   };
+  // Chỉ chấp nhận đường dẫn nằm trong out/. Máy chủ này tuy chỉ chạy cục bộ và
+  // trong CI, nhưng req.url do phía gọi kiểm soát nên `..` vẫn thoát ra ngoài
+  // thư mục được - CodeQL bắt đúng (js/path-injection). Giải bằng resolve rồi
+  // đối chiếu tiền tố, không phải bằng cách lọc chuỗi.
+  const trongThuMuc = (p) => {
+    const tuyetDoi = path.resolve(p);
+    return tuyetDoi === THU_MUC || tuyetDoi.startsWith(THU_MUC + path.sep) ? tuyetDoi : null;
+  };
+
   const may = createServer((req, res) => {
     const duongDan = decodeURIComponent(req.url.split("?")[0]).replace(/^\/+/, "");
-    const goc = path.join(THU_MUC, duongDan);
+    const goc = trongThuMuc(path.join(THU_MUC, duongDan));
     let tep = null;
-    if (duongDan === "") tep = path.join(THU_MUC, "index.html");
-    else if (fs.existsSync(`${goc}.html`)) tep = `${goc}.html`;
+    if (goc === null) {
+      res.writeHead(403).end("ngoai pham vi");
+      return;
+    }
+    if (duongDan === "") tep = trongThuMuc(path.join(THU_MUC, "index.html"));
+    else if (fs.existsSync(`${goc}.html`)) tep = trongThuMuc(`${goc}.html`);
     else if (fs.existsSync(goc) && fs.statSync(goc).isFile()) tep = goc;
-    else if (fs.existsSync(path.join(goc, "index.html"))) tep = path.join(goc, "index.html");
+    else if (fs.existsSync(path.join(goc, "index.html"))) tep = trongThuMuc(path.join(goc, "index.html"));
 
     if (!tep) {
       res.writeHead(404).end("khong tim thay");
