@@ -2,6 +2,41 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.9.2] - 2026-08-26
+
+### Thay đổi
+
+- `docs/HIEU-NANG.md` mục 4: tìm ra **nguyên nhân gốc** của nút thắt dàn trang ở
+  trang chi tiết. Bảng cũ chỉ nói chi phí nằm ở Style & Layout; nay đã bóc được
+  vì sao. Thủ phạm là **Inter, bộ chữ nội dung**: thay riêng nó về chữ hệ thống
+  cắt 42,6% Style & Layout, trong khi Lora chỉ 2,2% và IBM Plex Mono 8,4%.
+  Gốc rễ là cách Google Fonts cắt bộ chữ theo `unicode-range`: dấu tiếng Việt
+  nằm ở file khác với chữ cái không dấu, nên chữ "Giải" phải tạo hình bằng hai
+  file font, và cả trang 18.600 ký tự bị xé thành vô số đoạn nhỏ. Đo trên trang
+  cô lập: với Inter chia ba face, chữ có dấu đắt hơn chữ bỏ dấu **49,6%**; với
+  DejaVu Sans một face phủ trọn, chỉ **17,9%**. Tức chi phí đặt dấu vốn có chỉ
+  ~18%, hơn 30 điểm còn lại là cái giá của việc xé đoạn.
+- Ghi lại **tám hướng đã đo và loại** kèm số, trong đó có giả thuyết lưới
+  `minmax(0, 1fr)` (-1,4%, bị bác bỏ) và ba hướng chỉ được ~8% nhưng phải đổi
+  chất lượng chữ hoặc thiết kế.
+- Ghi lại **bốn cái bẫy đo đạc** đã dính lần này, cả bốn đều cho số trông thuyết
+  phục mà sai: thứ tự chạy cố định làm bản đứng cuối chịu thiệt (một bản ít nội
+  dung hơn đo ra tốn thêm 17,6%); sửa CSS trong payload RSC phá băm CSP khiến
+  trang không hydrate; sửa nội dung làm trang dựng hỏng rồi đo nhầm trang gần
+  trống (345 nút còn 25); và nới lỏng chốt kiểm tra sau khi nó báo nhầm.
+
+### Ghi chú cho lần sau
+
+- Hướng duy nhất còn biên độ lớn: **phục vụ Inter thành một face phủ cả latin
+  lẫn tiếng Việt** thay vì ba face chia theo `unicode-range`. **Chưa chứng minh
+  được**: bản thử gộp bằng `fontTools.merge` đo ra -42,9% nhưng bộ chữ gộp hụt
+  bề rộng tới 22px ở mẫu nhiều dấu do đánh rơi GPOS, nên số đó đã bị loại. Muốn
+  đi tiếp phải subset từ Inter gốc bằng `pyftsubset` rồi đối chiếu bề rộng chữ
+  trước, và cân thêm đánh đổi byte trên mạng di động.
+- Bộ đo dùng CDP `Performance.getMetrics` (`LayoutDuration` + `RecalcStyleDuration`)
+  nhạy hơn TBT của Lighthouse nhiều. Mọi bản đo phải kèm chứng cứ trang vẫn dựng
+  đúng: số nút DOM và thời lượng script nằm trong ngưỡng của bản gốc.
+
 ## [1.9.1] - 2026-08-26
 
 ### Sửa lỗi

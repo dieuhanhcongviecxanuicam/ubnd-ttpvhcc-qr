@@ -115,6 +115,100 @@ trùng lặp gần hết:
 Lượt đầu gần như miễn phí - đúng kịch bản chính của site. Người xem nhiều trang
 liên tiếp tốn thêm ~5,9 KB mỗi trang vì CSS không còn cache dùng chung.
 
+### Đào sâu: vì sao dàn chữ Việt đắt đến vậy
+
+Bảng trên mới nói *chỗ nào* tốn, chưa nói *vì sao*. Lần đo này bóc tiếp, bằng bộ
+đo nhạy hơn Lighthouse: đọc thẳng `LayoutDuration` + `RecalcStyleDuration` qua
+CDP `Performance.getMetrics`. Đó là bộ đếm tích luỹ của chính trình duyệt chứ
+không phải suy ra từ long task, nên phương sai thấp hơn hẳn. Điều kiện: CPU
+throttle 6x, khổ 390px, mỗi bản 9-11 lượt **xen kẽ và xoay vòng thứ tự**, lấy
+trung vị.
+
+Bộ đo tái hiện đúng chênh lệch đã ghi ở trên (chi tiết 640 ms so với lĩnh vực
+262 ms) và làm rõ thêm: **585 ms trong đó là `layout` thuần, `style recalc` chỉ
+47 ms** - thấp hơn cả trang chủ. Không phải chuyện chọn selector hay số quy tắc
+CSS.
+
+Thay từng họ chữ về chữ hệ thống, giữ nguyên mọi thứ khác:
+
+| Đổi | S&L | Kết luận |
+|---|---|---|
+| **Inter (chữ nội dung) -> hệ thống** | **-42,6%** | thủ phạm |
+| Lora (tiêu đề) -> hệ thống | -2,2% | không đáng kể |
+| IBM Plex Mono -> hệ thống | -8,4% | ít |
+
+Dải đo tách bạch hẳn, không chồng lấn (612-685 ms so với 347-383 ms).
+
+Nguyên nhân gốc nằm ở cách Google Fonts cắt bộ chữ. Mỗi họ/weight bị chia thành
+ba `@font-face` theo `unicode-range`, và **dấu tiếng Việt nằm ở file khác với
+chữ cái không dấu**: file tiếng Việt chứa 90 ký tự có dấu nhưng chỉ 1 chữ cái
+latin, file latin chứa 58 chữ cái nhưng 0 ký tự tiếng Việt. Nghĩa là chữ "Giải"
+phải tạo hình bằng **hai file font khác nhau**, và cả trang 18.600 ký tự bị xé
+thành vô số đoạn nhỏ. Trang chi tiết khai 186 `@font-face`, tải về 12 file woff2.
+
+Đo tách bạch trên trang cô lập - chỉ có chữ và font, không React, không CSP, số
+nút DOM giống hệt nhau:
+
+| Bộ chữ | Có dấu đắt hơn bỏ dấu |
+|---|---|
+| Inter (3 face chia theo dải unicode) | **+49,6%** |
+| DejaVu Sans (1 face phủ trọn) | **+17,9%** |
+
+Chi phí đặt dấu **vốn có** chỉ khoảng 18%. Hơn 30 điểm chênh còn lại là cái giá
+của việc xé đoạn qua nhiều file. Đây là thứ sửa được, và là hướng duy nhất còn
+lại có biên độ lớn: **phục vụ Inter thành một face duy nhất phủ cả latin lẫn
+tiếng Việt** (tự host qua `next/font/local` với bản subset gộp sẵn) thay vì ba
+face chia theo `unicode-range`.
+
+**Chưa làm, vì chưa chứng minh được bằng bản trung thực.** Bản thử gộp bằng
+`fontTools.merge` đo ra -42,9% nhưng bộ chữ gộp **không trung thực về metric**:
+bề rộng chữ hụt tới 22px ở mẫu nhiều dấu, do quá trình gộp đánh rơi dữ liệu
+GPOS. Số đó đã bị loại, không dùng làm căn cứ. Muốn đi tiếp phải subset từ bản
+Inter gốc bằng `pyftsubset` (giữ nguyên GPOS) rồi đối chiếu lại bề rộng chữ
+trước khi tin bất kỳ con số nào. Cần cân thêm đánh đổi byte: gộp file có thể
+làm tăng dung lượng tải, mà người dùng chính của site ở mạng di động.
+
+### Bảy hướng đã đo và loại
+
+| Hướng | S&L | Vì sao loại |
+|---|---|---|
+| `grid-template-columns: minmax(0, 1fr)` | -1,4% | Nghi lưới phải tính min-content của cả cột chữ. Không phải. |
+| `white-space: normal` thay `pre-line` | -1,4% | Trong nhiễu |
+| `text-rendering: optimizeSpeed` | -1,7% | Trong nhiễu |
+| `font-variant-ligatures: none` | -1,5% | Trong nhiễu |
+| `font-optical-sizing: none` | +1,5% | Không có tác dụng |
+| `font-kerning` + ligature cùng tắt | -8,5% | Đổi chất lượng chữ lấy 8%, không đáng trên trang toàn chữ |
+| Gộp weight đang dùng còn 400+600 | -8,2% | Phải đổi thiết kế (700 -> 600) để lấy 8% |
+| `font-display: optional` | -8,5% | Nhiều người dùng di động sẽ không bao giờ thấy Inter |
+
+Đáng chú ý: giảm số instance của Inter chỉ được -8%, tức chi phí **không** nằm ở
+số weight đang dùng. Nó nằm ở chính việc tạo hình chữ Việt trên bộ chữ bị chia
+nhỏ.
+
+### Bốn cái bẫy đã dính khi đo lần này
+
+Ghi lại đủ để lần sau khỏi mất công dính lại - cả bốn đều cho ra số **trông rất
+thuyết phục** mà sai.
+
+1. **Chạy các bản theo thứ tự cố định.** Bản đứng cuối mỗi vòng chịu thiệt có hệ
+   thống. Triệu chứng: một bản *ít nội dung hơn* đo ra tốn thêm 17,6%, tái lập
+   qua cả ba lần chạy. Phải **xoay vòng thứ tự** mỗi lượt, xen kẽ thôi chưa đủ.
+2. **Sửa CSS bên trong payload RSC.** CSS được nhúng ba lần: một trong `<style>`
+   và hai trong payload RSC, mà payload nằm trong thẻ `<script>` đã được băm
+   sha256 vào CSP. Đụng vào là script bị chặn, trang không hydrate. Triệu chứng:
+   `script` tụt từ 574 ms còn 17 ms. Chỉ được sửa trong khối `<style>`.
+3. **Sửa nội dung làm trang dựng hỏng.** Bản thử bỏ dấu toàn văn bản đo ra -49,9%
+   rất đẹp, nhưng số nút DOM tụt từ 345 còn **25** - đang đo một trang gần trống,
+   đúng cái bẫy `npx serve out` ở mục 6, chỉ khác đường vào.
+4. **Nới lỏng chốt kiểm tra sau khi nó báo nhầm.** Số nút dao động vài đơn vị
+   giữa các lượt nên chốt "số nút phải bằng nhau" báo nhầm; bỏ nó đi thì đúng
+   lượt sau dính bẫy số 3. Cách đúng là để dung sai 10%, và canh **cả hai** tín
+   hiệu: thời lượng script và số nút DOM.
+
+Bài học chung: mọi bản đo phải kèm chứng cứ rằng **trang vẫn dựng đúng** - số nút
+DOM và thời lượng script nằm trong ngưỡng của bản gốc. Số đo của một trang hỏng
+luôn đẹp hơn số đo của trang thật.
+
 ## 5. Hai vấn đề nằm ngoài kho mã
 
 Cả hai đều thuộc cấu hình Cloudflare/GitHub Pages, **không sửa được bằng cách
