@@ -92,6 +92,12 @@ jobs:
       - name: Giải mã ngược toàn bộ mã QR và đối chiếu URL
         run: python scripts/kiem-tra-ma-qr.py
 
+      # Bộ chữ đã cắt xuống đúng phần latin và tiếng Việt. Nếu lần cập nhật Excel
+      # sau đưa vào ký tự nằm ngoài phần đã cắt, trình duyệt lặng lẽ rơi về chữ
+      # hệ thống cho riêng ký tự đó - trang vẫn hiện, build vẫn xanh.
+      - name: Đối chiếu bộ chữ với ký tự trong dữ liệu
+        run: python scripts/kiem-tra-bo-chu.py
+
       # File Excel thật của đơn vị không nằm trong Git, nên bước trích xuất -
       # phần đơn vị dùng thường xuyên nhất - vốn không có gì kiểm thử. Dựng lại
       # Excel từ dữ liệu đang có rồi chạy khứ hồi để chặn hồi quy.

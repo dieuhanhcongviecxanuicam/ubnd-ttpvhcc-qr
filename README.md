@@ -134,8 +134,11 @@ thực sự phục vụ, chạy tự động trong CI mỗi lần đẩy mã lê
 chứ không dùng OpenCV: bộ giải mã của OpenCV đọc hụt mã QR từ version 5 trở lên
 (gặp thực tế với các lĩnh vực có slug dài) và sẽ báo lỗi giả.
 
-**Font.** Lora + Inter + IBM Plex Mono được tự host lúc build (`next/font`) thay vì
-gọi Google Fonts lúc chạy, nên trang hiển thị đúng cả trong mạng nội bộ không có Internet.
+**Font.** Lora + Inter + IBM Plex Mono tự host trong `src/fonts/`, **mỗi họ một file**
+phủ trọn latin và tiếng Việt, sinh sẵn bằng `scripts/tao-bo-chu.py`. Trang hiển thị đúng
+cả trong mạng nội bộ không có Internet. Không dùng `next/font/google` vì nó giữ cách
+Google cắt bộ chữ theo `unicode-range`, khiến dấu tiếng Việt nằm ở file khác với chữ cái
+không dấu - chữ "Giải" phải tạo hình bằng hai file font, và Style & Layout đắt gấp đôi.
 
 **Nhận diện thương hiệu.** Toàn bộ logo, favicon và icon PWA sinh ra từ một file
 gốc `brand/logo-ttpvhcc.png` bằng `scripts/tao-bo-nhan-dien.py`. Trang có khai báo

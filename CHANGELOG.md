@@ -2,6 +2,53 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.10.0] - 2026-08-26
+
+### Thay đổi
+
+- **Bộ chữ chuyển sang tự host, mỗi họ một file** (`next/font/google` ->
+  `next/font/local`). `next/font/google` cũng tự host lúc build, nhưng giữ nguyên
+  cách Google cắt bộ chữ theo `unicode-range`: dấu tiếng Việt nằm ở file khác với
+  chữ cái không dấu, nên chữ "Giải" phải tạo hình bằng **hai file font**.
+
+  Đo A/B hai bản build, xen kẽ và xoay vòng thứ tự trong cùng phiên, CPU 6x,
+  khổ 390px, trung vị 9-11 lượt - **Style & Layout giảm gần một nửa trên mọi loại
+  trang**: chi tiết TTHC 637 -> 290 ms (**-54,5%**), lĩnh vực -51,8%, trang chủ
+  -48,7%, danh mục -43,2%.
+
+  Tải về và kích thước trang giảm theo: woff2 từ **12 file / 251,0 KB xuống
+  4 file / 184,5 KB**; khai báo `@font-face` mỗi trang từ **62 (21,9 KB) xuống
+  7 (1,1 KB)**; HTML thô mỗi trang **198,6 -> 135,7 KB**; tổng HTML 458 trang
+  **74,8 -> 46,7 MB**.
+
+  Chỗ được nhiều nhất không phải bộ chữ mà là **CSS**: 44 trong 62 khai báo
+  `@font-face` là dải unicode không trang nào dùng, mà CSS lại nhúng ba lần vào
+  mỗi trang.
+
+  Hình thức: đã chụp đối chiếu ở khổ điện thoại, hai bản **không phân biệt được
+  bằng mắt**. Chữ Việt đậm rộng thêm 1-5% (bản mới đạt weight 600 thật, bản cũ
+  không - xem 1.9.3) nhưng không đủ để đổi ngắt dòng.
+- Bỏ weight Lora 500: đối chiếu `document.fonts` trên cả sáu loại trang cho thấy
+  không trang nào dùng. Inter 500 thì **có** dùng (trang danh mục và lĩnh vực),
+  nên giữ.
+
+### Thêm mới
+
+- `scripts/tao-bo-chu.py`: tải bản gốc từ kho `google/fonts`, ghim trục không
+  dùng, giới hạn `wght` về đúng khoảng cần, subset xuống ba dải unicode thực
+  dùng. Kết quả commit vào `src/fonts/` nên build và CI không cần mạng - cùng lối
+  với `scripts/tao-bo-nhan-dien.py`.
+- `scripts/kiem-tra-bo-chu.py` chạy trong CI: đối chiếu bộ chữ với **mọi ký tự
+  thực sự có trong `data/`**. Không có nó, lần cập nhật Excel sau đưa vào một ký
+  tự nằm ngoài phần đã cắt thì trình duyệt lặng lẽ rơi về chữ hệ thống cho riêng
+  ký tự đó - trang vẫn hiện, build vẫn xanh, test vẫn qua. Đã kiểm chứng bắt được
+  lỗi thật.
+- Bổ sung dải dấu tổ hợp `U+300-36F`. Bản Google Fonts chỉ có lác đác vài dấu nên
+  chữ Việt dạng **phân tách** ("ê" viết thành e + U+0302) không hiện đúng; dữ
+  liệu nguồn của đơn vị có lẫn dạng này.
+- `CONTRIBUTING.md` mục **Bộ chữ tự host**, kèm cảnh báo đừng quay lại
+  `next/font/google`.
+
 ## [1.9.3] - 2026-08-26
 
 ### Thay đổi

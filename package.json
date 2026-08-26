@@ -1,6 +1,6 @@
 {
   "name": "ubnd-ttpvhcc-qr",
-  "version": "1.9.3",
+  "version": "1.10.0",
   "private": true,
   "description": "Hệ thống tra cứu thủ tục hành chính qua mã QR - Trung tâm Phục vụ hành chính công",
   "license": "MIT",
@@ -18,6 +18,8 @@
     "du-lieu:tao-qr": "python3 scripts/tao-ma-qr.py",
     "du-lieu:lam-moi": "npm run du-lieu:trich-xuat && npm run du-lieu:tao-qr",
     "kiem-tra-qr": "python3 scripts/kiem-tra-ma-qr.py",
+    "kiem-tra-bo-chu": "python3 scripts/kiem-tra-bo-chu.py",
+    "bo-chu:sinh-lai": "python3 scripts/tao-bo-chu.py",
     "kiem-tra-csp": "node scripts/kiem-tra-csp.mjs",
     "kiem-tra-phien-ban": "node scripts/kiem-tra-phien-ban.mjs",
     "kiem-tra-tro-nang": "node scripts/kiem-tra-tro-nang.mjs",
