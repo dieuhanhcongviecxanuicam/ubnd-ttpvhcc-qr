@@ -57,6 +57,54 @@ Core Web Vitals quan trọng nhất - giảm 42%. Đánh đổi có lợi.
 nguyên nhân cho TBT 980 ms, tức JavaScript. **Đó là quy kết sai**, đã đo lại
 và đính chính ở mục 4.
 
+### Đo lại trên site thật sau bản 1.10.0
+
+Đo lại bằng Lighthouse trên trang thật sau khi đổi bộ chữ, 4 lượt mỗi trang, bỏ
+lượt đầu (cache Cloudflare còn nguội), lấy trung vị 3 lượt còn lại.
+
+**TBT giảm mạnh và ổn định** - khớp với mức giảm gần một nửa của Style & Layout
+đo tại máy:
+
+| Trang | TBT trước | TBT sau |
+|---|---|---|
+| Chi tiết TTHC | 1060 ms | **~360 ms** (-66%) |
+| Trang chủ | 409 ms | **~345 ms** |
+| Lĩnh vực | 285 ms | **~225 ms** |
+
+**Còn FCP, LCP và điểm tổng thì lần đo này KHÔNG kết luận được gì**, và cần nói
+thẳng ra thay vì chọn con số đẹp. Phương sai qua bốn lượt quá lớn:
+
+| Trang | Điểm qua 4 lượt | FCP qua 4 lượt |
+|---|---|---|
+| Trang chủ | 82 / 67 / 79 / **89** | 3,1 / 4,2 / 3,3 / **1,6** s |
+| Lĩnh vực | **54** / 94 / 90 / 91 | **7,7** / 1,7 / 2,1 / 1,6 s |
+| Chi tiết | 86 / 81 / 83 / **91** | 2,8 / 2,6 / 2,9 / **1,4** s |
+
+Cùng một trang, cùng một phiên, điểm dao động 67-89 và FCP dao động 1,6-4,2 giây.
+Muốn nói được điều gì về LCP thì phải đo hàng chục lượt, rải ra nhiều thời điểm
+trong ngày. TBT thì ngược lại - dao động hẹp (253-380 ms ở trang chủ, 220-238 ms
+ở lĩnh vực) nên kết luận được.
+
+Vì vậy bảng điểm ở mục 2 và Web Vitals ở mục 3 **vẫn giữ số cũ**, chỉ TBT là đã
+có căn cứ để cập nhật. Đừng thay số ở hai bảng đó bằng một lượt đo lẻ.
+
+### Đã cân nhắc và loại: cắt bộ chữ sát hơn nữa
+
+Bộ chữ hiện phủ 1149 ký tự trong khi dữ liệu chỉ dùng 215. Đã đo hai mức cắt sâu
+hơn:
+
+| Mức cắt | Tổng bộ chữ | Quyết định |
+|---|---|---|
+| Hiện tại (latin + latin mở rộng + tiếng Việt) | 184,5 KB | **giữ** |
+| Bỏ các khối Latin hiếm (ngữ âm học, Latin C/D, Hy Lạp mở rộng) | 171,8 KB | Loại - chỉ được 12,7 KB |
+| Chỉ ký tự thực dùng + lề an toàn (593 ký tự) | ~144 KB | Loại - xem bên dưới |
+
+Mức cắt sát nhất tiết kiệm 40 KB, nhưng đổi lại **CI sẽ chặn deploy mỗi khi file
+Excel mới có một ký tự lạ**, trong khi hậu quả thật chỉ là một ký tự hiện bằng
+chữ hệ thống. Với đơn vị phải cập nhật danh mục TTHC định kỳ, chặn deploy vì lỗi
+hình thức là cái giá quá đắt. Giữ mức hiện tại để `kiem-tra-bo-chu.py` gần như
+không bao giờ báo động giả.
+
 ## 4. Nút thắt thật của trang chi tiết
 
 Bóc tách luồng chính của hai trang:

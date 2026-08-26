@@ -2,6 +2,22 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.10.1] - 2026-08-26
+
+### Thay đổi
+
+- `docs/HIEU-NANG.md`: đo lại trên site thật sau khi đổi bộ chữ. **TBT giảm mạnh
+  và ổn định**: chi tiết TTHC 1060 -> ~360 ms (-66%), trang chủ 409 -> ~345 ms,
+  lĩnh vực 285 -> ~225 ms.
+- **FCP, LCP và điểm tổng thì không kết luận được** và đã ghi thẳng như vậy thay
+  vì chọn con số đẹp: cùng một trang trong cùng một phiên, điểm dao động 67-89 và
+  FCP dao động 1,6-4,2 giây. Bảng điểm mục 2 và Web Vitals mục 3 **giữ nguyên số
+  cũ**; chỉ TBT là có căn cứ để cập nhật.
+- Ghi lại hai mức cắt bộ chữ sâu hơn đã cân nhắc và **loại**: bỏ các khối Latin
+  hiếm chỉ được 12,7 KB; cắt sát xuống 593 ký tự được 40 KB nhưng khiến CI chặn
+  deploy mỗi khi Excel mới có ký tự lạ - quá đắt so với hậu quả thật là một ký tự
+  hiện bằng chữ hệ thống.
+
 ## [1.10.0] - 2026-08-26
 
 ### Thay đổi
