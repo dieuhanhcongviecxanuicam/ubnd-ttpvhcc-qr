@@ -2,6 +2,23 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.9.1] - 2026-08-26
+
+### Sửa lỗi
+
+- **`package.json` đứng yên ở `1.0.0` suốt chín bản phát hành** trong khi nhật ký
+  này đã ở 1.9.0. Nay đồng bộ, và có bước CI đối chiếu để không trôi lại.
+
+### Thêm mới
+
+- `scripts/kiem-tra-phien-ban.mjs`: đối chiếu `version` trong `package.json` với
+  mục phát hành mới nhất của `CHANGELOG.md`, chạy trong job "Typecheck, lint,
+  test, build". Cùng lớp lỗi với việc bảy pull request (#11-#17) quên ghi nhật
+  ký: quy trình chỉ nằm trong trí nhớ thì sớm muộn cũng trôi.
+- `CONTRIBUTING.md` mục **Nhật ký thay đổi và phiên bản**. Tài liệu đóng góp
+  trước đây **không hề nhắc** tới `CHANGELOG.md` - đó chính là gốc rễ của việc
+  bảy pull request liên tiếp quên cập nhật nó.
+
 ## [1.9.0] - 2026-08-26
 
 ### Thêm mới
