@@ -19,14 +19,24 @@ Script này đặt hai luật, loại trừ nhau nên không phụ thuộc thứ
 
 MẶC ĐỊNH CHỈ IN RA DỰ ĐỊNH, KHÔNG GHI GÌ. Muốn ghi thật phải thêm --ap-dung.
 
+Script còn nhận --xoa-cache, dùng bởi job "Xoá cache Cloudflare" trong
+.github/workflows/deploy.yml. Cố ý gộp vào đây thay vì viết lại bằng curl trong
+workflow: bản đầu nhân đôi phần tra zone và đã sai đúng chỗ đó - tra theo tên
+miền đầy đủ `ttpvhcc.xanuicam.vn` trong khi zone của Cloudflare là tên miền gốc
+`xanuicam.vn`, khiến job xoá cache trượt ngay lượt triển khai đầu tiên.
+
+Chỉ dùng thư viện chuẩn, nên chạy được ngay trên runner mà không cần cài gì.
+
 Cần biến môi trường CLOUDFLARE_API_TOKEN với quyền:
-    Zone / Zone / Read          (tra zone id)
-    Zone / Cache Rules / Edit   (đặt luật)
+    Zone / Zone / Read          (tra zone id - luôn cần)
+    Zone / Cache Rules / Edit   (cho --ap-dung)
+    Zone / Cache Purge / Purge  (cho --xoa-cache)
 
 Cách dùng:
     export CLOUDFLARE_API_TOKEN=...
     python3 scripts/cau-hinh-cloudflare.py              # xem trước
-    python3 scripts/cau-hinh-cloudflare.py --ap-dung    # ghi thật
+    python3 scripts/cau-hinh-cloudflare.py --ap-dung    # đặt Cache Rule
+    python3 scripts/cau-hinh-cloudflare.py --xoa-cache  # xoá toàn bộ cache
 """
 from __future__ import annotations
 
@@ -107,8 +117,28 @@ def luat_mong_muon(mien: str) -> list[dict]:
     ]
 
 
+def tra_zone(token: str, mien: str) -> tuple[str, str]:
+    """Trả (zone id, tên zone).
+
+    Zone của Cloudflare là tên miền GỐC (`xanuicam.vn`), không phải subdomain mà
+    site chạy trên đó (`ttpvhcc.xanuicam.vn`). Nên phải duyệt danh sách zone rồi
+    chọn zone là hậu tố dài nhất của tên miền, chứ không tra thẳng theo tên.
+    """
+    kq = goi("/zones?per_page=50", token)
+    ung_vien = [z for z in (kq.get("result") or [])
+                if mien == z["name"] or mien.endswith("." + z["name"])]
+    if not ung_vien:
+        thay = ", ".join(z["name"] for z in (kq.get("result") or [])) or "(không có)"
+        print(f"Không tìm thấy zone chứa {mien}. Token thấy các zone: {thay}",
+              file=sys.stderr)
+        raise SystemExit(1)
+    z = max(ung_vien, key=lambda x: len(x["name"]))
+    return z["id"], z["name"]
+
+
 def main() -> int:
     ap_dung = "--ap-dung" in sys.argv
+    xoa_cache = "--xoa-cache" in sys.argv
     token = os.environ.get("CLOUDFLARE_API_TOKEN", "").strip()
     if not token:
         print("Thiếu CLOUDFLARE_API_TOKEN.\n"
@@ -119,20 +149,14 @@ def main() -> int:
         return 1
 
     mien = ten_mien()
-    # Zone của Cloudflare là tên miền GỐC (`xanuicam.vn`), không phải subdomain
-    # mà site chạy trên đó (`ttpvhcc.xanuicam.vn`). Nên phải duyệt danh sách zone
-    # rồi chọn zone là hậu tố dài nhất của tên miền, chứ không tra thẳng theo tên.
-    kq = goi("/zones?per_page=50", token)
-    ung_vien = [z for z in (kq.get("result") or [])
-                if mien == z["name"] or mien.endswith("." + z["name"])]
-    if not ung_vien:
-        thay = ", ".join(z["name"] for z in (kq.get("result") or [])) or "(không có)"
-        print(f"Không tìm thấy zone chứa {mien}. Token thấy các zone: {thay}",
-              file=sys.stderr)
-        return 1
-    z = max(ung_vien, key=lambda x: len(x["name"]))
-    zone = z["id"]
-    print(f"Zone {z['name']} (gói {z.get('plan', {}).get('name', '?')}) cho {mien}: {zone}")
+    zone, ten_zone = tra_zone(token, mien)
+
+    if xoa_cache:
+        goi(f"/zones/{zone}/purge_cache", token, "POST", {"purge_everything": True})
+        print(f"Đã xoá toàn bộ cache của zone {ten_zone}.")
+        return 0
+
+    print(f"Zone {ten_zone} cho {mien}: {zone}")
 
     duong = f"/zones/{zone}/rulesets/phases/http_request_cache_settings/entrypoint"
     hien_co = (goi(duong, token, cho_phep_404=True)["result"] or {}).get("rules") or []

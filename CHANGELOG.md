@@ -2,6 +2,25 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.11.1] - 2026-08-27
+
+### Sửa lỗi
+
+- **Job "Xoá cache Cloudflare" trượt ngay lượt triển khai đầu tiên.** Nó tra zone
+  theo tên miền đầy đủ `ttpvhcc.xanuicam.vn`, trong khi zone của Cloudflare là
+  tên miền **gốc** `xanuicam.vn`. Cùng một lỗi đã sửa trong
+  `scripts/cau-hinh-cloudflare.py` nhưng workflow **viết lại logic đó bằng curl**
+  nên không được sửa theo.
+
+  Gốc rễ là việc nhân đôi logic, nên sửa bằng cách bỏ hẳn phần curl: workflow nay
+  gọi `python3 scripts/cau-hinh-cloudflare.py --xoa-cache`. Script chỉ dùng thư
+  viện chuẩn nên runner không phải cài gì. Phần tra zone giờ chỉ tồn tại ở một
+  chỗ duy nhất.
+
+### Thêm mới
+
+- `scripts/cau-hinh-cloudflare.py` nhận thêm `--xoa-cache`.
+
 ## [1.11.0] - 2026-08-26
 
 ### Thêm mới
