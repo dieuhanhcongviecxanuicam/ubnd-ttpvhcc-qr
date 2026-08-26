@@ -122,7 +122,85 @@ source .venv/bin/activate
 pip install -r scripts/requirements-dev.txt
 ```
 
-## 7. Sao lưu
+## 7. Cloudflare - bật cache cho trang
+
+> **ĐÃ LÀM XONG ngày 26/08/2026.** Cache Rule đã áp trên zone `xanuicam.vn` và
+> secret `CLOUDFLARE_API_TOKEN` đã nạp vào kho mã. Mục này giữ lại để biết cách
+> làm lại khi đổi token, đổi tên miền, hoặc dựng lại hạ tầng.
+>
+> **Việc cần làm sớm:** token đang dùng có cả quyền *Cache Rules / Edit*, rộng
+> hơn mức job xoá cache cần. Nên tạo một token **chỉ có Zone/Zone/Read và
+> Zone/Cache Purge/Purge** rồi thay bằng `gh secret set CLOUDFLARE_API_TOKEN`,
+> và thu hồi token cũ. Xem `docs/BAO-MAT.md`.
+
+Cloudflare mặc định chỉ cache URL có phần mở rộng tĩnh. Dự án dùng
+`trailingSlash: false` nên đường dẫn trang không có phần mở rộng, và Cloudflare
+xếp chúng vào nội dung động: `cf-cache-status: DYNAMIC` trên mọi trang, tức **mỗi
+lần tải trang đều đi trọn một vòng tới GitHub Pages**. Đó là lý do reload trang
+thấy chậm. Nền tảng vấn đề ở `docs/HIEU-NANG.md` mục 5.2.
+
+Toàn bộ phần cấu hình đã được viết thành script, chỉ cần cấp token.
+
+### Bước 1. Tạo API token trên Cloudflare
+
+Cloudflare > biểu tượng tài khoản > **My Profile** > **API Tokens** >
+**Create Token** > **Create Custom Token**. Cấp đúng ba quyền, không rộng hơn:
+
+| Loại | Mục | Mức |
+|---|---|---|
+| Zone | Zone | Read |
+| Zone | Cache Rules | Edit |
+| Zone | Cache Purge | Purge |
+
+Ở **Zone Resources** chọn đúng zone `xanuicam.vn`, đừng chọn *All zones*.
+
+### Bước 2. Áp Cache Rule
+
+```bash
+export CLOUDFLARE_API_TOKEN=...
+python3 scripts/cau-hinh-cloudflare.py              # xem trước, không ghi gì
+python3 scripts/cau-hinh-cloudflare.py --ap-dung    # ghi thật
+```
+
+Script đặt hai luật loại trừ nhau nên không phụ thuộc thứ tự áp dụng:
+
+- `/_next/static/*` - tên file đã có băm nội dung nên bất biến, cache **một năm**
+  ở cả biên lẫn trình duyệt. GitHub Pages đặt cứng 4 giờ và không cho sửa.
+- Mọi đường dẫn còn lại - cache ở biên **một giờ**, còn thời hạn phía trình duyệt
+  vẫn theo máy chủ gốc. Cố ý như vậy: cache ở biên thì xoá được ngay khi triển
+  khai, cache trong máy người dân thì không.
+
+Luật do người khác đặt tay trên dashboard **được giữ nguyên** - script chỉ quản
+lý các luật có dấu `[ubnd-ttpvhcc-qr]` trong phần mô tả.
+
+Kiểm lại sau vài giây:
+
+```bash
+curl -sI https://ttpvhcc.xanuicam.vn/ | grep -i cf-cache-status
+```
+
+Mong đợi `MISS` ở lượt đầu rồi `HIT` ở các lượt sau, thay vì `DYNAMIC`.
+
+### Bước 3. Nạp token vào kho mã để tự xoá cache khi triển khai
+
+Cache trang ở biên mà không xoá thì sau mỗi lần cập nhật, bản cũ còn được phục vụ
+tới hết một giờ. Nạp token vào kho để việc xoá diễn ra tự động:
+
+```bash
+gh secret set CLOUDFLARE_API_TOKEN
+```
+
+Job `Xoá cache Cloudflare` trong `.github/workflows/deploy.yml` **tự bỏ qua khi
+chưa có secret**, và tự chạy kể từ lúc token được nạp - không cần sửa gì thêm.
+
+> **CẢNH BÁO:** chỉ đặt *Cache Rule*. **Không** động vào header
+> `Content-Security-Policy` tại Cloudflare - xem `docs/BAO-MAT.md`.
+>
+> **Đừng đổi `trailingSlash` hay thêm đuôi `.html` vào route để lách chuyện
+> cache.** Quy ước URL đang được mã hoá trong 78 mã QR đã in; đổi nó là phải sinh
+> lại và in lại toàn bộ.
+
+## 8. Sao lưu
 
 Cần giữ lại: **file Excel nguồn** (`data/source/`, không nằm trong Git) và toàn bộ
 kho mã nguồn trên GitHub. Có hai thứ này là dựng lại được toàn bộ hệ thống.

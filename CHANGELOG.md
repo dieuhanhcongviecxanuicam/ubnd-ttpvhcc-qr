@@ -2,6 +2,53 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.11.0] - 2026-08-26
+
+### Thêm mới
+
+- `scripts/cau-hinh-cloudflare.py`: đặt Cache Rule qua API Cloudflare thay vì bấm
+  tay trên dashboard. Hai luật **loại trừ nhau** nên không phụ thuộc thứ tự áp
+  dụng: `/_next/static/*` cache một năm (tên file đã có băm nội dung), mọi đường
+  dẫn còn lại cache ở biên một giờ với thời hạn phía trình duyệt giữ theo máy chủ
+  gốc - cố ý, vì cache ở biên thì xoá được lúc triển khai còn cache trong máy
+  người dân thì không. **Mặc định chỉ xem trước**, phải thêm `--ap-dung` mới ghi.
+  Luật do người khác đặt tay được giữ nguyên; script chỉ quản lý luật có dấu
+  `[ubnd-ttpvhcc-qr]`.
+- Job **Xoá cache Cloudflare** trong `deploy.yml`: cache trang ở biên mà không
+  xoá thì sau mỗi lần cập nhật, bản cũ còn được phục vụ tới hết Edge TTL. Job
+  **tự bỏ qua khi chưa có secret** `CLOUDFLARE_API_TOKEN` nên thêm sẵn không làm
+  hỏng lượt triển khai nào, và tự chạy kể từ lúc token được nạp.
+- `docs/VAN-HANH.md` mục 7: quy trình ba bước để đơn vị bật cache - tạo token,
+  áp Cache Rule, nạp secret.
+- `docs/BAO-MAT.md`: bảng secret của kho mã kèm quyền tối thiểu. Token xoá cache
+  chỉ cần Zone/Zone/Read và Zone/Cache Purge/Purge; token đặt Cache Rule cần thêm
+  Cache Rules/Edit nhưng **chạy tay một lần và không nạp vào kho**. Workflow
+  triển khai vốn đã giữ `pages:write` nên mọi quyền cộng thêm đều làm tăng thiệt
+  hại nếu bị chiếm.
+
+### Sửa lỗi
+
+- **Cloudflare nay đã cache trang HTML.** Đã áp Cache Rule thật trên zone
+  `xanuicam.vn` ngày 26/08/2026. `cf-cache-status` của mọi trang chuyển từ
+  **DYNAMIC** sang **MISS rồi HIT**, tức yêu cầu dừng ở biên thay vì đi trọn một
+  vòng tới GitHub Pages. TTFB trung vị 12 lượt còn **0,26-0,30 giây**.
+- **File tĩnh hết bị cache ngắn.** `/_next/static/*` chuyển từ `max-age=14400`
+  (GitHub Pages đặt cứng, không sửa được) sang `max-age=31536000`.
+- Sửa `scripts/cau-hinh-cloudflare.py`: zone của Cloudflare là **tên miền gốc**
+  (`xanuicam.vn`) chứ không phải subdomain site đang chạy (`ttpvhcc.xanuicam.vn`),
+  nên phải duyệt danh sách zone rồi chọn hậu tố dài nhất. Bản đầu tra thẳng theo
+  tên và không tìm thấy zone nào.
+- Zone chưa có luật nào thì Cloudflare trả 404 cho phase cache - đó là trạng thái
+  bình thường, nay không còn in ra như lỗi.
+
+### Ghi chú cho lần sau
+
+- Secret `CLOUDFLARE_API_TOKEN` đã nạp vào kho, và đã kiểm chứng cả vòng lặp:
+  gọi `purge_everything` xong thì lượt kế tiếp trả `MISS`, lượt sau trả `HIT`.
+- **Token đang dùng rộng hơn mức cần** (có cả Cache Rules/Edit vì dùng để áp
+  luật). Nên thay bằng token chỉ có Zone/Zone/Read và Zone/Cache Purge/Purge rồi
+  thu hồi token cũ - xem `docs/BAO-MAT.md`.
+
 ## [1.10.2] - 2026-08-26
 
 ### Thay đổi

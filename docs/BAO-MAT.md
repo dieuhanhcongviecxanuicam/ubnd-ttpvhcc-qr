@@ -111,6 +111,30 @@ vẫn thấy biểu tượng ổ khoá.
 - Rà lại danh sách cộng tác viên theo quý, gỡ người không còn nhiệm vụ.
 - Bật **khoá chuyển nhượng tên miền** tại nhà đăng ký `xanuicam.vn`.
 
+### Secret trong kho mã
+
+| Secret | Dùng ở đâu | Quyền tối thiểu |
+|---|---|---|
+| `CLOUDFLARE_API_TOKEN` | job `Xoá cache Cloudflare` trong `deploy.yml` | Zone/Zone/Read, Zone/Cache Purge/Purge |
+
+Token này **chỉ để xoá cache**. Đừng cấp thêm quyền và đừng dùng lại token có
+quyền rộng: workflow triển khai vốn đã giữ `pages:write`, nên mọi quyền cộng
+thêm vào đó đều làm tăng thiệt hại nếu workflow bị chiếm. Phạm vi zone phải chọn
+đúng `xanuicam.vn`, không chọn *All zones*.
+
+Token dùng để **đặt Cache Rule** (`scripts/cau-hinh-cloudflare.py`) cần thêm
+quyền Zone/Cache Rules/Edit, nhưng chỉ chạy tay một lần và **không nạp vào kho
+mã**. Xem `docs/VAN-HANH.md` mục 7.
+
+Job xoá cache tự bỏ qua khi chưa có secret, nên việc chưa cấu hình không làm hỏng
+lượt triển khai nào.
+
+> **Việc cần làm sớm.** Token đang nằm trong secret được cấp ngày 26/08/2026 để
+> áp Cache Rule, nên nó có **cả quyền Cache Rules / Edit** - rộng hơn mức job xoá
+> cache cần. Hãy tạo token mới chỉ gồm Zone/Zone/Read và Zone/Cache Purge/Purge,
+> thay bằng `gh secret set CLOUDFLARE_API_TOKEN`, rồi **thu hồi token cũ** ở
+> Cloudflare > My Profile > API Tokens.
+
 ## 5. Rà soát định kỳ
 
 | Việc                                   | Tần suất            | Cách làm                                        |

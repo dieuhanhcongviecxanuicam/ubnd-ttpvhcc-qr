@@ -353,8 +353,9 @@ luôn đẹp hơn số đo của trang thật.
 
 ## 5. Ba vấn đề nằm ngoài kho mã
 
-Cả ba đều thuộc cấu hình Cloudflare/GitHub Pages, **không sửa được bằng cách
-đổi mã nguồn**. Ghi lại để đơn vị quyết định.
+Cả ba đều thuộc cấu hình Cloudflare/GitHub Pages, không sửa được bằng cách đổi
+mã nguồn. **Hai trong ba đã xử lý xong ngày 26/08/2026** (mục 5.2 và 5.3); mục
+5.1 còn lại là đánh đổi thuộc thẩm quyền đơn vị.
 
 ### 5.1. SEO bị giữ ở 92 vì `robots.txt`
 
@@ -376,7 +377,7 @@ không gây hại gì** - chỉ làm xấu điểm SEO của Lighthouse.
 Muốn được 100 SEO thì phải tắt tính năng quản lý `robots.txt` của Cloudflare,
 đổi lại mất phần chặn thu thập AI. Đây là đánh đổi thuộc thẩm quyền của đơn vị.
 
-### 5.2. Cloudflare KHÔNG cache trang HTML - mọi lần tải đều đi tới GitHub Pages
+### 5.2. ĐÃ XỬ LÝ - Cloudflare không cache trang HTML
 
 Đây là vấn đề hạ tầng lớn nhất còn lại, và là lời giải cho triệu chứng
 **"reload trang thì chậm"**.
@@ -405,11 +406,21 @@ chính** với máy chủ, bất kể `max-age=600` mà GitHub Pages đặt. Yê
 dừng ở biên Cloudflare mà chạy tiếp về GitHub Pages, nên mỗi lần reload đều phải
 đi trọn một vòng tới máy chủ gốc.
 
-**Cách xử lý (cần quyền dashboard của đơn vị):** thêm một *Cache Rule* cho các
-đường dẫn trang, bật **Eligible for cache** và đặt **Edge TTL** vừa phải. Kèm
-theo, nên **xoá cache Cloudflare sau mỗi lần triển khai** - hoặc để Edge TTL ngắn
-(5-15 phút) - vì nếu không, bản HTML cũ sẽ còn được phục vụ ở biên cho tới khi
-hết hạn.
+**Đã áp dụng ngày 26/08/2026** bằng `scripts/cau-hinh-cloudflare.py --ap-dung`
+trên zone `xanuicam.vn` (gói Free). Kết quả kiểm chứng ngay sau đó:
+
+| | Trước | Sau |
+|---|---|---|
+| `cf-cache-status` của mọi trang | **DYNAMIC** | **MISS rồi HIT** |
+| TTFB trung vị (12 lượt) | không đo được vì nhiễu | **0,26-0,30 s** |
+
+Đã kiểm chứng cả vòng lặp xoá cache: gọi `purge_everything` xong thì lượt kế
+tiếp trả `MISS`, lượt sau nữa trả `HIT`. Job `Xoá cache Cloudflare` trong
+`deploy.yml` chạy đúng vòng này sau mỗi lần triển khai.
+
+> Con số TTFB "trước" **không có** vì phép đo hôm đó thực hiện từ máy có đường
+> mạng hỏng (xem đoạn cuối mục này). Bằng chứng chắc chắn là header
+> `cf-cache-status`, thứ không phụ thuộc tốc độ mạng.
 
 > **Đừng đổi `trailingSlash` hay thêm đuôi `.html` vào route để lách chuyện này.**
 > Quy ước URL đang được mã hoá trong 78 mã QR đã in; đổi nó là phải sinh lại và
@@ -426,7 +437,7 @@ không phụ thuộc tốc độ mạng. Muốn có con số, phải đo lại t
 và cách nhanh nhất để đơn vị tự kiểm là mở DevTools tab Network, cột
 `cf-cache-status`.
 
-### 5.3. Thời hạn cache quá ngắn cho file có băm nội dung
+### 5.3. ĐÃ XỬ LÝ - thời hạn cache quá ngắn cho file có băm nội dung
 
 ```
 $ curl -sI https://ttpvhcc.xanuicam.vn/_next/static/chunks/3s6nzrbk-8mnv.js
@@ -439,8 +450,15 @@ Pages đặt cứng 4 giờ và không cho tuỳ chỉnh header.
 
 Lighthouse ước tính sửa được sẽ tiết kiệm khoảng 300 KiB mỗi lượt truy cập lại.
 
-Cách xử lý: thêm một **Cache Rule** trên Cloudflare cho đường dẫn khớp
-`/_next/static/*`, đặt `Cache-Control: public, max-age=31536000, immutable`.
+**Đã xử lý ngày 26/08/2026** cùng lúc với mục 5.2:
+
+```
+$ curl -sI https://ttpvhcc.xanuicam.vn/_next/static/chunks/....js
+cache-control: max-age=31536000
+cf-cache-status: HIT
+```
+
+Trước đó là `max-age=14400`.
 
 > **Cảnh báo:** chỉ thêm *Cache Rule*. **Không** động vào phần header
 > `Content-Security-Policy` tại Cloudflare - xem `docs/BAO-MAT.md`, mở rộng CSP ở
