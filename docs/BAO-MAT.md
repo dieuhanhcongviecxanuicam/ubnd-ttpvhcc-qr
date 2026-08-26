@@ -129,6 +129,12 @@ mã**. Xem `docs/VAN-HANH.md` mục 7.
 Job xoá cache tự bỏ qua khi chưa có secret, nên việc chưa cấu hình không làm hỏng
 lượt triển khai nào.
 
+> **Việc cần làm sớm.** Token đang nằm trong secret được cấp ngày 26/08/2026 để
+> áp Cache Rule, nên nó có **cả quyền Cache Rules / Edit** - rộng hơn mức job xoá
+> cache cần. Hãy tạo token mới chỉ gồm Zone/Zone/Read và Zone/Cache Purge/Purge,
+> thay bằng `gh secret set CLOUDFLARE_API_TOKEN`, rồi **thu hồi token cũ** ở
+> Cloudflare > My Profile > API Tokens.
+
 ## 5. Rà soát định kỳ
 
 | Việc                                   | Tần suất            | Cách làm                                        |

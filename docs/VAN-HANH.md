@@ -122,9 +122,16 @@ source .venv/bin/activate
 pip install -r scripts/requirements-dev.txt
 ```
 
-## 7. Cloudflare - bật cache cho trang (làm một lần)
+## 7. Cloudflare - bật cache cho trang
 
-**Đây là việc còn lại có tác động lớn nhất tới tốc độ tải trang.**
+> **ĐÃ LÀM XONG ngày 26/08/2026.** Cache Rule đã áp trên zone `xanuicam.vn` và
+> secret `CLOUDFLARE_API_TOKEN` đã nạp vào kho mã. Mục này giữ lại để biết cách
+> làm lại khi đổi token, đổi tên miền, hoặc dựng lại hạ tầng.
+>
+> **Việc cần làm sớm:** token đang dùng có cả quyền *Cache Rules / Edit*, rộng
+> hơn mức job xoá cache cần. Nên tạo một token **chỉ có Zone/Zone/Read và
+> Zone/Cache Purge/Purge** rồi thay bằng `gh secret set CLOUDFLARE_API_TOKEN`,
+> và thu hồi token cũ. Xem `docs/BAO-MAT.md`.
 
 Cloudflare mặc định chỉ cache URL có phần mở rộng tĩnh. Dự án dùng
 `trailingSlash: false` nên đường dẫn trang không có phần mở rộng, và Cloudflare

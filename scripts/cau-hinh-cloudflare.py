@@ -53,7 +53,8 @@ def ten_mien() -> str:
     return (GOC_DU_AN / "public" / "CNAME").read_text(encoding="utf-8").strip()
 
 
-def goi(duong_dan: str, token: str, method: str = "GET", than=None) -> dict:
+def goi(duong_dan: str, token: str, method: str = "GET", than=None,
+        cho_phep_404: bool = False) -> dict:
     yc = urllib.request.Request(
         f"{API}{duong_dan}",
         method=method,
@@ -65,6 +66,10 @@ def goi(duong_dan: str, token: str, method: str = "GET", than=None) -> dict:
             return json.loads(p.read())
     except urllib.error.HTTPError as loi:
         kq = json.loads(loi.read() or b"{}")
+        # Zone chưa có luật nào trong phase này thì Cloudflare trả 404 - đó là
+        # trạng thái bình thường, không phải lỗi.
+        if loi.code == 404 and cho_phep_404:
+            return {"result": {}}
         loi_ct = "; ".join(x.get("message", "") for x in kq.get("errors", []))
         print(f"LỖI API {loi.code} khi {method} {duong_dan}: {loi_ct}", file=sys.stderr)
         if loi.code in (401, 403):
@@ -114,19 +119,23 @@ def main() -> int:
         return 1
 
     mien = ten_mien()
-    kq = goi(f"/zones?name={mien}", token)
-    if not kq.get("result"):
-        print(f"Không tìm thấy zone cho {mien}. Token có thuộc đúng tài khoản không?",
+    # Zone của Cloudflare là tên miền GỐC (`xanuicam.vn`), không phải subdomain
+    # mà site chạy trên đó (`ttpvhcc.xanuicam.vn`). Nên phải duyệt danh sách zone
+    # rồi chọn zone là hậu tố dài nhất của tên miền, chứ không tra thẳng theo tên.
+    kq = goi("/zones?per_page=50", token)
+    ung_vien = [z for z in (kq.get("result") or [])
+                if mien == z["name"] or mien.endswith("." + z["name"])]
+    if not ung_vien:
+        thay = ", ".join(z["name"] for z in (kq.get("result") or [])) or "(không có)"
+        print(f"Không tìm thấy zone chứa {mien}. Token thấy các zone: {thay}",
               file=sys.stderr)
         return 1
-    zone = kq["result"][0]["id"]
-    print(f"Zone {mien}: {zone}")
+    z = max(ung_vien, key=lambda x: len(x["name"]))
+    zone = z["id"]
+    print(f"Zone {z['name']} (gói {z.get('plan', {}).get('name', '?')}) cho {mien}: {zone}")
 
     duong = f"/zones/{zone}/rulesets/phases/http_request_cache_settings/entrypoint"
-    try:
-        hien_co = goi(duong, token)["result"].get("rules", []) or []
-    except SystemExit:
-        hien_co = []
+    hien_co = (goi(duong, token, cho_phep_404=True)["result"] or {}).get("rules") or []
     khac = [r for r in hien_co if DAU not in (r.get("description") or "")]
     cua_ta = [r for r in hien_co if DAU in (r.get("description") or "")]
 
