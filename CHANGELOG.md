@@ -2,6 +2,31 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.9.3] - 2026-08-26
+
+### Thay đổi
+
+- `docs/HIEU-NANG.md`: **dựng thử và đo bản Inter gộp một face**, thay vì dừng ở
+  đề xuất. Bản gộp (subset từ Inter variable gốc, ghim `opsz`, giới hạn `wght`
+  400-700, ba dải unicode thực dùng) đưa Inter từ **140,6 KB / 9 file xuống
+  99,6 KB / 1 file**, phủ đủ chữ tiếng Việt.
+- Nhưng win dàn trang chỉ **khoảng -10%** chứ không phải -42%: ba lần chạy độc
+  lập cho -20,9% / -12,1% / -8,3%, lần đầu đo lúc máy nhiễu nên bỏ. Con số -42,6%
+  của phép chẩn đoán trước bao gồm cả việc bỏ hẳn webfont, không chỉ gộp face.
+
+### Ghi chú cho lần sau
+
+- **Đã dừng theo tiêu chí đặt trước** (bề rộng chữ lệch quá 0,5px). Weight 400
+  khớp trong 0-5px; weight 600/700 lệch tới 25px. Đã loại trừ ba nguyên nhân sai
+  (subset đánh rơi dữ liệu, cách khai `@font-face`, kern) trước khi kết luận.
+- Nguyên nhân thật: bản hiện tại **không đạt weight 600 thật cho chữ tiếng Việt**
+  (glyph `ạ` đo được 560/570/580 ở weight 400/600/700, đáng lẽ 560/580/580), do
+  `next/font` khai ba `@font-face` weight rời cùng trỏ một file variable. Bản gộp
+  render đúng hơn nhưng chữ Việt đậm rộng thêm 1-5% - **thay đổi hình thức, thuộc
+  thẩm quyền đơn vị**.
+- Nếu làm tiếp, luận điểm mạnh là **-41 KB và 8 request** (~200 ms trên mạng
+  1,6 Mbps), không phải -10% dàn trang.
+
 ## [1.9.2] - 2026-08-26
 
 ### Thay đổi
