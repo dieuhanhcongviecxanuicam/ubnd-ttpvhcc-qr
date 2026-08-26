@@ -218,6 +218,50 @@ hơn với người quét mã QR bằng điện thoại tại quầy. Việc c�
 dung sang `next/font/local`, commit file woff2 đã subset, và thêm script bảo trì
 sinh lại nó (cần `fonttools`, tương tự `scripts/tao-bo-nhan-dien.py`).
 
+### ĐÃ LÀM: tự host mỗi họ một file (bản 1.10.0)
+
+Sau khi cân nhắc đánh đổi hình thức nêu trên, đơn vị đã đồng ý và thay đổi đã được
+thực hiện. Ba họ chữ chuyển từ `next/font/google` sang `next/font/local`, mỗi họ
+**một file** phủ trọn latin và tiếng Việt, sinh bằng `scripts/tao-bo-chu.py`.
+
+Kết quả đo A/B hai bản build, xen kẽ và xoay vòng thứ tự trong cùng phiên, CPU
+throttle 6x, khổ 390px, trung vị 9-11 lượt:
+
+| Trang | Style & Layout |
+|---|---|
+| Chi tiết TTHC | 637 -> **290 ms** (**-54,5%**) |
+| Lĩnh vực | 278 -> **134 ms** (-51,8%) |
+| Trang chủ | 343 -> **176 ms** (-48,7%) |
+| Danh mục | 341 -> **194 ms** (-43,2%) |
+
+Cao hơn hẳn mức ~-10% của bản thử trước, vì lần đó mới thay riêng Inter, còn giữ
+Lora và IBM Plex Mono ở dạng chia dải, và bộ chữ thay thế không được preload.
+
+Phần tải về và kích thước trang giảm theo:
+
+| | Trước | Sau |
+|---|---|---|
+| File woff2 | 12 file, 251,0 KB | **4 file, 184,5 KB** |
+| Khai báo `@font-face` mỗi trang | 62 (21,9 KB) | **7 (1,1 KB)** |
+| CSS nhúng mỗi trang | 39,4 KB | **18,7 KB** |
+| HTML thô mỗi trang | 198,6 KB | **135,7 KB** |
+| Tổng HTML 458 trang | 74,8 MB | **46,7 MB** |
+
+Chỗ được nhiều nhất lại không phải bộ chữ mà là **CSS**: 44 trong 62 khai báo
+`@font-face` là các dải unicode không trang nào dùng tới, mà CSS lại được nhúng
+**ba lần** vào mỗi trang. Bỏ chúng đi thì HTML thô mỗi trang nhẹ đi 63 KB.
+
+Về hình thức: đã chụp đối chiếu trang chi tiết ở khổ điện thoại, hai bản **không
+phân biệt được bằng mắt** - cùng ngắt dòng, cùng bố cục, không có ký tự nào rơi
+về chữ dự phòng. Chênh lệch 1-5% bề rộng chữ Việt đậm nêu ở trên không đủ để đổi
+cách ngắt dòng trên thực tế.
+
+Hàng rào đi kèm: `scripts/kiem-tra-bo-chu.py` chạy trong CI, đối chiếu bộ chữ với
+**mọi ký tự thực sự có trong `data/`**. Không có nó, lần cập nhật Excel sau đưa
+vào một ký tự nằm ngoài phần đã cắt thì trình duyệt lặng lẽ rơi về chữ hệ thống
+cho riêng ký tự đó - trang vẫn hiện, build vẫn xanh. Đã kiểm chứng guard bắt được
+lỗi thật.
+
 ### Bảy hướng đã đo và loại
 
 | Hướng | S&L | Vì sao loại |

@@ -1,33 +1,51 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Mono, Inter, Lora } from "next/font/google";
+import localFont from "next/font/local";
 import SiteHeader from "@/components/SiteHeader";
 import { duongDan, SITE_CONFIG, SITE_URL } from "@/lib/site-config";
 import "./globals.css";
 
 /**
- * Font được tải sẵn và tự host lúc build (next/font) thay vì gọi Google Fonts
- * lúc chạy - trang hiển thị được cả khi mạng nội bộ chặn Internet, và không
- * còn hiện tượng nhảy chữ khi tải.
+ * Bộ chữ tự host, mỗi họ MỘT file phủ trọn latin và tiếng Việt.
+ *
+ * Trước đây dùng next/font/google. Nó cũng tự host lúc build, nhưng giữ nguyên
+ * cách Google cắt bộ chữ theo `unicode-range`: dấu tiếng Việt nằm ở file khác
+ * với chữ cái không dấu, nên chữ "Giải" phải tạo hình bằng hai file font. Đo
+ * được (docs/HIEU-NANG.md mục 4): chữ có dấu đắt hơn chữ bỏ dấu 49,6% với bộ
+ * chữ bị chia, so với 17,9% khi phủ trọn trong một face.
+ *
+ * Đổi sang một file mỗi họ: 251 KB / 12 file còn 184,5 KB / 4 file, và phần
+ * @font-face nhúng vào mỗi trang giảm từ 62 khai báo (21,9 KB) còn 4.
+ *
+ * File sinh bằng scripts/tao-bo-chu.py và đã commit, nên build và CI không cần
+ * mạng. scripts/kiem-tra-bo-chu.py canh cho bộ chữ luôn phủ hết ký tự trong
+ * dữ liệu.
  */
-const lora = Lora({
-  subsets: ["latin", "vietnamese"],
-  weight: ["500", "600", "700"],
+const lora = localFont({
+  src: "../fonts/lora-viet.woff2",
+  weight: "600 700",
+  style: "normal",
   variable: "--font-lora",
   display: "swap",
+  fallback: ["Georgia", "serif"],
 });
 
-const inter = Inter({
-  subsets: ["latin", "vietnamese"],
-  weight: ["400", "500", "600", "700"],
+const inter = localFont({
+  src: "../fonts/inter-viet.woff2",
+  weight: "400 700",
+  style: "normal",
   variable: "--font-inter",
   display: "swap",
+  fallback: ["-apple-system", "Segoe UI", "sans-serif"],
 });
 
-const plexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["500", "600"],
+const plexMono = localFont({
+  src: [
+    { path: "../fonts/plex-mono-500.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/plex-mono-600.woff2", weight: "600", style: "normal" },
+  ],
   variable: "--font-plex-mono",
   display: "swap",
+  fallback: ["Courier New", "monospace"],
 });
 
 export const metadata: Metadata = {

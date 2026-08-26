@@ -19,7 +19,7 @@ Ba kiểm tra bắt buộc phải xanh mới hợp nhất được:
 | Kiểm tra | Nội dung |
 |---|---|
 | `Typecheck, lint, test, build` | Phiên bản, kiểu TypeScript, ESLint, test, build, CSP, CNAME, trợ năng, lỗ hổng npm |
-| `Đối chiếu mã QR với route` | Giải mã ngược 78 mã QR, đối chiếu URL, quét CVE Python |
+| `Đối chiếu mã QR với route` | Giải mã ngược 78 mã QR, đối chiếu URL, bộ chữ, quét CVE Python |
 | `Phân tích JavaScript/TypeScript` | CodeQL |
 
 > Nếu đổi tên job trong `.github/workflows/ci.yml`, **phải cập nhật tên check
@@ -52,6 +52,8 @@ request nếu chúng lệch nhau.
 | `npm run kiem-tra-csp` | Kiểm chứng CSP của bản build |
 | `npm run kiem-tra-phien-ban` | Đối chiếu `package.json` với `CHANGELOG.md` |
 | `npm run kiem-tra-qr` | Đối chiếu nội dung mã QR với route thật |
+| `npm run kiem-tra-bo-chu` | Đối chiếu bộ chữ tự host với ký tự trong dữ liệu |
+| `npm run bo-chu:sinh-lai` | Sinh lại bộ chữ tự host (cần mạng, cần `fonttools`) |
 
 **Luôn dùng `npm run build`, không gọi `npx next build` trực tiếp** - lệnh build
 đã gói sẵn bước sinh CSP. Thiếu bước đó, trình duyệt chặn script và trang trắng.
@@ -68,6 +70,21 @@ Dùng bộ chạy test có sẵn của Node, không thêm framework.
   "7 thủ tục hành chính" nhưng danh sách trống.
 
 Sau mỗi lần cập nhật dữ liệu từ Excel, chạy `npm test` trước khi mở pull request.
+
+## Bộ chữ tự host
+
+Ba họ chữ nằm trong `src/fonts/`, mỗi họ **một file** phủ trọn latin và tiếng
+Việt, sinh bằng `scripts/tao-bo-chu.py` và **đã commit** - build và CI không cần
+mạng, giống cách `scripts/tao-bo-nhan-dien.py` sinh sẵn logo và favicon.
+
+**Đừng quay lại `next/font/google`.** Nó giữ nguyên cách Google cắt bộ chữ theo
+`unicode-range`, khiến dấu tiếng Việt nằm ở file khác với chữ cái không dấu -
+chữ "Giải" phải tạo hình bằng hai file font. Số đo ở
+[`docs/HIEU-NANG.md`](docs/HIEU-NANG.md) mục 4.
+
+Chạy lại `npm run bo-chu:sinh-lai` khi đổi họ chữ hoặc đổi weight dùng trong
+`globals.css`. Sau khi cập nhật dữ liệu từ Excel mới, `npm run kiem-tra-bo-chu`
+(cũng chạy trong CI) sẽ báo nếu dữ liệu có ký tự nằm ngoài phần đã cắt.
 
 ## Quy ước mã nguồn
 
