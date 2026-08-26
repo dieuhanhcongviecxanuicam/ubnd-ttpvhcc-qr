@@ -351,9 +351,9 @@ Bài học chung: mọi bản đo phải kèm chứng cứ rằng **trang vẫn 
 DOM và thời lượng script nằm trong ngưỡng của bản gốc. Số đo của một trang hỏng
 luôn đẹp hơn số đo của trang thật.
 
-## 5. Hai vấn đề nằm ngoài kho mã
+## 5. Ba vấn đề nằm ngoài kho mã
 
-Cả hai đều thuộc cấu hình Cloudflare/GitHub Pages, **không sửa được bằng cách
+Cả ba đều thuộc cấu hình Cloudflare/GitHub Pages, **không sửa được bằng cách
 đổi mã nguồn**. Ghi lại để đơn vị quyết định.
 
 ### 5.1. SEO bị giữ ở 92 vì `robots.txt`
@@ -376,7 +376,57 @@ không gây hại gì** - chỉ làm xấu điểm SEO của Lighthouse.
 Muốn được 100 SEO thì phải tắt tính năng quản lý `robots.txt` của Cloudflare,
 đổi lại mất phần chặn thu thập AI. Đây là đánh đổi thuộc thẩm quyền của đơn vị.
 
-### 5.2. Thời hạn cache quá ngắn cho file có băm nội dung
+### 5.2. Cloudflare KHÔNG cache trang HTML - mọi lần tải đều đi tới GitHub Pages
+
+Đây là vấn đề hạ tầng lớn nhất còn lại, và là lời giải cho triệu chứng
+**"reload trang thì chậm"**.
+
+```
+$ curl -sI https://ttpvhcc.xanuicam.vn/tthc/1.000110 | grep -i cf-cache
+cf-cache-status: DYNAMIC
+```
+
+`DYNAMIC` nghĩa là Cloudflare **không hề cache** tài nguyên đó, mà chuyển thẳng
+mọi yêu cầu về máy chủ gốc GitHub Pages. Đúng với **mọi trang HTML**:
+
+| URL | cf-cache-status |
+|---|---|
+| `/`, `/danh-muc`, `/linh-vuc/ho-tich`, `/tthc/1.000110`, `/in-ma-qr` | **DYNAMIC** |
+| `/sitemap.xml`, `/manifest.webmanifest` | **DYNAMIC** |
+| `/favicon.ico`, `/robots.txt` | EXPIRED (có trong cache) |
+| `/qr/lv-ho-tich.png` | REVALIDATED (có trong cache) |
+
+Nguyên nhân: theo mặc định Cloudflare chỉ cache tài nguyên có **phần mở rộng
+tĩnh** trong URL. Dự án dùng `trailingSlash: false` nên đường dẫn trang không có
+phần mở rộng (`/tthc/1.000110`), và Cloudflare xếp chúng vào loại nội dung động.
+
+Vì sao nó đánh đúng vào thao tác reload: nhấn F5 luôn **kiểm chứng lại tài liệu
+chính** với máy chủ, bất kể `max-age=600` mà GitHub Pages đặt. Yêu cầu đó không
+dừng ở biên Cloudflare mà chạy tiếp về GitHub Pages, nên mỗi lần reload đều phải
+đi trọn một vòng tới máy chủ gốc.
+
+**Cách xử lý (cần quyền dashboard của đơn vị):** thêm một *Cache Rule* cho các
+đường dẫn trang, bật **Eligible for cache** và đặt **Edge TTL** vừa phải. Kèm
+theo, nên **xoá cache Cloudflare sau mỗi lần triển khai** - hoặc để Edge TTL ngắn
+(5-15 phút) - vì nếu không, bản HTML cũ sẽ còn được phục vụ ở biên cho tới khi
+hết hạn.
+
+> **Đừng đổi `trailingSlash` hay thêm đuôi `.html` vào route để lách chuyện này.**
+> Quy ước URL đang được mã hoá trong 78 mã QR đã in; đổi nó là phải sinh lại và
+> in lại toàn bộ. Xem `CONTRIBUTING.md` mục Quy ước mã nguồn.
+
+> **CẢNH BÁO:** chỉ thêm *Cache Rule*. **Không** động vào header
+> `Content-Security-Policy` tại Cloudflare - xem `docs/BAO-MAT.md`.
+
+**Chưa đo được mức thiệt hại là bao nhiêu.** Lần rà này thực hiện từ một máy có
+đường mạng đang hỏng: ngay cả `/favicon.ico` - tệp 2 KB đã nằm sẵn trong cache
+Cloudflare - cũng cho TTFB dao động 0,28-5,02 giây, nên mọi phép so sánh thời
+gian đều chìm trong nhiễu. Kết luận ở trên rút ra từ **header phản hồi**, thứ
+không phụ thuộc tốc độ mạng. Muốn có con số, phải đo lại từ đường mạng ổn định,
+và cách nhanh nhất để đơn vị tự kiểm là mở DevTools tab Network, cột
+`cf-cache-status`.
+
+### 5.3. Thời hạn cache quá ngắn cho file có băm nội dung
 
 ```
 $ curl -sI https://ttpvhcc.xanuicam.vn/_next/static/chunks/3s6nzrbk-8mnv.js

@@ -2,6 +2,30 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.10.2] - 2026-08-26
+
+### Thay đổi
+
+- `docs/HIEU-NANG.md` mục 5.2: ghi nhận **Cloudflare không cache trang HTML**
+  (`cf-cache-status: DYNAMIC` trên mọi trang), nên mỗi lần tải trang đều đi trọn
+  một vòng tới máy chủ gốc GitHub Pages. Đây là lời giải cho triệu chứng "reload
+  trang thì chậm": nhấn F5 luôn kiểm chứng lại tài liệu chính, bất kể
+  `max-age=600`, và yêu cầu đó không dừng ở biên Cloudflare.
+
+  Nguyên nhân: Cloudflare mặc định chỉ cache URL có **phần mở rộng tĩnh**. Dự án
+  dùng `trailingSlash: false` nên đường dẫn trang không có phần mở rộng. Đối
+  chiếu: `/favicon.ico`, `/robots.txt`, `/qr/*.png` đều nằm trong cache, còn mọi
+  trang HTML cùng `/sitemap.xml`, `/manifest.webmanifest` thì không.
+
+  Cách xử lý thuộc quyền đơn vị: thêm *Cache Rule* bật **Eligible for cache** cho
+  đường dẫn trang, kèm xoá cache sau mỗi lần triển khai hoặc để Edge TTL ngắn.
+  **Đừng đổi `trailingSlash` để lách** - quy ước URL đang nằm trong 78 mã QR đã in.
+
+- Ghi rõ **chưa đo được mức thiệt hại**: lần rà này chạy từ máy có đường mạng
+  đang hỏng, ngay cả `/favicon.ico` (2 KB, đã nằm trong cache Cloudflare) cũng
+  cho TTFB dao động 0,28-5,02 giây. Kết luận rút ra từ **header phản hồi**, thứ
+  không phụ thuộc tốc độ mạng; muốn có con số phải đo lại từ đường mạng ổn định.
+
 ## [1.10.1] - 2026-08-26
 
 ### Thay đổi
