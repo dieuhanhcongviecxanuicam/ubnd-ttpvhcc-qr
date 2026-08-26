@@ -18,13 +18,28 @@ Ba kiểm tra bắt buộc phải xanh mới hợp nhất được:
 
 | Kiểm tra | Nội dung |
 |---|---|
-| `Typecheck, lint, test, build` | Kiểu TypeScript, ESLint, test, build, CSP, CNAME, lỗ hổng npm |
+| `Typecheck, lint, test, build` | Phiên bản, kiểu TypeScript, ESLint, test, build, CSP, CNAME, trợ năng, lỗ hổng npm |
 | `Đối chiếu mã QR với route` | Giải mã ngược 78 mã QR, đối chiếu URL, quét CVE Python |
 | `Phân tích JavaScript/TypeScript` | CodeQL |
 
 > Nếu đổi tên job trong `.github/workflows/ci.yml`, **phải cập nhật tên check
 > tương ứng trong Settings → Branches → Branch protection rules**. Quên bước này
 > là mọi pull request bị khoá vĩnh viễn vì chờ một check không bao giờ xuất hiện.
+
+## Nhật ký thay đổi và phiên bản
+
+**Mọi pull request có thay đổi nhìn thấy được đều phải cập nhật
+[`CHANGELOG.md`](CHANGELOG.md)** - kể cả thay đổi hạ tầng, CI hay tài liệu. Bảy
+pull request liên tiếp (#11-#17) đã quên bước này và phải ghi bù về sau, lúc đó
+lý do của từng quyết định đã khó dựng lại.
+
+Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/). Ghi
+**vì sao** chứ không chỉ ghi *cái gì*: số đo, phương án đã loại và lý do loại là
+phần có giá trị nhất cho người đọc sau này.
+
+Mỗi khi thêm một mục phát hành mới, nâng luôn `version` trong `package.json` cho
+khớp. Bước CI `npm run kiem-tra-phien-ban` đối chiếu hai chỗ này và sẽ chặn pull
+request nếu chúng lệch nhau.
 
 ## Lệnh hay dùng
 
@@ -35,6 +50,7 @@ Ba kiểm tra bắt buộc phải xanh mới hợp nhất được:
 | `npm test` | Chỉ chạy test |
 | `npm run build` | Build tĩnh, **đã gồm bước sinh CSP** |
 | `npm run kiem-tra-csp` | Kiểm chứng CSP của bản build |
+| `npm run kiem-tra-phien-ban` | Đối chiếu `package.json` với `CHANGELOG.md` |
 | `npm run kiem-tra-qr` | Đối chiếu nội dung mã QR với route thật |
 
 **Luôn dùng `npm run build`, không gọi `npx next build` trực tiếp** - lệnh build

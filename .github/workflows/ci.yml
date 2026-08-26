@@ -21,6 +21,12 @@ jobs:
       - name: Cài phụ thuộc
         run: npm ci
 
+      # Rẻ và nhanh nên đặt đầu tiên. Chặn lớp lỗi "quy trình chỉ nằm trong trí
+      # nhớ": package.json từng đứng yên ở 1.0.0 suốt chín bản phát hành, y như
+      # việc bảy pull request liên tiếp quên cập nhật CHANGELOG.md.
+      - name: Đối chiếu phiên bản với nhật ký thay đổi
+        run: npm run kiem-tra-phien-ban
+
       - name: Kiểm tra kiểu TypeScript
         run: npm run typecheck
 
