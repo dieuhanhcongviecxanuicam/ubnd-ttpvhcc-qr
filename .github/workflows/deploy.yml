@@ -85,23 +85,17 @@ jobs:
         if: env.CF_TOKEN != ''
 
       # `secrets` không dùng được trong `if`, nên phải đưa qua `env` rồi mới xét.
+      #
+      # Gọi thẳng script thay vì viết lại bằng curl ở đây: bản đầu nhân đôi phần
+      # tra zone và đã sai đúng chỗ đó - tra theo tên miền đầy đủ
+      # ttpvhcc.xanuicam.vn trong khi zone của Cloudflare là tên miền gốc
+      # xanuicam.vn, nên job trượt ngay lượt triển khai đầu tiên. Script chỉ dùng
+      # thư viện chuẩn nên không cần cài gì thêm.
       - name: Xoá toàn bộ cache của zone
         if: env.CF_TOKEN != ''
-        run: |
-          set -euo pipefail
-          mien=$(cat public/CNAME)
-          zone=$(curl -sS -H "Authorization: Bearer $CF_TOKEN" \
-            "https://api.cloudflare.com/client/v4/zones?name=$mien" \
-            | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["result"][0]["id"] if d.get("result") else "")')
-          if [ -z "$zone" ]; then
-            echo "Không tra được zone cho $mien - token sai tài khoản hoặc thiếu quyền Zone/Zone/Read"
-            exit 1
-          fi
-          curl -sS -X POST -H "Authorization: Bearer $CF_TOKEN" \
-            -H "Content-Type: application/json" \
-            --data '{"purge_everything":true}' \
-            "https://api.cloudflare.com/client/v4/zones/$zone/purge_cache" \
-            | python3 -c 'import json,sys; d=json.load(sys.stdin); print("Đã xoá cache." if d.get("success") else "LỖI: "+json.dumps(d.get("errors"),ensure_ascii=False)); sys.exit(0 if d.get("success") else 1)'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: python3 scripts/cau-hinh-cloudflare.py --xoa-cache
 
       - name: Báo khi chưa cấu hình
         if: env.CF_TOKEN == ''

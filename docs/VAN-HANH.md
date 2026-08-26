@@ -192,6 +192,14 @@ gh secret set CLOUDFLARE_API_TOKEN
 
 Job `Xoá cache Cloudflare` trong `.github/workflows/deploy.yml` **tự bỏ qua khi
 chưa có secret**, và tự chạy kể từ lúc token được nạp - không cần sửa gì thêm.
+Nó gọi chính script này với `--xoa-cache`, nên phần tra zone chỉ tồn tại ở một
+chỗ duy nhất.
+
+Muốn xoá cache bằng tay (ví dụ sau khi sửa nội dung trên Cloudflare):
+
+```bash
+python3 scripts/cau-hinh-cloudflare.py --xoa-cache
+```
 
 > **CẢNH BÁO:** chỉ đặt *Cache Rule*. **Không** động vào header
 > `Content-Security-Policy` tại Cloudflare - xem `docs/BAO-MAT.md`.
