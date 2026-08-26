@@ -168,6 +168,56 @@ Inter gốc bằng `pyftsubset` (giữ nguyên GPOS) rồi đối chiếu lại 
 trước khi tin bất kỳ con số nào. Cần cân thêm đánh đổi byte: gộp file có thể
 làm tăng dung lượng tải, mà người dùng chính của site ở mạng di động.
 
+### Đã dựng thử bản gộp một face - kết quả và lý do dừng
+
+Hướng nêu trên **đã được dựng thật và đo**, không dừng ở giả thuyết. Quy trình:
+tải bản Inter variable gốc từ kho `google/fonts`, ghim trục `opsz`, giới hạn
+`wght` về 400-700, rồi `pyftsubset` xuống đúng hợp của **ba dải unicode mà trình
+duyệt thực sự tải** (không phải 21 dải `next/font` khai).
+
+Phần được:
+
+| | Hiện tại | Bản gộp |
+|---|---|---|
+| Dung lượng Inter | 140,6 KB | **99,6 KB** |
+| Số file | 9 | **1** |
+| Phủ ký tự tiếng Việt | đủ | đủ (0 ký tự thiếu) |
+
+Phần hụt so với kỳ vọng: **win chỉ khoảng -10%**, không phải -42%. Ba lần chạy
+độc lập trên trang chi tiết đầy đủ (React và CSP nguyên vẹn, số nút DOM 348 ở cả
+hai bản): **-20,9%**, **-12,1%**, **-8,3%**. Lần đầu đo lúc máy đang nhiễu (gốc
+940 ms so với ~640 ms các lần sau) nên phải bỏ. Con số -42,6% của phép chẩn đoán
+"Inter -> chữ hệ thống" bao gồm cả việc **bỏ hẳn webfont** (không còn dàn lại khi
+font về, và DejaVu vốn rẻ hơn Inter); gộp face chỉ lấy lại được phần xé đoạn.
+
+**Đã dừng lại theo tiêu chí đặt trước: bề rộng chữ lệch quá 0,5px.** Weight 400 -
+phần gánh gần hết chữ trên trang - khớp trong vòng 0-5px. Nhưng weight 600 và 700
+lệch tới 25px trên chuỗi nhiều dấu. Đã truy đến cùng nguyên nhân, loại trừ được
+ba giả thuyết sai:
+
+- **Không phải** do subset đánh rơi dữ liệu: bản subset từ TTF tĩnh và bản subset
+  từ variable cho ra số **giống hệt nhau**.
+- **Không phải** do cách khai `@font-face`: khai một `font-weight: 400 700` hay
+  ba khai báo weight rời đều cho cùng kết quả.
+- **Không phải** do kern: tắt `font-kerning` ở cả hai bản, chênh lệch giữ nguyên.
+
+Nguyên nhân thật: đo bề rộng một glyph ở 100px cho thấy `ạ` của bản hiện tại là
+**560 / 570 / 580** ở weight 400 / 600 / 700, còn bản gộp là **560 / 580 / 580**.
+Tức bản hiện tại **không đạt tới weight 600 thật** cho chữ tiếng Việt, dù chữ
+latin bên cạnh vẫn đậm đúng. `next/font` khai ba `@font-face` weight rời cùng trỏ
+**một file variable duy nhất** (trục `wght` 100-900, mặc định 400), và Chromium
+xử lý trường hợp đó không ra đúng 600.
+
+Nghĩa là bản gộp render **đúng hơn**, nhưng khác đi trông thấy: chữ Việt đậm rộng
+thêm khoảng 1-5%. Đó là thay đổi hình thức trên site thật, thuộc thẩm quyền đơn
+vị chứ không phải quyết định kỹ thuật thuần tuý.
+
+**Nếu đơn vị đồng ý đánh đổi**, luận điểm mạnh nhất không phải -10% dàn trang mà
+là **-41 KB và 8 request** - trên mạng 1,6 Mbps thì 41 KB xấp xỉ 200 ms, đáng giá
+hơn với người quét mã QR bằng điện thoại tại quầy. Việc cần làm: chuyển chữ nội
+dung sang `next/font/local`, commit file woff2 đã subset, và thêm script bảo trì
+sinh lại nó (cần `fonttools`, tương tự `scripts/tao-bo-nhan-dien.py`).
+
 ### Bảy hướng đã đo và loại
 
 | Hướng | S&L | Vì sao loại |
