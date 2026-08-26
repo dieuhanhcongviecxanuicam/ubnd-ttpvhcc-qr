@@ -61,3 +61,51 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
+
+  # Cloudflare cache trang HTML ở biên (xem docs/HIEU-NANG.md mục 5.2). Không xoá
+  # sau khi triển khai thì bản cũ còn được phục vụ tới hết Edge TTL.
+  #
+  # Job này TỰ BỎ QUA khi chưa có secret CLOUDFLARE_API_TOKEN, nên thêm sẵn ở đây
+  # không làm hỏng gì; nó tự chạy kể từ lúc đơn vị nạp token.
+  #
+  # Token chỉ nên có đúng hai quyền, KHÔNG cấp rộng hơn - job triển khai vốn đã
+  # giữ pages:write, càng ít quyền cộng thêm càng tốt:
+  #     Zone / Zone / Read
+  #     Zone / Cache Purge / Purge
+  xoa-cache:
+    name: Xoá cache Cloudflare
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        if: env.CF_TOKEN != ''
+
+      # `secrets` không dùng được trong `if`, nên phải đưa qua `env` rồi mới xét.
+      - name: Xoá toàn bộ cache của zone
+        if: env.CF_TOKEN != ''
+        run: |
+          set -euo pipefail
+          mien=$(cat public/CNAME)
+          zone=$(curl -sS -H "Authorization: Bearer $CF_TOKEN" \
+            "https://api.cloudflare.com/client/v4/zones?name=$mien" \
+            | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["result"][0]["id"] if d.get("result") else "")')
+          if [ -z "$zone" ]; then
+            echo "Không tra được zone cho $mien - token sai tài khoản hoặc thiếu quyền Zone/Zone/Read"
+            exit 1
+          fi
+          curl -sS -X POST -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}' \
+            "https://api.cloudflare.com/client/v4/zones/$zone/purge_cache" \
+            | python3 -c 'import json,sys; d=json.load(sys.stdin); print("Đã xoá cache." if d.get("success") else "LỖI: "+json.dumps(d.get("errors"),ensure_ascii=False)); sys.exit(0 if d.get("success") else 1)'
+
+      - name: Báo khi chưa cấu hình
+        if: env.CF_TOKEN == ''
+        run: |
+          echo "Chưa có secret CLOUDFLARE_API_TOKEN nên bỏ qua bước xoá cache."
+          echo "Xem docs/VAN-HANH.md mục Cloudflare."
+

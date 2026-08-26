@@ -405,11 +405,11 @@ chính** với máy chủ, bất kể `max-age=600` mà GitHub Pages đặt. Yê
 dừng ở biên Cloudflare mà chạy tiếp về GitHub Pages, nên mỗi lần reload đều phải
 đi trọn một vòng tới máy chủ gốc.
 
-**Cách xử lý (cần quyền dashboard của đơn vị):** thêm một *Cache Rule* cho các
-đường dẫn trang, bật **Eligible for cache** và đặt **Edge TTL** vừa phải. Kèm
-theo, nên **xoá cache Cloudflare sau mỗi lần triển khai** - hoặc để Edge TTL ngắn
-(5-15 phút) - vì nếu không, bản HTML cũ sẽ còn được phục vụ ở biên cho tới khi
-hết hạn.
+**Cách xử lý - đã được tự động hoá, chỉ còn cần API token của đơn vị.**
+`scripts/cau-hinh-cloudflare.py` đặt sẵn hai Cache Rule qua API (xem trước mặc
+định, phải thêm `--ap-dung` mới ghi), và job `Xoá cache Cloudflare` trong
+`deploy.yml` tự xoá cache sau mỗi lần triển khai kể từ khi secret được nạp. Quy
+trình đầy đủ ở `docs/VAN-HANH.md` mục 7.
 
 > **Đừng đổi `trailingSlash` hay thêm đuôi `.html` vào route để lách chuyện này.**
 > Quy ước URL đang được mã hoá trong 78 mã QR đã in; đổi nó là phải sinh lại và
@@ -439,8 +439,8 @@ Pages đặt cứng 4 giờ và không cho tuỳ chỉnh header.
 
 Lighthouse ước tính sửa được sẽ tiết kiệm khoảng 300 KiB mỗi lượt truy cập lại.
 
-Cách xử lý: thêm một **Cache Rule** trên Cloudflare cho đường dẫn khớp
-`/_next/static/*`, đặt `Cache-Control: public, max-age=31536000, immutable`.
+Cách xử lý: `scripts/cau-hinh-cloudflare.py` đã bao gồm luật này - đặt Edge TTL
+và Browser TTL một năm cho `/_next/static/*`. Xem `docs/VAN-HANH.md` mục 7.
 
 > **Cảnh báo:** chỉ thêm *Cache Rule*. **Không** động vào phần header
 > `Content-Security-Policy` tại Cloudflare - xem `docs/BAO-MAT.md`, mở rộng CSP ở

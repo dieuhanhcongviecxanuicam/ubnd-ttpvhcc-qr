@@ -54,6 +54,7 @@ request nếu chúng lệch nhau.
 | `npm run kiem-tra-qr` | Đối chiếu nội dung mã QR với route thật |
 | `npm run kiem-tra-bo-chu` | Đối chiếu bộ chữ tự host với ký tự trong dữ liệu |
 | `npm run bo-chu:sinh-lai` | Sinh lại bộ chữ tự host (cần mạng, cần `fonttools`) |
+| `python3 scripts/cau-hinh-cloudflare.py` | Đặt Cache Rule trên Cloudflare (cần API token) |
 
 **Luôn dùng `npm run build`, không gọi `npx next build` trực tiếp** - lệnh build
 đã gói sẵn bước sinh CSP. Thiếu bước đó, trình duyệt chặn script và trang trắng.
