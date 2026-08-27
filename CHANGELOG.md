@@ -2,6 +2,37 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.11.2] - 2026-08-27
+
+### Thay đổi
+
+- **Đo lại Lighthouse trên site thật sau khi bật cache biên**, 8 lượt mỗi trang,
+  bỏ lượt đầu, trung vị 7 lượt. Cập nhật bảng điểm (mục 2) và Web Vitals (mục 3)
+  của `docs/HIEU-NANG.md` sang ba mốc: gốc → nhúng CSS → tự host bộ chữ + cache
+  biên.
+
+  | Trang | Điểm | TBT |
+  |---|---|---|
+  | Chi tiết TTHC | 74 → 77 → **91** | 980 → 1060 → **379 ms** |
+  | Trang chủ | 85 → 89 → **92** | 400 → 409 → **316 ms** |
+  | Lĩnh vực | 87 → 94 → **95** | 380 → 285 → **247 ms** |
+
+  Trang chi tiết - trang tụt hậu suốt từ đầu - **tăng 14 điểm**. FCP và LCP của
+  cả ba trang nay đều quanh 1,2-1,8 giây.
+
+### Ghi chú cho lần sau
+
+- **Lần đo 26/08 không kết luận được, lần này thì có** - và lý do đáng nhớ. Hôm
+  đó điểm dao động 67-89 trên cùng một trang trong cùng một phiên; nay dải chỉ
+  còn 4-5 điểm ở hai trang. Hai thứ đã đổi: đường mạng của máy đo đã ổn định
+  (TTFB của `/favicon.ico` từ dải 0,28-5,02 s xuống 0,20-0,62 s), và cache biên
+  đã bật nên phương sai của máy chủ gốc không còn cộng vào từng lượt.
+- Nghĩa là bật cache biên không chỉ làm trang nhanh hơn mà còn khiến hiệu năng
+  **đo được**. Trước khi đo hiệu năng, hãy kiểm tra độ ổn định của đường mạng
+  trước; nếu không thì mọi phép so sánh đều vô nghĩa.
+- Trang lĩnh vực còn một lượt lạc ra 87 (sáu lượt kia 92-96). Trung vị 95 dùng
+  được, nhưng đừng rút kết luận tinh tế từ trang này nếu không đo thêm.
+
 ## [1.11.1] - 2026-08-27
 
 ### Sửa lỗi

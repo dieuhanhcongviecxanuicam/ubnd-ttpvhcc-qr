@@ -7,7 +7,7 @@ mốc mà đối chiếu. **Chưa tối ưu gì cả** - đây là hiện trạn
 
 | Hạng mục | Giá trị |
 |---|---|
-| Ngày đo | 25/08/2026 (trước) và 26/08/2026 (sau khi tối ưu) |
+| Ngày đo | 25/08 (gốc), 26/08 (nhúng CSS), **27/08/2026 (tự host bộ chữ + cache biên)** |
 | Công cụ | Lighthouse 12.8.2 |
 | Trình duyệt | Chrome for Testing 151.0.7922.34, chế độ headless |
 | Thiết bị mô phỏng | **Mobile** (điện thoại) |
@@ -20,8 +20,8 @@ bằng cách quét mã QR bằng điện thoại ngay tại quầy.
 Không đo bằng `python -m http.server` tại máy: kết quả sẽ sai lệch vì thiếu tầng
 nén, cache và định tuyến URL của GitHub Pages với Cloudflare.
 
-Mục 2 và 3 ghi số liệu **trước và sau** lần tối ưu ở mục 4. Mỗi con số "sau" là
-trung vị của 3 lần đo trên trang thật.
+Mục 2 và 3 ghi số liệu theo **ba mốc**. Con số ở mốc cuối là trung vị của **7
+lượt** đo trên trang thật (chạy 8 lượt, bỏ lượt đầu).
 
 > Đo ngay sau khi triển khai sẽ ra số xấu giả: lần đo đầu tiên gặp cache
 > Cloudflare còn nguội (trang chi tiết ra 68 điểm, FCP 2,6 s), ba lần sau ổn
@@ -29,11 +29,16 @@ trung vị của 3 lần đo trên trang thật.
 
 ## 2. Điểm số
 
+Ba mốc: **gốc** (trước mọi tối ưu) → **nhúng CSS** (bản 1.9.0) → **tự host bộ
+chữ + bật cache biên** (bản 1.11.x, đo 27/08/2026).
+
 | Trang | Hiệu năng | Trợ năng | Thực hành tốt | SEO |
 |---|---|---|---|---|
-| Trang chủ `/` | 85 → **89** | **100** | **100** | 92 |
-| Lĩnh vực `/linh-vuc/ho-tich` | 87 → **94** | **100** | **100** | 92 |
-| Chi tiết `/tthc/1.000110` | 74 → **77** | **100** | **100** | 92 |
+| Trang chủ `/` | 85 → 89 → **92** | **100** | **100** | 92 |
+| Lĩnh vực `/linh-vuc/ho-tich` | 87 → 94 → **95** | **100** | **100** | 92 |
+| Chi tiết `/tthc/1.000110` | 74 → 77 → **91** | **100** | **100** | 92 |
+
+Trang chi tiết - trang tụt hậu suốt từ đầu - **tăng 14 điểm** ở mốc cuối.
 
 Trợ năng đạt 100/100 trên cả ba trang, khớp với kết quả 0 vi phạm WCAG 2.1 AA
 của bộ test axe-core trong `tests/`.
@@ -42,51 +47,61 @@ của bộ test axe-core trong `tests/`.
 
 | Trang | FCP | LCP | TBT |
 |---|---|---|---|
-| Trang chủ | 2,4 s → **1,3 s** (-46%) | 2,4 s → **1,3 s** (-46%) | 400 → 409 ms |
-| Lĩnh vực | 2,3 s → **1,2 s** (-48%) | 2,3 s → **1,8 s** (-22%) | 380 → **285 ms** (-25%) |
-| Chi tiết TTHC | 2,3 s → **1,3 s** (-42%) | 2,3 s → **1,3 s** (-42%) | 980 → 1060 ms (+8%) |
+| Trang chủ | 2,4 → 1,3 → **1,34 s** | 2,4 → 1,3 → **1,34 s** | 400 → 409 → **316 ms** |
+| Lĩnh vực | 2,3 → 1,2 → **1,20 s** | 2,3 → 1,8 → **1,76 s** | 380 → 285 → **247 ms** |
+| Chi tiết TTHC | 2,3 → 1,3 → **1,26 s** | 2,3 → 1,3 → **1,26 s** | 980 → 1060 → **379 ms** |
 
-LCP dưới 2,5 s ở cả ba trang - đạt ngưỡng "tốt" của Core Web Vitals, và sau khi
-tối ưu thì còn rộng hơn nhiều.
+LCP dưới 2,5 s ở cả ba trang - đạt ngưỡng "tốt" của Core Web Vitals.
 
-TBT của trang chi tiết nhích lên 8%: đó là cái giá đã biết trước của việc nhúng
-CSS, vì trình duyệt phải phân tích thêm phần HTML phình ra. Đổi lại LCP - chỉ số
-Core Web Vitals quan trọng nhất - giảm 42%. Đánh đổi có lợi.
+**TBT trang chi tiết: 1060 → 379 ms (-64%).** Đó là phần thu được từ việc tự host
+bộ chữ (mục 4). Cột mốc giữa cho thấy vì sao con số này từng đi sai hướng: nhúng
+CSS đẩy TBT lên 8% vì trình duyệt phải phân tích thêm phần HTML phình ra - cái
+giá đã biết trước, đổi lấy LCP giảm 42%.
 
-Điểm hiệu năng của trang chi tiết thấp hơn hẳn (74). Bảng đo đầu tiên quy
+Điểm hiệu năng của trang chi tiết từng thấp hơn hẳn (74). Bảng đo đầu tiên quy
 nguyên nhân cho TBT 980 ms, tức JavaScript. **Đó là quy kết sai**, đã đo lại
 và đính chính ở mục 4.
 
-### Đo lại trên site thật sau bản 1.10.0
+### Đo lại trên site thật sau khi bật cache biên (27/08/2026)
 
-Đo lại bằng Lighthouse trên trang thật sau khi đổi bộ chữ, 4 lượt mỗi trang, bỏ
-lượt đầu (cache Cloudflare còn nguội), lấy trung vị 3 lượt còn lại.
+Điều kiện: Lighthouse 12.8.2, mobile, **8 lượt mỗi trang**, bỏ lượt đầu (cache
+Cloudflare có thể còn nguội), lấy trung vị 7 lượt còn lại.
 
-**TBT giảm mạnh và ổn định** - khớp với mức giảm gần một nửa của Style & Layout
-đo tại máy:
-
-| Trang | TBT trước | TBT sau |
+| Trang | Điểm | dải qua 7 lượt |
 |---|---|---|
-| Chi tiết TTHC | 1060 ms | **~360 ms** (-66%) |
-| Trang chủ | 409 ms | **~345 ms** |
-| Lĩnh vực | 285 ms | **~225 ms** |
+| Chi tiết TTHC | 77 -> **91** | 88-92 |
+| Trang chủ | 89 -> **92** | 89-94 |
+| Lĩnh vực | 94 -> **95** | 87-96 |
 
-**Còn FCP, LCP và điểm tổng thì lần đo này KHÔNG kết luận được gì**, và cần nói
-thẳng ra thay vì chọn con số đẹp. Phương sai qua bốn lượt quá lớn:
+| Trang | FCP | LCP | TBT |
+|---|---|---|---|
+| Chi tiết TTHC | 2,3 -> **1,26 s** | 2,3 -> **1,26 s** | 1060 -> **379 ms** (-64%) |
+| Trang chủ | 2,4 -> **1,34 s** | 2,4 -> **1,34 s** | 409 -> **316 ms** |
+| Lĩnh vực | 2,3 -> **1,20 s** | 1,8 -> **1,76 s** | 285 -> **247 ms** |
 
-| Trang | Điểm qua 4 lượt | FCP qua 4 lượt |
-|---|---|---|
-| Trang chủ | 82 / 67 / 79 / **89** | 3,1 / 4,2 / 3,3 / **1,6** s |
-| Lĩnh vực | **54** / 94 / 90 / 91 | **7,7** / 1,7 / 2,1 / 1,6 s |
-| Chi tiết | 86 / 81 / 83 / **91** | 2,8 / 2,6 / 2,9 / **1,4** s |
+**Lần đo trước KHÔNG kết luận được, lần này thì có** - và lý do đáng ghi lại.
 
-Cùng một trang, cùng một phiên, điểm dao động 67-89 và FCP dao động 1,6-4,2 giây.
-Muốn nói được điều gì về LCP thì phải đo hàng chục lượt, rải ra nhiều thời điểm
-trong ngày. TBT thì ngược lại - dao động hẹp (253-380 ms ở trang chủ, 220-238 ms
-ở lĩnh vực) nên kết luận được.
+Ngày 26/08, đo 4 lượt mỗi trang cho ra điểm dao động **67-89** trên cùng một
+trang trong cùng một phiên, FCP dao động **1,6-4,2 giây**. Tài liệu khi đó ghi
+thẳng là chưa kết luận được và **giữ nguyên số cũ** ở mục 2 và 3, thay vì chọn
+một con số đẹp.
 
-Vì vậy bảng điểm ở mục 2 và Web Vitals ở mục 3 **vẫn giữ số cũ**, chỉ TBT là đã
-có căn cứ để cập nhật. Đừng thay số ở hai bảng đó bằng một lượt đo lẻ.
+Hai thứ đã đổi kể từ đó:
+
+1. **Đường mạng của máy đo đã ổn định.** Hôm trước ngay cả `/favicon.ico` - tệp
+   2 KB đã nằm trong cache Cloudflare - cũng cho TTFB dao động 0,28-5,02 giây
+   (18 lần). Nay dải đó là 0,20-0,62 giây (3 lần). Trước khi đo hiệu năng, hãy
+   kiểm tra điều này trước; nếu không thì mọi phép so sánh đều vô nghĩa.
+2. **Cache biên đã bật.** Trước đó mọi yêu cầu HTML đều đi trọn một vòng tới
+   GitHub Pages, nên phương sai của máy chủ gốc cộng thẳng vào từng lượt đo.
+
+Nghĩa là bật cache biên không chỉ làm trang nhanh hơn, nó còn khiến hiệu năng
+**đo được**: dải điểm thu từ 22 điểm xuống còn 4-5 điểm ở hai trang, và trung vị
+mới đứng vững.
+
+Riêng trang lĩnh vực còn một lượt lạc ra 87 (sáu lượt kia nằm trong 92-96), nên
+dải của nó rộng 9 điểm. Trung vị 95 dùng được, nhưng đừng rút ra kết luận tinh
+tế nào từ trang này nếu không đo thêm.
 
 ### Đã cân nhắc và loại: cắt bộ chữ sát hơn nữa
 
