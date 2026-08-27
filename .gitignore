@@ -37,3 +37,10 @@ yarn-error.log*
 
 # Cấu hình Claude Code riêng của từng máy - không commit
 .claude/settings.local.json
+
+# Lighthouse chạy trên WSL sinh thư mục profile Chrome mang tên kiểu Windows
+# ("C:\Users\...\lighthouse.NNNN") NGAY TRONG thư mục dự án, vì đường dẫn tạm
+# kiểu Windows bị coi là tên tệp tương đối. Đã có lần `git add -A` nuốt trọn
+# 6.123 tệp như vậy (158 MB) vào hai commit. Cách đúng là ghim user-data-dir khi
+# chạy Lighthouse (xem docs/HIEU-NANG.md mục 6); dòng dưới chỉ là lưới an toàn.
+C:*

@@ -2,6 +2,38 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.11.3] - 2026-08-27
+
+### Sửa lỗi
+
+- **Gỡ 6.123 tệp rác (158 MB) đã lọt vào kho.** Trên WSL, Lighthouse dựng thư mục
+  profile Chrome mang tên kiểu Windows (`C:\Users\...\lighthouse.NNNN`) **ngay
+  trong thư mục đang chạy lệnh**, vì đường dẫn tạm kiểu Windows bị coi là tên tệp
+  tương đối. Hai lần `git add -A` sau khi đo Lighthouse đã nuốt trọn chúng - 2.040
+  tệp ở bản 1.10.1 và 4.083 tệp ở bản 1.11.2 - mà không ai để ý, vì phần diff của
+  tệp tài liệu vẫn trông đúng.
+
+  Sửa cả ba lớp, theo thứ tự quan trọng:
+  1. **Gốc rễ:** lệnh Lighthouse trong `docs/HIEU-NANG.md` mục 6 nay ghim
+     `--user-data-dir=/tmp/lighthouse-profile`.
+  2. **Lưới an toàn:** `.gitignore` thêm mẫu `C:*`. Lưu ý mẫu `C:\*` **không có
+     tác dụng** - trong `.gitignore` dấu `\` là ký tự thoát; đã kiểm bằng
+     `git check-ignore` chứ không đoán.
+  3. **Hàng rào CI:** bước mới chặn mọi đường dẫn chứa dấu `\` trong
+     `git ls-files`. Đường dẫn hợp lệ của dự án không bao giờ chứa ký tự đó. Đã
+     kiểm chứng bắt được lỗi thật.
+
+  Lịch sử kho vẫn còn các tệp này nên `.git` đang ở mức 44 MB. Muốn xoá hẳn thì
+  phải viết lại lịch sử và force-push vào `main` - **là thao tác phá huỷ trên
+  nhánh được bảo vệ, cần đơn vị quyết định**, chưa làm.
+
+### Thêm mới
+
+- `docs/HIEU-NANG.md` mục 6: cách kiểm tra độ ổn định đường mạng **trước khi**
+  đo hiệu năng. Dải TTFB của một tệp đã nằm trong cache biên rộng hơn 5-6 lần là
+  dấu hiệu đừng đo. Ngày 26/08 dải đó là 0,28-5,02 giây và toàn bộ phép đo hôm
+  ấy phải bỏ; ngày 27/08 là 0,20-0,62 giây và kết quả dùng được.
+
 ## [1.11.2] - 2026-08-27
 
 ### Thay đổi
