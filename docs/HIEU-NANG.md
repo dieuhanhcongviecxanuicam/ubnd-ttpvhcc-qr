@@ -489,10 +489,35 @@ Trước đó là `max-age=14400`.
 npx lighthouse https://ttpvhcc.xanuicam.vn/ \
   --preset=perf \
   --only-categories=performance,accessibility,best-practices,seo \
-  --chrome-flags="--headless=new --no-sandbox --disable-dev-shm-usage"
+  --chrome-flags="--headless=new --no-sandbox --disable-dev-shm-usage \
+                  --user-data-dir=/tmp/lighthouse-profile"
 ```
 
 Đo trang thật, không đo bản build tại máy.
+
+> **`--user-data-dir` không phải tuỳ chọn cho vui.** Trên WSL, Lighthouse dựng
+> thư mục profile Chrome mang tên kiểu Windows (`C:\Users\...\lighthouse.NNNN`)
+> **ngay trong thư mục đang chạy lệnh**, vì đường dẫn tạm kiểu Windows bị coi là
+> tên tệp tương đối. Đã có lần `git add -A` nuốt trọn **6.123 tệp như vậy
+> (158 MB)** vào hai commit trước khi bị phát hiện. Ghim `--user-data-dir` vào
+> `/tmp` là hết. `.gitignore` có thêm mẫu `C:*` làm lưới an toàn, và CI có bước
+> chặn mọi đường dẫn chứa dấu `\` - nhưng cả hai chỉ là lớp đỡ, không thay được
+> việc ghim thư mục profile.
+
+### Trước khi đo: kiểm tra đường mạng
+
+Phép đo hiệu năng chỉ có nghĩa khi đường mạng của máy đo ổn định. Cách kiểm nhanh
+là đo TTFB của một tệp nhỏ chắc chắn đã nằm trong cache biên:
+
+```bash
+for i in $(seq 1 10); do
+  curl -s -o /dev/null -w "%{time_starttransfer}\n" https://ttpvhcc.xanuicam.vn/favicon.ico
+done
+```
+
+Dải rộng gấp hơn 5-6 lần giữa nhanh nhất và chậm nhất là dấu hiệu **đừng đo**.
+Ngày 26/08 dải này là 0,28-5,02 giây (18 lần) và toàn bộ phép đo Lighthouse hôm
+đó phải bỏ; ngày 27/08 là 0,20-0,62 giây (3 lần) và kết quả dùng được.
 
 ### Bẫy khi muốn đo bản build cục bộ
 

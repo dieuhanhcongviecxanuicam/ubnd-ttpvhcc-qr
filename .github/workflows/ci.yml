@@ -27,6 +27,18 @@ jobs:
       - name: Đối chiếu phiên bản với nhật ký thay đổi
         run: npm run kiem-tra-phien-ban
 
+      # Lighthouse chạy trên WSL sinh thư mục profile Chrome mang tên kiểu Windows
+      # ngay trong thư mục dự án; một lần `git add -A` đã nuốt trọn 6.123 tệp như
+      # vậy (158 MB) vào kho. Đường dẫn hợp lệ của dự án không bao giờ chứa dấu \.
+      - name: Chặn đường dẫn kiểu Windows lọt vào kho
+        run: |
+          if git ls-files | grep -q '\\'; then
+            echo "Có tệp mang đường dẫn kiểu Windows trong kho:"
+            git ls-files | grep '\\' | head -20
+            exit 1
+          fi
+          echo "Không có đường dẫn kiểu Windows nào."
+
       - name: Kiểm tra kiểu TypeScript
         run: npm run typecheck
 
