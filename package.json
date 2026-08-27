@@ -36,7 +36,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
     "axe-core": "^4.13.0",
-    "eslint": "^9.39.5",
+    "eslint": "^10.9.0",
     "eslint-config-next": "^16.3.2",
     "playwright": "^1.62.1",
     "tsx": "^4.23.12",
