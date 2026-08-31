@@ -5,7 +5,7 @@
 # Dùng zxing-cpp chứ không dùng OpenCV: bộ giải mã của OpenCV đọc hụt mã QR từ
 # version 5 trở lên (đã gặp thực tế với các lĩnh vực có slug dài), trong khi
 # zxing là engine đứng sau phần lớn ứng dụng quét QR trên điện thoại.
-zxing-cpp>=2.2
+zxing-cpp>=3.1.1
 
 # Sinh và đối chiếu bộ chữ tự host (tao-bo-chu.py, kiem-tra-bo-chu.py).
 # brotli cần cho định dạng woff2.
