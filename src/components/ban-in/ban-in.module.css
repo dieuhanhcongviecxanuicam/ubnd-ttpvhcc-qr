@@ -42,7 +42,7 @@
 .bangDau {
   flex: 0 0 76mm;
   display: grid;
-  grid-template-columns: 120mm 1fr 118mm;
+  grid-template-columns: 138mm 1fr 112mm;
   align-items: center;
   gap: 10mm;
   padding: 0 16mm;
@@ -50,10 +50,13 @@
   color: #fff;
 }
 .bangLogo { display: flex; align-items: center; gap: 5mm; }
-.bangLogoAnh { width: 50mm; height: 50mm; background: #fff; border-radius: 50%; padding: 3mm; }
+/* Đệm 7.5mm để ảnh vuông 35mm nằm trọn trong vòng tròn 50mm (cạnh hình vuông nội
+   tiếp = đường kính / căn 2). Đệm 3mm trước đây khiến bốn góc ảnh bị bo tròn cắt
+   mất, thấy rõ nhất ở cánh tay bên trái của logo. */
+.bangLogoAnh { width: 50mm; height: 50mm; background: #fff; border-radius: 50%; padding: 7.5mm; }
 .bangLogo p { display: flex; flex-direction: column; gap: 1mm; }
-.bangLogo strong { font-size: 7.4mm; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; }
-.bangLogo span { font-size: 4.8mm; font-weight: 500; }
+.bangLogo strong { font-size: 6.6mm; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; white-space: nowrap; }
+.bangLogo span { font-size: 4.4mm; font-weight: 500; }
 .bangTieuDe {
   font-family: var(--font-body);
   color: #ffd54a;
@@ -126,9 +129,9 @@
 /* Danh sách bám mép trên và giãn hết phần còn lại, để nút "Quét mã" luôn nằm sát
    đáy thẻ như bảng giấy mẫu. Đã thử căn giữa danh sách bằng margin-block: auto -
    nút bị kéo lên theo và đáy thẻ trống hoác. */
-.theDs { flex: 1; padding: 3mm 5mm 0 11mm; font-size: 4.3mm; line-height: 1.32; }
+.theDs { flex: 1; padding: 3mm 5mm 0 12mm; font-size: 5.1mm; line-height: 1.3; }
 .theDs li::marker { color: var(--lv); font-weight: 700; }
-.theCon { padding: 0.5mm 5mm 0; font-size: 3.8mm; color: #6b655c; }
+.theCon { padding: 1mm 5mm 0; font-size: 4.3mm; color: #6b655c; }
 .theNut {
   margin: 2.5mm 4mm 4mm;
   padding: 2.4mm;
@@ -167,7 +170,7 @@
 .bangChan {
   flex: 0 0 50mm;
   display: grid;
-  grid-template-columns: 1.05fr 1.5fr 0.95fr 1.05fr;
+  grid-template-columns: 1.05fr 1.45fr 1fr 1.05fr;
   align-items: center;
   gap: 8mm;
   padding: 5mm 16mm;
@@ -176,15 +179,18 @@
 }
 .chanKhoi { display: flex; align-items: center; gap: 5mm; }
 .chanKhoi p { display: flex; flex-direction: column; gap: 1mm; }
-.chanKhoi strong { font-size: 5.6mm; color: #0e5fa4; text-transform: uppercase; letter-spacing: 0.02em; }
-.chanKhoi span { font-size: 4.4mm; color: #241f1c; }
+/* Ba khối chân bảng dùng chung một thang chữ: nhãn 5.2mm, dòng phụ 4.2mm, số
+   hotline và khẩu hiệu cùng 8.2mm - để chân bảng đọc như một dải, không phải ba
+   mẩu rời mỗi mẩu một cỡ. */
+.chanKhoi strong { font-size: 5.2mm; color: #0e5fa4; text-transform: uppercase; letter-spacing: 0.04em; }
+.chanKhoi span { font-size: 4.2mm; color: #241f1c; }
 .chanQr { width: 34mm; height: 34mm; flex-shrink: 0; padding: 0.8mm; border: 0.4mm solid #dfd9c8; border-radius: 1.5mm; }
 .chanUrl { font-family: var(--font-mono); }
 .chanKhauHieu {
   font-family: var(--font-display);
   font-weight: 600;
   /* 8.4mm để khẩu hiệu nằm trọn một dòng: xuống dòng giữa câu trông như lỗi dàn trang. */
-  font-size: 8.4mm;
+  font-size: 8.2mm;
   line-height: 1.2;
   text-align: center;
   color: #9b2226;
@@ -193,14 +199,16 @@
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  width: 18mm;
-  height: 18mm;
+  width: 20mm;
+  height: 20mm;
   border-radius: 50%;
   background: #0e5fa4;
   color: #fff;
+  /* Quầng sáng mỏng cùng sắc xanh để khối hỗ trợ nổi hẳn trên nền trắng. */
+  box-shadow: 0 0 0 1.4mm rgba(14, 95, 164, 0.18);
 }
-.chanIcon svg { width: 10mm; height: 10mm; }
-.chanKhoi .chanHotline { font-size: 9mm; font-weight: 700; color: #9b2226; letter-spacing: 0.01em; }
+.chanIcon svg { width: 11mm; height: 11mm; }
+.chanKhoi .chanHotline { font-size: 8.2mm; font-weight: 700; color: #9b2226; letter-spacing: 0.01em; }
 
 /* ==================== TỜ A4: phần dùng chung ==================== */
 .a4Dau {
@@ -212,7 +220,7 @@
   background: linear-gradient(100deg, #9b2226, #721c1e);
   color: #fff;
 }
-.a4Logo { width: 15mm; height: 15mm; flex-shrink: 0; background: #fff; border-radius: 50%; padding: 0.9mm; }
+.a4Logo { width: 15mm; height: 15mm; flex-shrink: 0; background: #fff; border-radius: 50%; padding: 2.2mm; }
 .a4Dau p { display: flex; flex-direction: column; gap: 0.6mm; }
 .a4Dau strong { font-size: 4.6mm; color: #ffd54a; text-transform: uppercase; letter-spacing: 0.01em; }
 .a4Dau span { font-size: 3.3mm; }
