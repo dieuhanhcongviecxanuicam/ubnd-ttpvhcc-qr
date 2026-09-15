@@ -2,6 +2,48 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.16.0] - 2026-09-16
+
+### Thay đổi
+
+- **Thanh đầu trang của website đổi sang nền đỏ với dải sáng chạy chậm.** Logo đặt
+  trên đĩa trắng vì logo đỏ trên nền đỏ sẽ chìm; chữ và ô tìm kiếm chuyển sang bản
+  sáng. Mọi điểm dừng của dải màu đều giữ chữ trắng trên ngưỡng WCAG AA - #7A1B1E
+  10,48:1, #9B2226 7,92:1, #B02A2E 6,53:1 - nên chữ không mờ đi giữa chừng hiệu
+  ứng. Viền focus trong thanh đổi sang màu trắng, vì viền đỏ son mặc định gần như
+  vô hình trên nền đỏ.
+
+  Ai bật "giảm chuyển động" trong hệ điều hành thì dải đứng yên: quy tắc
+  `prefers-reduced-motion` của dự án trước đây chỉ tắt `transition`, nay tắt cả
+  `animation`.
+
+- **Bỏ đoạn mở đầu ở trang `/in-ma-qr`.** Ba thẻ bản in ngay bên dưới đã nói đủ:
+  tên, mô tả, khổ giấy, số trang, số mã QR.
+
+- **"và N lĩnh vực khác" nằm ngay dưới danh sách** thay vì bị đẩy xuống đáy thẻ.
+  Thân thẻ được bọc trong một khối co giãn; nút "Quét mã" vẫn bám đáy.
+
+- **Ô "Hướng dẫn tra cứu bằng mã QR" có thêm dải chân "Hướng dẫn quy trình thủ
+  tục"**, để 15 ô trong lưới cùng khép lại bằng một dải màu như nhau.
+
+### Sửa lỗi
+
+- **Logo bị cắt mất một phần trong bản in.** Nguyên nhân nằm ở khâu sinh ảnh:
+  `tach_nen()` cắt sát viền trong suốt để logo lấp đầy khung vuông - hợp lý cho
+  khung vuông, nhưng bản in đặt logo trong nền BO TRÒN, nên phần hình chạm mép
+  khung nằm ngoài vòng tròn và bị cắt. Bàn tay bên phải bị xén phẳng, đo được
+  bằng bounding box: ảnh cũ chạm mép trên và dưới (lề 1px).
+
+  Nay `scripts/tao-bo-nhan-dien.py` sinh `logo-in.png` kèm **lề trong suốt 12%**
+  (lề thật đo lại: 144-160px trên khung 1200px), nên cả năm bàn tay nằm trọn
+  trong vòng tròn ở mọi khổ in. Ba tệp PDF nhẹ đi khoảng 70 KB theo.
+
+- **Lề của nút "Quét mã" bị ghi đè âm thầm.** Quy tắc chung `.to p { margin: 0 }`
+  trong cùng tệp CSS có độ ưu tiên cao hơn `.theNut`, nên lề tự động không bao giờ
+  ăn - đo trong trình duyệt thấy `margin-top` ra `0px` dù CSS ghi `auto`. Đây cũng
+  là lý do cách dàn "căn giữa bằng margin tự động" thử trước đó không chạy. Nay
+  chọn qua `.to .theNut` để thắng quy tắc chung.
+
 ## [1.15.1] - 2026-09-16
 
 ### Sửa lỗi

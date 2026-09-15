@@ -81,13 +81,32 @@ h1, h2, h3, h4 {
 }
 
 /* ---------- Thanh điều hướng ---------- */
+/* Nền đỏ với dải sáng chạy chậm ngang thanh.
+   Mọi điểm dừng đều giữ chữ trắng trên ngưỡng WCAG AA: #7A1B1E 10,48:1,
+   #9B2226 7,92:1, #B02A2E 6,53:1 - nên chữ không bao giờ mờ đi giữa chừng
+   hiệu ứng. Ai bật "giảm chuyển động" trong hệ điều hành thì dải đứng yên. */
 .header {
   position: sticky;
   top: 0;
   z-index: 40;
-  background: rgba(251, 249, 243, 0.92);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--duong-vien);
+  color: var(--trang);
+  background: linear-gradient(
+    100deg,
+    #7a1b1e 0%,
+    #9b2226 28%,
+    #b02a2e 50%,
+    #9b2226 72%,
+    #7a1b1e 100%
+  );
+  background-size: 260% 100%;
+  animation: chay-gradient-header 22s ease-in-out infinite;
+  border-bottom: 1px solid rgba(36, 31, 28, 0.22);
+  box-shadow: 0 2px 12px rgba(36, 31, 28, 0.18);
+}
+@keyframes chay-gradient-header {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 .header-inner {
   display: flex;
@@ -97,10 +116,16 @@ h1, h2, h3, h4 {
   max-width: 1140px;
   margin: 0 auto;
 }
+/* Logo đỏ trên nền đỏ thì chìm, nên đặt trên đĩa trắng. Đệm 7px trên 44px để
+   hình vuông logo nội tiếp vòng tròn - thiếu đệm là bốn góc bị bo tròn cắt mất,
+   đúng lỗi đã gặp ở bản in. */
 .logo-dau {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
+  padding: 7px;
+  background: var(--trang);
+  border-radius: 50%;
 }
 .brand {
   display: flex;
@@ -111,11 +136,11 @@ h1, h2, h3, h4 {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 17px;
-  color: var(--muc);
+  color: var(--trang);
 }
 .brand-phu {
   font-size: 11.5px;
-  color: var(--muc-nhat);
+  color: rgba(255, 255, 255, 0.9);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -129,9 +154,18 @@ h1, h2, h3, h4 {
   align-items: center;
   gap: 8px;
   background: var(--trang);
-  border: 1px solid var(--duong-vien);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: 999px;
   padding: 8px 16px;
+}
+.o-tim-mini:focus-within { box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.45); }
+
+/* Viền focus mặc định của site màu đỏ son - trên nền đỏ gần như không thấy. */
+.header a:focus-visible,
+.header button:focus-visible,
+.header input:focus-visible {
+  outline: 2px solid var(--trang);
+  outline-offset: 2px;
 }
 .o-tim-mini input {
   border: none;
@@ -940,7 +974,13 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; scroll-behavior: auto !important; }
+  * {
+    transition: none !important;
+    scroll-behavior: auto !important;
+    /* Không dùng animation: none - vài hiệu ứng cần chạy hết một lần rồi dừng. */
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
 
 /* ==========================================================================

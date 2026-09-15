@@ -40,13 +40,18 @@ NGUONG_NEN = 40
 # Dải chuyển tiếp để mép logo mượt, không răng cưa
 MEM_TU, MEM_DEN = 4, 40
 
-# Logo sinh từ file gốc: (tên file, cạnh)
+# Logo sinh từ file gốc: (tên file, cạnh, lề trong suốt tính theo tỉ lệ cạnh)
+#
+# Vì sao có lề: tach_nen() cắt sát viền trong suốt để logo lấp đầy khung - hợp lý
+# cho khung vuông, nhưng bản in đặt logo trong nền BO TRÒN, và phần hình chạm mép
+# khung vuông thì nằm ngoài vòng tròn nên bị cắt mất. Đã gặp thật: bàn tay bên
+# phải bị xén phẳng. Lề 12% cho bản in đưa toàn bộ năm bàn tay vào trong vòng tròn.
 KICH_THUOC_LOGO = [
-    ("logo.png", 128),      # logo trên thanh điều hướng
-    ("logo-512.png", 512),  # ảnh chia sẻ mạng xã hội
+    ("logo.png", 128, 0.0),      # logo trên thanh điều hướng, khung vuông
+    ("logo-512.png", 512, 0.0),  # ảnh chia sẻ mạng xã hội
     # Bảng niêm yết in khổ A1-A0: logo rộng khoảng 110 mm, 1200 px cho ~280 dpi.
     # logo-512.png phóng tới cỡ đó chỉ còn ~120 dpi, nhoè thấy rõ khi đứng gần.
-    ("logo-in.png", 1200),
+    ("logo-in.png", 1200, 0.12),
 ]
 
 # Favicon chép nguyên bản: (file nguồn trong brand/favicon, tên file đích)
@@ -121,13 +126,20 @@ def main() -> int:
 
     THU_MUC_RA.mkdir(parents=True, exist_ok=True)
     tong = 0
-    for ten, canh in KICH_THUOC_LOGO:
-        anh = toi_uu(sach.resize((canh, canh), Image.Resampling.LANCZOS))
+    for ten, canh, le in KICH_THUOC_LOGO:
+        trong = max(1, round(canh * (1 - 2 * le)))
+        thu_nho = sach.resize((trong, trong), Image.Resampling.LANCZOS)
+        if trong == canh:
+            anh = toi_uu(thu_nho)
+        else:
+            khung = Image.new("RGBA", (canh, canh), (0, 0, 0, 0))
+            khung.paste(thu_nho, ((canh - trong) // 2, (canh - trong) // 2))
+            anh = toi_uu(khung)
         duong_dan = THU_MUC_RA / ten
         anh.save(duong_dan, "PNG", optimize=True)
         kb = duong_dan.stat().st_size / 1024
         tong += kb
-        print(f"  → public/brand/{ten:<18} {canh:>3}px  {kb:6.1f} KB")
+        print(f"  → public/brand/{ten:<18} {canh:>4}px  lề {le:.0%}  {kb:6.1f} KB")
 
     if not THU_MUC_FAVICON.is_dir():
         print(f"LỖI: không tìm thấy {THU_MUC_FAVICON}", file=sys.stderr)
