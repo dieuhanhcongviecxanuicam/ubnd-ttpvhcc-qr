@@ -2,6 +2,34 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.15.1] - 2026-09-16
+
+### Sửa lỗi
+
+- **Logo bị vòng tròn trắng cắt mất một phần.** Ảnh logo là hình vuông đặt trong
+  nền bo tròn 50%, mà bốn góc hình vuông nằm ngoài vòng tròn nên bị cắt - thấy rõ
+  nhất ở cánh tay bên trái. Đệm cũ 3mm là không đủ. Nay đệm 7.5mm trên tổng 50mm:
+  cạnh hình vuông nội tiếp bằng đường kính chia căn 2, nên ảnh nằm trọn trong
+  vòng tròn ở mọi khổ. Tờ A4 sửa cùng cách (0.9mm → 2.2mm trên 15mm).
+
+### Thay đổi
+
+- **"HÀNH CHÍNH CÔNG" nằm trên một hàng.** Cột trái của dải tiêu đề nới từ 120mm
+  lên 138mm, cỡ chữ 7.4mm → 6.6mm kèm `white-space: nowrap`.
+- **Khẩu hiệu góc phải rút còn "Hành chính phục vụ".** Vế "Vì Nhân dân phục vụ"
+  đã nằm ngay dưới logo ở góc trái, lặp lại ở góc phải là thừa.
+- **Danh sách lĩnh vực trong thẻ nhóm to hơn**: 4.3mm → 5.1mm, dòng "và N lĩnh
+  vực khác" 3.8mm → 4.3mm. Ở khổ A1 treo tường, đây là phần người dân đọc để biết
+  nên quét mã nào, nên đáng được đọc từ xa hơn.
+- **Chân bảng dùng chung một thang chữ** để ba khối đọc như một dải liền thay vì
+  ba mẩu rời: nhãn 5.2mm, dòng phụ 4.2mm, số hotline và khẩu hiệu cùng 8.2mm.
+- **Biểu tượng cạnh số điện thoại đổi từ ống nghe sang tai nghe tổng đài**, vòng
+  tròn 18mm → 20mm kèm quầng sáng mỏng cùng sắc xanh. Ống nghe quay số là hình
+  ảnh máy bàn đời cũ; tai nghe là dấu hiệu quen thuộc của bộ phận hướng dẫn và ở
+  cỡ nhỏ vẫn nhận ra ngay nhờ hai khối đặc hai bên.
+
+Đã dựng lại cả ba tệp PDF và soi từng phần ở 140 dpi để đối chiếu.
+
 ## [1.15.0] - 2026-09-16
 
 ### Thêm mới

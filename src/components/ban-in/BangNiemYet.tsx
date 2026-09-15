@@ -2,7 +2,7 @@ import Image from "next/image";
 import type { ThongKeNhom } from "@/lib/data";
 import { duongDan, KHAU_HIEU, LIEN_HE, SITE_URL } from "@/lib/site-config";
 import { catNgan } from "@/lib/text";
-import { IconDienThoai } from "./BieuTuong";
+import { IconHoTro } from "./BieuTuong";
 import s from "./ban-in.module.css";
 
 /** Số lĩnh vực in trong mỗi thẻ nhóm - mẫu bảng giấy của đơn vị in 5 dòng. */
@@ -152,7 +152,7 @@ export default function BangNiemYet({
         <p className={s.chanKhauHieu}>{KHAU_HIEU.caiCach}</p>
         <div className={s.chanKhoi}>
           <span className={s.chanIcon} aria-hidden="true">
-            <IconDienThoai />
+            <IconHoTro />
           </span>
           <p>
             <strong>Hỗ trợ, hướng dẫn</strong>

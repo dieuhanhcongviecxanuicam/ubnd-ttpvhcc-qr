@@ -1,8 +1,28 @@
-/** Biểu tượng điện thoại, vẽ bằng SVG nội tuyến để in ra vẫn là vector. */
-export function IconDienThoai() {
+/**
+ * Biểu tượng tai nghe tổng đài cho khối "Hỗ trợ, hướng dẫn" ở chân bảng niêm yết.
+ *
+ * Vẽ bằng SVG nội tuyến để in ra vẫn là vector. Dùng tai nghe thay ống nghe điện
+ * thoại: ống nghe quay số là hình ảnh của máy bàn đời cũ, còn tai nghe là dấu
+ * hiệu quen thuộc của bộ phận hướng dẫn, và ở cỡ nhỏ vẫn nhận ra ngay nhờ khối
+ * đặc hai bên.
+ */
+export function IconHoTro() {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" focusable="false">
-      <path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z" />
+    <svg viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+      <path
+        d="M4 14.5v-2.5a8 8 0 0 1 16 0v2.5"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+      <rect x="1.8" y="13" width="5.2" height="7.4" rx="2.6" fill="currentColor" />
+      <rect x="17" y="13" width="5.2" height="7.4" rx="2.6" fill="currentColor" />
+      <path
+        d="M19.6 20.4v.6a2.6 2.6 0 0 1-2.6 2.6h-3.4"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
