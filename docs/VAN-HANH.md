@@ -208,7 +208,59 @@ python3 scripts/cau-hinh-cloudflare.py --xoa-cache
 > cache.** Quy ước URL đang được mã hoá trong 78 mã QR đã in; đổi nó là phải sinh
 > lại và in lại toàn bộ.
 
-## 8. Sao lưu
+## 8. Cloudflare - lớp chống DDoS và spam IP
+
+Toàn bộ phần này nằm ở `scripts/bao-ve-cloudflare.py`; lý do từng lựa chọn ghi ở
+`docs/BAO-MAT.md` mục 9. Dựng một lần, sau đó chỉ rà lại hằng quý.
+
+### Bước 1. Tạo token riêng cho việc bảo vệ
+
+Cloudflare > My Profile > API Tokens > Create Token > Custom token. Phạm vi chọn
+đúng zone `xanuicam.vn`, quyền:
+
+```
+Zone / Zone / Read
+Zone / Zone Settings / Read
+Zone / Zone Settings / Edit
+Zone / Zone WAF / Edit
+Zone / Bot Management / Edit   (tuỳ chọn, gói Free có thể không có)
+```
+
+**Để riêng token này với token xoá cache.** Token xoá cache chạy tự động mỗi lượt
+triển khai; token bảo vệ có quyền đổi tường lửa nhưng chỉ chạy khi người trực bấm
+tay. Gộp lại là cho lượt triển khai hằng ngày mang theo quyền nó không dùng tới.
+
+### Bước 2. Dựng bốn lớp bảo vệ
+
+```bash
+export CLOUDFLARE_API_TOKEN=<token vừa tạo>
+python3 scripts/bao-ve-cloudflare.py            # xem trước, KHÔNG ghi gì
+python3 scripts/bao-ve-cloudflare.py --ap-dung  # ghi thật
+python3 scripts/bao-ve-cloudflare.py --kiem-tra # đọc lại trạng thái
+```
+
+Kiểm chứng bằng chính đường dẫn mà site không có:
+
+```bash
+curl -si https://ttpvhcc.xanuicam.vn/wp-admin | head -1   # mong đợi 403
+curl -si https://ttpvhcc.xanuicam.vn/ | head -1           # vẫn 200
+```
+
+### Bước 3. Nạp token vào kho mã để bật/tắt được từ điện thoại
+
+```bash
+gh secret set CLOUDFLARE_API_TOKEN_BAO_VE
+```
+
+Sau bước này, tab **Actions** > **Chế độ chống tấn công** chạy được từ trình duyệt
+điện thoại: `kiem-tra`, `bat-chong-tan-cong`, `tat-chong-tan-cong`,
+`ap-dung-bao-ve`. Hai thao tác có ảnh hưởng bắt gõ `DONG Y` để tránh bấm nhầm.
+
+> **Khi nào bật `bat-chong-tan-cong`.** Chỉ khi đang bị tấn công thật. Nó bắt mọi
+> người dân qua trang xác minh vài giây và chặn cả bot tìm kiếm - xem
+> `docs/BAO-MAT.md` mục 9. Tắt ngay khi hết đợt.
+
+## 9. Sao lưu
 
 Cần giữ lại: **file Excel nguồn** (`data/source/`, không nằm trong Git) và toàn bộ
 kho mã nguồn trên GitHub. Có hai thứ này là dựng lại được toàn bộ hệ thống.

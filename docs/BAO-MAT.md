@@ -10,7 +10,7 @@ toàn thông tin riêng.
 | Lớp              | Biện pháp                                    | Đặt ở đâu                |
 | ---------------- | -------------------------------------------- | ------------------------ |
 | Tên miền         | DNSSEC, CAA, khoá chuyển nhượng              | Cloudflare + nhà đăng ký |
-| Biên mạng        | Chống DDoS, HSTS, header bảo mật             | Cloudflare               |
+| Biên mạng        | Chống DDoS, giới hạn tần suất, WAF, HSTS     | Cloudflare (mục 9)       |
 | Phục vụ nội dung | Chỉ tệp tĩnh, không thành phần thực thi      | GitHub Pages             |
 | Trình duyệt      | CSP theo từng trang, dùng băm script         | Sinh lúc build           |
 | Chuỗi build      | Ghim Action theo SHA, quét phụ thuộc, CodeQL | GitHub Actions           |
@@ -116,6 +116,12 @@ vẫn thấy biểu tượng ổ khoá.
 | Secret | Dùng ở đâu | Quyền tối thiểu |
 |---|---|---|
 | `CLOUDFLARE_API_TOKEN` | job `Xoá cache Cloudflare` trong `deploy.yml` | Zone/Zone/Read, Zone/Cache Purge/Purge |
+| `CLOUDFLARE_API_TOKEN_BAO_VE` | workflow `Chế độ chống tấn công` (chạy tay) | Zone/Zone/Read, Zone Settings/Read+Edit, Zone WAF/Edit |
+
+Hai token để **riêng** chứ không gộp một. Token xoá cache chạy tự động ở mọi lượt
+triển khai, cạnh một job đang giữ `pages:write`; token bảo vệ có quyền đổi cấu
+hình tường lửa nhưng chỉ chạy khi người trực bấm tay. Gộp lại là cho lượt triển
+khai hằng ngày mang theo quyền sửa tường lửa mà nó không bao giờ dùng tới.
 
 Token này **chỉ để xoá cache**. Đừng cấp thêm quyền và đừng dùng lại token có
 quyền rộng: workflow triển khai vốn đã giữ `pages:write`, nên mọi quyền cộng
@@ -143,13 +149,22 @@ lượt triển khai nào.
 | Xem cảnh báo CodeQL và secret scanning | Hằng tuần           | Tab **Security** của kho mã                     |
 | Kiểm chứng mã QR                       | Mỗi lần đổi dữ liệu | `python3 scripts/kiem-tra-ma-qr.py`             |
 | Kiểm tra header bảo mật                | Hằng quý            | Lệnh `curl` ở mục 3                             |
+| Đối chiếu lớp bảo vệ Cloudflare        | Hằng quý            | `python3 scripts/bao-ve-cloudflare.py --kiem-tra` |
+| Gia hạn `security.txt`                 | Hằng năm            | Sửa `Expires`; `npm test` kêu trước 60 ngày     |
 | Rà quyền truy cập                      | Hằng quý            | Settings → Collaborators                        |
 | Diễn tập khôi phục                     | Hằng năm            | Dựng lại hệ thống từ kho mã và tệp Excel nguồn  |
 
 ## 6. Khi nghi ngờ bị xâm nhập
 
-1. **Vào Cloudflare bật Under Attack Mode** hoặc tạm trỏ tên miền đi nơi khác -
-   ưu tiên cắt đường tiếp cận của người dân tới nội dung có thể đã bị sửa.
+1. **Bật chế độ chống tấn công** - ưu tiên cắt đường tiếp cận tới nội dung có
+   thể đã bị sửa. Ba cách, chọn cách nào nhanh nhất lúc đó:
+   - Tab **Actions** của kho mã > workflow **Chế độ chống tấn công** >
+     `bat-chong-tan-cong` (chạy được từ điện thoại).
+   - `python3 scripts/bao-ve-cloudflare.py --che-do-tan-cong bat`
+   - Cloudflare dashboard > Security > Settings > Under Attack Mode.
+
+   Nhớ **tắt lại** ngay khi hết đợt: chế độ này chặn cả bot tìm kiếm và bắt mọi
+   người dân qua trang xác minh.
 2. Đối chiếu lịch sử commit gần nhất: `git log --oneline -20` và tab **Actions**
    xem có lần triển khai nào lạ không.
 3. Thu hồi toàn bộ token và khoá SSH của các tài khoản liên quan; đổi mật khẩu,
@@ -182,3 +197,79 @@ nhận lượt truy cập.
 Hệ quả: **không có dữ liệu cá nhân nào để rò rỉ**. Nếu về sau bổ sung biểu mẫu
 hoặc công cụ thống kê, phải đánh giá lại nghĩa vụ theo quy định về bảo vệ dữ liệu
 cá nhân trước khi triển khai.
+
+## 9. Chống DDoS, bot và spam IP
+
+Site không có máy chủ ứng dụng để cài bộ đếm hay danh sách chặn: request bị chặn
+hay không đã được quyết định xong ở Cloudflare, **trước khi** tới GitHub Pages.
+Vì vậy toàn bộ lớp này nằm ở tầng biên, và được đưa vào kho mã dưới dạng
+`scripts/bao-ve-cloudflare.py` để rà soát, ghi nhật ký và dựng lại được - thay vì
+nằm trong trí nhớ của người từng bấm dashboard.
+
+### Bốn lớp thường trực
+
+| Lớp | Nội dung | Người dân có thấy gì không |
+|---|---|---|
+| Luật WAF | Bỏ qua bot tìm kiếm đã xác minh; **chặn** đường dẫn quét lỗ hổng (`/wp-admin`, `/.env`, `/.git`, `*.php`…); **bắt xác minh** khi điểm đe doạ cao | Không |
+| Giới hạn tần suất | Một IP vượt **60 request/10 giây** thì phải qua xác minh trong 60 giây, rồi tự trở lại bình thường | Không, trừ khi dội request |
+| Bot Fight Mode | Cloudflare nhận diện bot giả mạo trình duyệt | Không |
+| Cài đặt zone | HSTS 1 năm + preload, TLS tối thiểu 1.2, luôn HTTPS, Browser Integrity Check | Không |
+
+Ngưỡng 60 request/10 giây đặt theo hành vi thật: một lượt mở trang chi tiết tải
+khoảng 10-14 tệp, nên người dân bấm nhanh liên tiếp vẫn cách ngưỡng rất xa, còn
+cán bộ mở hàng loạt tab để in mã QR cũng chỉ chạm tới vài chục request. Biện pháp
+là *bắt xác minh trong 60 giây* chứ không phải chặn vĩnh viễn: không có danh sách
+đen nào để quên xoá, và người bị chặn nhầm chỉ phải đợi một phút.
+
+Danh sách đường dẫn bị chặn cố ý **ngắn**, chỉ gồm thứ mà một site tĩnh chắc chắn
+không có. Mở rộng danh sách này là mở rộng luôn khả năng chặn nhầm người dân.
+
+```bash
+export CLOUDFLARE_API_TOKEN=...                       # xem quyền ở đầu script
+python3 scripts/bao-ve-cloudflare.py                  # xem trước, không ghi gì
+python3 scripts/bao-ve-cloudflare.py --ap-dung        # dựng bốn lớp
+python3 scripts/bao-ve-cloudflare.py --kiem-tra       # đọc trạng thái đang chạy
+```
+
+Script chỉ ghi đè luật mang dấu `[ubnd-ttpvhcc-qr]`; luật ai đó đặt tay trên
+dashboard được giữ nguyên và xếp sau.
+
+### Vì sao KHÔNG bật trang xác minh cho mọi người như grok.com
+
+Under Attack Mode bắt **mọi** người truy cập qua một trang xác minh vài giây.
+Trên một trang dịch vụ công, cái giá đó rơi đúng vào người dân:
+
+- Quét mã QR tại quầy phải chờ thêm mỗi lần mở trang; trên máy cũ hoặc trình
+  duyệt hiếm, bước xác minh có thể **thất bại hẳn** - khi đó họ mất luôn đường
+  tra cứu thủ tục.
+- Người dùng trình đọc màn hình và bàn phím gặp thêm một rào cản, trong khi dự án
+  cam kết WCAG 2.1 AA.
+- Bot tìm kiếm bị chặn, trang rụng khỏi kết quả tìm kiếm.
+- Nội dung ở đây là thông tin **bắt buộc phải niêm yết công khai**. Bắt người dân
+  chứng minh mình không phải máy để đọc thông tin công khai là đặt sai ưu tiên.
+
+Nên chế độ này là **công tắc sự cố**, không phải cấu hình thường trực: bật khi
+đang bị tấn công thật, tắt ngay khi hết đợt. Cách bật ở mục 6.
+
+### Giới hạn cần biết, không nên tự huyễn hoặc
+
+- **Không có bảo mật tuyệt đối.** Lớp này làm cho tấn công dội request trở nên
+  đắt đỏ và vô ích, chứ không làm nó bất khả thi.
+- Máy chủ gốc là GitHub Pages - hạ tầng vốn đã chịu tải tốt và chỉ phục vụ tệp
+  tĩnh, không có mã thực thi để chiếm. Kịch bản đáng lo không phải "sập máy chủ"
+  mà là **chiếm tài khoản** GitHub hoặc Cloudflare; phòng thủ cho việc đó là 2FA
+  và branch protection ở mục 4, không phải tường lửa.
+- Địa chỉ gốc `dieuhanhcongviecxanuicam.github.io` vẫn truy cập trực tiếp được,
+  không qua Cloudflare. Đó là cách GitHub Pages hoạt động, không tắt được. Nội
+  dung ở đó giống hệt và là thông tin công khai, nên rủi ro là *lách qua lớp giới
+  hạn tần suất*, không phải lộ dữ liệu.
+
+### Kênh báo lỗ hổng: `security.txt`
+
+`public/.well-known/security.txt` theo RFC 9116, phục vụ tại
+`https://ttpvhcc.xanuicam.vn/.well-known/security.txt`. Công cụ quét và người
+nghiên cứu bảo mật đọc tệp này trước khi tìm cách liên hệ.
+
+Trường `Expires` là thứ duy nhất trong kho mã **tự hỏng theo thời gian**: quá hạn
+thì theo RFC, tệp phải bị coi là không còn hiệu lực. `tests/bao-mat.test.ts` bắt
+đầu báo đỏ trước 60 ngày để còn kịp gia hạn.

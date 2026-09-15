@@ -55,6 +55,8 @@ request nếu chúng lệch nhau.
 | `npm run kiem-tra-bo-chu` | Đối chiếu bộ chữ tự host với ký tự trong dữ liệu |
 | `npm run bo-chu:sinh-lai` | Sinh lại bộ chữ tự host (cần mạng, cần `fonttools`) |
 | `python3 scripts/cau-hinh-cloudflare.py` | Đặt Cache Rule trên Cloudflare (cần API token) |
+| `python3 scripts/bao-ve-cloudflare.py --kiem-tra` | Đọc trạng thái lớp chống DDoS/bot ở Cloudflare |
+| `python3 scripts/bao-ve-cloudflare.py --ap-dung` | Dựng lại bốn lớp bảo vệ (cần token quyền WAF) |
 
 **Luôn dùng `npm run build`, không gọi `npx next build` trực tiếp** - lệnh build
 đã gói sẵn bước sinh CSP. Thiếu bước đó, trình duyệt chặn script và trang trắng.

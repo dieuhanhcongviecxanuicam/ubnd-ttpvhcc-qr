@@ -1,0 +1,13 @@
+# Chính sách tiếp nhận báo cáo lỗ hổng bảo mật (RFC 9116)
+# Hệ thống tra cứu thủ tục hành chính qua mã QR
+# Trung tâm Phục vụ hành chính công xã Núi Cấm
+
+Contact: https://github.com/dieuhanhcongviecxanuicam/ubnd-ttpvhcc-qr/security/advisories/new
+Expires: 2027-09-15T00:00:00.000Z
+Preferred-Languages: vi, en
+Canonical: https://ttpvhcc.xanuicam.vn/.well-known/security.txt
+Policy: https://github.com/dieuhanhcongviecxanuicam/ubnd-ttpvhcc-qr/blob/main/SECURITY.md
+
+# Xin đừng mở issue công khai khi chưa kịp vá.
+# Hệ thống là website tĩnh: không máy chủ ứng dụng, không cơ sở dữ liệu,
+# không đăng nhập, không thu thập dữ liệu người dùng.

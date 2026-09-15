@@ -38,12 +38,23 @@ const inter = localFont({
   fallback: ["-apple-system", "Segoe UI", "sans-serif"],
 });
 
-const plexMono = localFont({
-  src: [
-    { path: "../fonts/plex-mono-500.woff2", weight: "500", style: "normal" },
-    { path: "../fonts/plex-mono-600.woff2", weight: "600", style: "normal" },
-  ],
-  variable: "--font-plex-mono",
+/**
+ * Chữ mono dựng mã thủ tục, URL và số đếm.
+ *
+ * Là Chivo Mono chứ không phải IBM Plex Mono như trước: số 0 của Plex có một
+ * CHẤM ở giữa - với người viết mã thì đó là tính năng phân biệt 0 với O, nhưng
+ * trên bảng niêm yết hành chính, mã thủ tục "3.000442" hiện ra như bị lỗi phông.
+ * Plex không có biến thể số 0 trơn để bật bằng `font-feature-settings`, nên phải
+ * đổi họ chữ. Lý do chọn Chivo Mono ghi ở scripts/tao-bo-chu.py.
+ *
+ * Chivo Mono là bộ chữ biến thiên nên MỘT file phủ cả 500 lẫn 600, thay cho hai
+ * file tĩnh của Plex.
+ */
+const chivoMono = localFont({
+  src: "../fonts/chivo-mono-viet.woff2",
+  weight: "500 600",
+  style: "normal",
+  variable: "--font-chivo-mono",
   display: "swap",
   fallback: ["Courier New", "monospace"],
 });
@@ -106,7 +117,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
-      className={`${lora.variable} ${inter.variable} ${plexMono.variable}`}
+      className={`${lora.variable} ${inter.variable} ${chivoMono.variable}`}
     >
       <body>
         <a className="bo-qua-dieu-huong" href="#noi-dung">
