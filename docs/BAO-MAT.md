@@ -116,7 +116,7 @@ vẫn thấy biểu tượng ổ khoá.
 | Secret | Dùng ở đâu | Quyền tối thiểu |
 |---|---|---|
 | `CLOUDFLARE_API_TOKEN` | job `Xoá cache Cloudflare` trong `deploy.yml` | Zone/Zone/Read, Zone/Cache Purge/Purge |
-| `CLOUDFLARE_API_TOKEN_BAO_VE` | workflow `Chế độ chống tấn công` (chạy tay) | Zone/Zone/Read, Zone Settings/Read+Edit, Zone WAF/Edit |
+| `CLOUDFLARE_API_TOKEN_BAO_VE` | workflow `Chế độ chống tấn công` (chạy tay) | Zone/Zone/Read, Zone Settings/Read, Zone WAF/Edit |
 
 Hai token để **riêng** chứ không gộp một. Token xoá cache chạy tự động ở mọi lượt
 triển khai, cạnh một job đang giữ `pages:write`; token bảo vệ có quyền đổi cấu
@@ -161,10 +161,15 @@ lượt triển khai nào.
    - Tab **Actions** của kho mã > workflow **Chế độ chống tấn công** >
      `bat-chong-tan-cong` (chạy được từ điện thoại).
    - `python3 scripts/bao-ve-cloudflare.py --che-do-tan-cong bat`
-   - Cloudflare dashboard > Security > Settings > Under Attack Mode.
+   - Cloudflare dashboard > Security > WAF > Custom rules > bật luật
+     `[ubnd-ttpvhcc-qr] CHẾ ĐỘ CHỐNG TẤN CÔNG` (đang để sẵn ở trạng thái tắt).
 
-   Nhớ **tắt lại** ngay khi hết đợt: chế độ này chặn cả bot tìm kiếm và bắt mọi
-   người dân qua trang xác minh.
+   **Đừng** dùng nút *Under Attack Mode* của dashboard: đó là cài đặt toàn zone,
+   bật lên là dựng trang xác minh trước mặt mọi subdomain của `xanuicam.vn`, kể cả
+   hệ thống khác không hề bị tấn công. Ba cách ở trên chỉ áp cho site này.
+
+   Bật hay tắt đều cần **20-30 giây** mới có tác dụng ở mọi điểm biên. Nhớ **tắt
+   lại** ngay khi hết đợt.
 2. Đối chiếu lịch sử commit gần nhất: `git log --oneline -20` và tab **Actions**
    xem có lần triển khai nào lạ không.
 3. Thu hồi toàn bộ token và khoá SSH của các tài khoản liên quan; đổi mật khẩu,
@@ -206,33 +211,56 @@ Vì vậy toàn bộ lớp này nằm ở tầng biên, và được đưa vào 
 `scripts/bao-ve-cloudflare.py` để rà soát, ghi nhật ký và dựng lại được - thay vì
 nằm trong trí nhớ của người từng bấm dashboard.
 
-### Bốn lớp thường trực
+### Zone dùng chung với hệ thống khác
 
-| Lớp | Nội dung | Người dân có thấy gì không |
+`xanuicam.vn` phục vụ nhiều subdomain. Khi áp dụng lần đầu (15/09/2026) zone đã có
+sẵn luật của một ứng dụng khác, quản lý bởi `cloudflare-waf-apply.sh`: một luật
+WAF và một luật chống brute-force cho `POST /api/auth/login`. Ba nguyên tắc rút ra:
+
+- Script **chỉ tạo, sửa, xoá từng luật mang `ref` bắt đầu bằng
+  `ubnd-ttpvhcc-qr-`**. Luật khác giữ nguyên ID, nội dung và vị trí - đã đối chiếu
+  ID trước và sau khi áp dụng. (Bản đầu ghi đè cả bộ luật bằng `PUT`, đủ để làm
+  hỏng script đang quản lý luật kia theo ID. Phát hiện nhờ đọc trước khi ghi, và
+  đã sửa trước khi ghi lần nào.)
+- Mọi luật của kho mã đều giới hạn bằng `http.host eq "ttpvhcc.xanuicam.vn"`.
+- Cài đặt zone áp cho mọi subdomain, nên script **chỉ ghi khi giá trị lệch**.
+
+### Các lớp đang chạy (đối chiếu ngày 15/09/2026)
+
+| Lớp | Trạng thái | Người dân có thấy gì không |
 |---|---|---|
-| Luật WAF | Bỏ qua bot tìm kiếm đã xác minh; **chặn** đường dẫn quét lỗ hổng (`/wp-admin`, `/.env`, `/.git`, `*.php`…); **bắt xác minh** khi điểm đe doạ cao | Không |
-| Giới hạn tần suất | Một IP vượt **60 request/10 giây** thì phải qua xác minh trong 60 giây, rồi tự trở lại bình thường | Không, trừ khi dội request |
-| Bot Fight Mode | Cloudflare nhận diện bot giả mạo trình duyệt | Không |
-| Cài đặt zone | HSTS 1 năm + preload, TLS tối thiểu 1.2, luôn HTTPS, Browser Integrity Check | Không |
+| WAF: bỏ qua bot tìm kiếm đã xác minh | **Đang chạy** | Không |
+| WAF: chặn đường dẫn quét lỗ hổng (`/wp-admin`, `/.env`, `/.git`, `*.php`, `*.sql`…) | **Đang chạy** - 9/9 đường dẫn thử trả 403 từ Cloudflare, 9/9 trang thật trả 200 | Không |
+| Cài đặt zone: HSTS 1 năm + preload, TLS ≥ 1.2, luôn HTTPS, Browser Integrity Check, Security Level `medium` | **Đã đúng sẵn**, không phải ghi | Không |
+| Công tắc chống tấn công | **Có sẵn, đang tắt** - đã thử bật/tắt thật | Chỉ khi bật |
+| Giới hạn tần suất | **Nhường chỗ**, xem dưới | - |
+| Bot Fight Mode | **Chưa xác nhận** - token dùng khi áp dụng không có quyền Bot Management | Không |
 
-Ngưỡng 60 request/10 giây đặt theo hành vi thật: một lượt mở trang chi tiết tải
-khoảng 10-14 tệp, nên người dân bấm nhanh liên tiếp vẫn cách ngưỡng rất xa, còn
-cán bộ mở hàng loạt tab để in mã QR cũng chỉ chạm tới vài chục request. Biện pháp
-là *bắt xác minh trong 60 giây* chứ không phải chặn vĩnh viễn: không có danh sách
-đen nào để quên xoá, và người bị chặn nhầm chỉ phải đợi một phút.
+Ngoài các lớp trên, Cloudflare luôn chạy lớp chống DDoS tầng mạng và tầng HTTP tự
+động ở mọi gói, không cần cấu hình.
 
-Danh sách đường dẫn bị chặn cố ý **ngắn**, chỉ gồm thứ mà một site tĩnh chắc chắn
-không có. Mở rộng danh sách này là mở rộng luôn khả năng chặn nhầm người dân.
+**Giới hạn tần suất nhường chỗ.** Gói Free chỉ cho **một** luật giới hạn tần suất,
+và chỗ đó đang giữ luật chống brute-force đăng nhập của hệ thống kia - thứ quan
+trọng hơn nhiều so với giới hạn tần suất cho một trang tĩnh. Script tuyệt đối
+không gỡ luật của ai để lấy chỗ. Gộp làm một cũng không được: một luật chỉ có một
+ngưỡng, và ngưỡng 5 request/10 giây của trang đăng nhập áp lên trang tra cứu thì
+chặn luôn người dân mở trang bình thường. Luật của site này (60 request/10 giây)
+đã viết sẵn và tự áp dụng khi zone có thêm chỗ - nâng gói, hoặc hệ thống kia gỡ
+luật của họ.
+
+**Luật "điểm đe doạ cao" đã bị bỏ** trước khi áp dụng lần nào. Nó dựa trên
+`cf.threat_score`, trường mà Cloudflare đã ngừng từ 30/09/2024 và nay **luôn trả
+0** - luật đó sẽ không bao giờ khớp, chỉ tạo cảm giác an toàn giả. Trường thay thế
+(`cf.waf.score`) chỉ có từ gói Business.
+
+**Bot Fight Mode** cần bật tay: Cloudflare > Security > Bots > Bot Fight Mode.
 
 ```bash
 export CLOUDFLARE_API_TOKEN=...                       # xem quyền ở đầu script
 python3 scripts/bao-ve-cloudflare.py                  # xem trước, không ghi gì
-python3 scripts/bao-ve-cloudflare.py --ap-dung        # dựng bốn lớp
+python3 scripts/bao-ve-cloudflare.py --ap-dung        # đồng bộ các lớp
 python3 scripts/bao-ve-cloudflare.py --kiem-tra       # đọc trạng thái đang chạy
 ```
-
-Script chỉ ghi đè luật mang dấu `[ubnd-ttpvhcc-qr]`; luật ai đó đặt tay trên
-dashboard được giữ nguyên và xếp sau.
 
 ### Vì sao KHÔNG bật trang xác minh cho mọi người như grok.com
 
@@ -250,6 +278,18 @@ Trên một trang dịch vụ công, cái giá đó rơi đúng vào người d�
 
 Nên chế độ này là **công tắc sự cố**, không phải cấu hình thường trực: bật khi
 đang bị tấn công thật, tắt ngay khi hết đợt. Cách bật ở mục 6.
+
+Công tắc là một luật WAF `managed_challenge` chỉ khớp host của site này, **không
+phải** Under Attack Mode của Cloudflare - dù người dân thấy cùng một trang
+"Thực hiện xác minh bảo mật". Hai lý do: Under Attack Mode là cài đặt toàn zone
+nên sẽ chặn cả hệ thống khác; và luật bỏ qua bot tìm kiếm đứng trước công tắc,
+nên đang chống tấn công trang vẫn không rụng khỏi kết quả tìm kiếm. Kẻ tấn công
+không giả được trạng thái "bot đã xác minh": Cloudflare xác minh bằng IP và DNS
+ngược, không bằng User-Agent.
+
+Đã thử thật ngày 15/09/2026: bật thì mọi request nhận `403` kèm
+`cf-mitigated: challenge` và trang xác minh tiếng Việt của Cloudflare; tắt thì hai
+lượt tải đầu vẫn gặp xác minh, từ giây thứ 15-20 trở lại `200` ổn định.
 
 ### Giới hạn cần biết, không nên tự huyễn hoặc
 

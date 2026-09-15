@@ -221,10 +221,12 @@ Cloudflare > My Profile > API Tokens > Create Token > Custom token. Phạm vi ch
 ```
 Zone / Zone / Read
 Zone / Zone Settings / Read
-Zone / Zone Settings / Edit
 Zone / Zone WAF / Edit
-Zone / Bot Management / Edit   (tuỳ chọn, gói Free có thể không có)
+Zone / Zone Settings / Edit    (chỉ cần nếu cài đặt zone bị lệch)
 ```
+
+Công tắc chống tấn công chỉ cần ba quyền đầu. Token vĩnh viễn nạp vào kho mã nên
+dừng ở đó; token có Zone Settings / Edit chỉ tạo khi cần và xoá ngay sau khi dùng.
 
 **Để riêng token này với token xoá cache.** Token xoá cache chạy tự động mỗi lượt
 triển khai; token bảo vệ có quyền đổi tường lửa nhưng chỉ chạy khi người trực bấm
@@ -238,6 +240,13 @@ python3 scripts/bao-ve-cloudflare.py            # xem trước, KHÔNG ghi gì
 python3 scripts/bao-ve-cloudflare.py --ap-dung  # ghi thật
 python3 scripts/bao-ve-cloudflare.py --kiem-tra # đọc lại trạng thái
 ```
+
+Zone `xanuicam.vn` dùng chung với hệ thống khác; script chỉ chạm vào luật mang
+`ref` bắt đầu bằng `ubnd-ttpvhcc-qr-`. Nếu thấy dòng `tần suất: NHƯỜNG`, đó là
+đúng: gói Free chỉ có một chỗ cho luật tần suất và hệ thống kia đang dùng nó để
+chống brute-force đăng nhập. Xem `docs/BAO-MAT.md` mục 9.
+
+Bot Fight Mode bật tay tại Cloudflare > Security > Bots.
 
 Kiểm chứng bằng chính đường dẫn mà site không có:
 
@@ -257,8 +266,11 @@ Sau bước này, tab **Actions** > **Chế độ chống tấn công** chạy �
 `ap-dung-bao-ve`. Hai thao tác có ảnh hưởng bắt gõ `DONG Y` để tránh bấm nhầm.
 
 > **Khi nào bật `bat-chong-tan-cong`.** Chỉ khi đang bị tấn công thật. Nó bắt mọi
-> người dân qua trang xác minh vài giây và chặn cả bot tìm kiếm - xem
-> `docs/BAO-MAT.md` mục 9. Tắt ngay khi hết đợt.
+> người dân qua trang xác minh vài giây - xem `docs/BAO-MAT.md` mục 9. Bật hay tắt
+> đều cần 20-30 giây mới có tác dụng. Tắt ngay khi hết đợt.
+>
+> **Đừng bấm Under Attack Mode trên dashboard Cloudflare.** Đó là cài đặt toàn zone,
+> sẽ chặn luôn các subdomain khác của `xanuicam.vn`.
 
 ## 9. Sao lưu
 
