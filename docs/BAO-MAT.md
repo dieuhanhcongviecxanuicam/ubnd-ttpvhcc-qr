@@ -322,6 +322,62 @@ python3 scripts/bao-ve-cloudflare.py --ap-dung        # đồng bộ các lớp
 python3 scripts/bao-ve-cloudflare.py --kiem-tra       # đọc trạng thái đang chạy
 ```
 
+### Cloudflare tự sửa nội dung site: Bot Preference Sync
+
+Ngày 16/09/2026, `robots.txt` trên sản xuất trả về **66 dòng** trong khi tệp
+trong kho mã chỉ có **5 dòng**. Phần thừa do Cloudflare chèn, gồm ba khối:
+
+- một đoạn văn bản pháp lý mở đầu bằng *"As a condition of accessing this
+  website, you agree to abide by the following content signals"*, viện dẫn
+  **Điều 4 Chỉ thị 2019/790 của Liên minh châu Âu** về bản quyền;
+- một khối `User-agent: *` kèm `Content-Signal: search=yes,ai-train=no,use=reference`;
+- lệnh `Disallow: /` cho chín bot AI (GPTBot, ClaudeBot, CCBot, Bytespider,
+  Google-Extended, Amazonbot, Applebot-Extended, meta-externalagent,
+  CloudflareBrowserRenderingCrawler).
+
+**Vì sao phải tắt.** Không phải vì hỏng chức năng - chức năng vẫn chạy: Google
+vẫn lập chỉ mục (`search=yes`), sitemap vẫn được khai báo, và các trang
+`/in-ma-qr` vẫn không lên kết quả tìm kiếm nhờ thẻ `<meta name="robots"
+content="noindex">` đặt sẵn trong bốn trang in. Lý do là **nội dung**: một trang
+của UBND xã đang thay mặt đơn vị tuyên bố điều kiện truy cập và bảo lưu quyền
+theo luật nước ngoài, do một nhà cung cấp hạ tầng tự đặt vào, đơn vị không soạn
+và không duyệt.
+
+**Công tắc nằm ở đâu.** `AI Crawl Control` > `Overview` > **Enable Bot Preference
+Sync**. Không phải hộp thoại *Configure AI bot policies* trong `Security` >
+`Settings` > `Bot traffic`: hộp thoại đó hiển thị lại trạng thái, bấm Save hiện
+thông báo "AI bot access updated" nhưng mở lại thấy vẫn bật. Đã mất một lượt thử
+nhầm chỗ vì chuyện này.
+
+**Edge không đổi đồng loạt.** Sau khi tắt, 20 lượt gọi liên tiếp trả về 4 lượt
+bản mới và 16 lượt bản cũ - mỗi request rơi vào một nút edge có trạng thái khác
+nhau, và tỉ lệ không tăng đều. Khi kiểm chứng phải lấy nhiều mẫu rồi nhìn tỉ lệ;
+một lượt `curl` đơn lẻ không kết luận được gì, theo cả hai chiều.
+
+**Đã đặt canh gác.** `scripts/kiem-tra-san-xuat.mjs` đối chiếu `robots.txt`,
+`.well-known/security.txt`, `sitemap.xml` và tính nhất quán của CSP trên trang
+chủ với bản trong `out/`, chạy hằng ngày qua
+`.github/workflows/canh-san-xuat.yml`. Lần này mất nhiều ngày mới phát hiện vì
+không có bước nào nhìn vào sản xuất - mọi kiểm tra đều chạy trước khi phát hành.
+
+### Cảnh giác với số liệu "successful requests" trong AI Crawl Control
+
+Bảng Overview của AI Crawl Control từng báo:
+
+> `thongtin.xanuicam.vn/dev/.env` is the most crawled path with 30 successful requests.
+
+Đọc thoáng thì tưởng một tệp `.env` - nơi chứa mật khẩu cơ sở dữ liệu và khóa
+API - đang mở công khai và đã bị tải về 30 lần. Kiểm tra mã trạng thái thực tế:
+`/dev/.env`, `/.env`, `/.git/config` đều trả **404**.
+
+**"Successful" ở đây nghĩa là "không bị luật bot của Cloudflare chặn", không phải
+"máy chủ đã trả nội dung".** Con số 30 chỉ cho biết bot quét 30 lần và đi lọt qua
+lớp bot - chúng nhận 404 cả 30 lần. Đây là hành vi quét lỗ hổng thường ngày trên
+mọi tên miền công khai, không phải dấu hiệu bị xâm nhập.
+
+Vẫn nên xem bảng này, nhưng luôn xác minh bằng mã trạng thái thật trước khi kết
+luận và trước khi đi đổi khóa.
+
 ### Vì sao KHÔNG bật trang xác minh cho mọi người như grok.com
 
 Under Attack Mode bắt **mọi** người truy cập qua một trang xác minh vài giây.

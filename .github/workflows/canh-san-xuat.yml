@@ -1,0 +1,61 @@
+name: Canh nội dung trên sản xuất
+
+# Đối chiếu thứ người dân thật sự nhận được với bản trong kho mã.
+#
+# Vì sao là workflow riêng, chạy theo lịch, chứ không phải một bước trong
+# deploy.yml: sai lệch loại này đến từ thay đổi CẤU HÌNH ở Cloudflare, không đến
+# từ lượt triển khai. Nó xuất hiện vào lúc không ai đẩy mã, và tồn tại nhiều
+# ngày. Gắn vào deploy còn có một cái hại nữa - ngay sau khi triển khai, edge
+# chưa đồng bộ xong nên phép đo ra kết quả sai; dự án đã vấp đúng chuyện đó khi
+# đo hiệu năng ngay sau deploy.
+#
+# Chạy lúc 02:00 UTC (09:00 giờ Việt Nam) - phát hiện trong đêm thì đầu giờ làm
+# việc đã có thông báo.
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: canh-san-xuat
+  cancel-in-progress: true
+
+jobs:
+  doi-chieu:
+    name: Đối chiếu sản xuất với kho mã
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Cài phụ thuộc
+        run: npm ci
+
+      # Cần out/ để có bản đối chiếu. Không cần dựng PDF ở đây - script chỉ đọc
+      # robots.txt, security.txt, sitemap.xml và trang chủ.
+      - name: Build
+        run: npm run build
+
+      - name: Đối chiếu
+        run: npm run kiem-tra-san-xuat
+
+      - name: Chỉ đường khi phát hiện sai lệch
+        if: failure()
+        run: |
+          echo "::error::Nội dung trên sản xuất khác bản trong kho mã."
+          echo "Nguyên nhân hay gặp nhất là một tính năng ở Cloudflare tự sửa nội dung."
+          echo "Chỗ cần xem trước:"
+          echo "  - AI Crawl Control > Overview > Enable Bot Preference Sync (chèn vào robots.txt)"
+          echo "  - Security > Settings > Bot traffic (chèn script vào HTML)"
+          echo "  - Rules > Transform Rules (sửa header hoặc phần thân)"
+          echo "Nếu báo 'đang lan' kèm tỉ lệ nhỏ hơn số mẫu thì cấu hình vừa đổi,"
+          echo "chạy lại workflow này sau vài phút trước khi đi sửa."
+          echo "Chi tiết: docs/BAO-MAT.md mục 9."
