@@ -2,6 +2,47 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.17.0] - 2026-09-16
+
+### Đã thêm
+
+- **`scripts/kiem-tra-san-xuat.mjs` - đối chiếu site thật với bản vừa build.**
+  Toàn bộ kiểm tra hiện có đều chạy TRƯỚC khi phát hành, nên không bước nào nhìn
+  vào thứ người dân thật sự nhận được. Giữa `out/` và trình duyệt còn một lớp
+  nữa là Cloudflare, và lớp đó có sửa nội dung.
+
+  Phát hiện thúc đẩy việc này: tính năng **Bot Preference Sync** của Cloudflare
+  chèn 61 dòng vào đầu `robots.txt`, trong đó có một tuyên bố pháp lý viện dẫn
+  Điều 4 Chỉ thị 2019/790 của EU - nội dung UBND xã không soạn và không duyệt.
+  Kho mã vẫn 5 dòng, CI vẫn xanh, build vẫn đúng; chỉ tình cờ `curl` tay mới thấy.
+
+  Script canh `robots.txt`, `.well-known/security.txt`, `sitemap.xml` và tính
+  nhất quán của CSP trên trang chủ.
+
+  Hai quyết định thiết kế rút từ chính lần đo hôm nay:
+
+  - **Lấy nhiều mẫu, không lấy một.** Sau khi tắt công tắc, 20 lượt gọi liên
+    tiếp trả 4 lượt bản mới và 16 lượt bản cũ - mỗi request rơi vào một nút edge
+    có trạng thái khác nhau. Một mẫu đơn lẻ vừa báo động giả được vừa bỏ lọt
+    được. Script lấy 5 mẫu mỗi mục và báo tỉ lệ, để phân biệt "hỏng" với
+    "đang lan".
+  - **Không so những phần sinh theo lần build.** Build của dự án không tất định,
+    nên `<lastmod>` trong sitemap và băm sha256 trong CSP luôn lệch giữa bản cục
+    bộ và bản đã phát hành. Sitemap được chuẩn hoá bỏ `<lastmod>`; CSP chuyển
+    sang kiểm tính nhất quán nội tại - mọi script nội tuyến trên trang phục vụ
+    phải nằm trong danh sách băm của chính trang đó. Cách này vẫn bắt được đúng
+    thứ cần bắt là có ai chèn script ở giữa, mà không kêu oan mỗi lần chạy.
+
+  Sai lệch đã biết và đã chấp nhận (script JavaScript Detections do Cloudflare
+  chèn) chỉ in cảnh báo, không làm đỏ CI.
+
+### Đã sửa
+
+- **Tắt Bot Preference Sync tại Cloudflare.** Công tắc nằm ở **AI Crawl Control
+  > Overview**, không phải hộp thoại *Configure AI bot policies* trong Security -
+  hộp thoại đó chỉ hiển thị lại trạng thái, bấm Save báo thành công nhưng không
+  lưu. `robots.txt` trở lại đúng 5 dòng trong kho mã.
+
 ## [1.16.1] - 2026-09-16
 
 ### Tài liệu
