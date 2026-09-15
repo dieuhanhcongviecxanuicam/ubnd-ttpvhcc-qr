@@ -2,6 +2,30 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.12.0] - 2026-09-15
+
+### Bảo mật
+
+- **Vá 3 lỗ hổng phụ thuộc npm, trong đó 1 mức critical.** Bước `npm audit
+  --audit-level=high` trong CI chuyển sang đỏ dù không ai đụng vào mã nguồn - các
+  advisory được công bố sau lần chạy CI gần nhất (27/08). Đây chính là việc mà
+  bước audit sinh ra để làm: chặn trước khi lỗ hổng theo bản build lên production.
+
+  | Gói | Từ | Lên | Mức |
+  |---|---|---|---|
+  | `next` | 16.3.2 | 16.3.5 | critical - RCE không cần xác thực (GHSA-p293-qw3h-jr36, GHSA-2xp9-vwfh-vxw4) |
+  | `sharp` | 0.35.3 | 0.35.4 | high - lỗ hổng trong libheif (GHSA-rgj7-g3m4-5g8c) |
+  | `js-yaml` | 4.3.1 | 4.3.2 | high - `maxTotalMergeKeys` không chặn được CPU (GHSA-2883-xcg3-v3hh) |
+
+  Cả ba đều là bản vá trong khoảng semver đang khai báo, nên chỉ `package-lock.json`
+  đổi, `package.json` giữ nguyên. Hai lỗ hổng của Next chỉ khai thác được trên máy
+  chủ Windows và qua Image Optimization API - site này xuất tĩnh, không chạy máy chủ
+  Next và đã tắt tối ưu ảnh, nên rủi ro thực tế với production bằng không; vá vì
+  build và CI vẫn chạy gói đó, và vì không nên để CI đỏ thành chuyện bình thường.
+
+  Đã đối chiếu sau khi nâng: 25 test, typecheck, lint, build 458 trang, CSP hợp lệ
+  trên cả 458 trang, trợ năng 0 vi phạm WCAG 2.1 AA. `npm audit` báo 0 lỗ hổng.
+
 ## [1.11.3] - 2026-08-27
 
 ### Sửa lỗi
