@@ -2,8 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import SiteFooter from "@/components/SiteFooter";
 import LuoiLinhVuc from "@/components/LuoiLinhVuc";
+import NutTaiXemTruoc from "@/components/NutTaiXemTruoc";
 import { layMeta, layTheLinhVuc } from "@/lib/data";
 import { duongDan, SITE_URL } from "@/lib/site-config";
+import { thongTinTepQr } from "@/lib/tep";
 
 export default function TrangChu() {
   const meta = layMeta();
@@ -65,16 +67,15 @@ export default function TrangChu() {
               </p>
               <p className="qr-lienket">{SITE_URL}/</p>
               <div className="hang-nut-qr">
-                <a className="btn-taixuong" href={duongDan("/qr/master.png")} download>
-                  Tải PNG
-                </a>
-                <a
-                  className="btn-taixuong btn-phu"
-                  href={duongDan("/qr/master.svg")}
-                  download
-                >
-                  Tải SVG
-                </a>
+                <NutTaiXemTruoc
+                  nhan="Tải PNG"
+                  {...thongTinTepQr("/qr/master.png", `${SITE_URL}/`, "Mã QR tổng - toàn bộ danh mục")}
+                />
+                <NutTaiXemTruoc
+                  nhan="Tải SVG"
+                  phu
+                  {...thongTinTepQr("/qr/master.svg", `${SITE_URL}/`, "Mã QR tổng - toàn bộ danh mục")}
+                />
               </div>
             </div>
           </div>

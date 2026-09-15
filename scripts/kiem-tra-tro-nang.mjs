@@ -35,6 +35,8 @@ const CAC_TRANG = [
   ["/linh-vuc/ho-tich", "lĩnh vực"],
   ["/tthc/1.000110", "chi tiết TTHC"],
   ["/in-ma-qr", "in mã QR"],
+  ["/in-ma-qr/bang-niem-yet", "bảng niêm yết in"],
+  ["/nhom/tu-phap", "trang nhóm"],
   ["/404", "trang 404"],
 ];
 

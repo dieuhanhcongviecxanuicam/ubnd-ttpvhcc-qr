@@ -8,7 +8,8 @@
 import "server-only";
 import fs from "node:fs";
 import path from "node:path";
-import { nhomCuaLinhVuc } from "./nhom-linh-vuc";
+import { NHOM_LINH_VUC, nhomCuaLinhVuc, type NhomLinhVuc } from "./nhom-linh-vuc";
+import { SITE_URL, urlLinhVuc, urlNhom } from "./site-config";
 import { boDau, catNgan, rutGonTenTthc } from "./text";
 import type { LinhVuc, Meta, TheLinhVuc, Tthc, TthcTomTat } from "./types";
 
@@ -166,4 +167,79 @@ export function layTheLinhVuc(): TheLinhVuc[] {
       .slice(0, SO_THU_TUC_TIEU_BIEU)
       .map((t) => catNgan(rutGonTenTthc(t.ten_tthc), DAI_TOI_DA_TEN_TTHC)),
   }));
+}
+
+/** Số liệu một nhóm ngành: dùng cho trang nhóm và bảng niêm yết tổng. */
+export interface ThongKeNhom {
+  nhom: NhomLinhVuc;
+  soLinhVuc: number;
+  soTthc: number;
+  /** Lĩnh vực trong nhóm, nhiều thủ tục đứng trước - bảng niêm yết in 5 dòng đầu. */
+  linhVuc: TheLinhVuc[];
+}
+
+/** Thống kê cả 13 nhóm theo đúng thứ tự khai báo, bỏ nhóm không có lĩnh vực nào. */
+export function layThongKeNhom(): ThongKeNhom[] {
+  const the = layTheLinhVuc();
+  return NHOM_LINH_VUC.map((nhom) => {
+    const linhVuc = the
+      .filter((lv) => lv.nhom === nhom.id)
+      .sort((a, b) => b.so_luong_tthc - a.so_luong_tthc
+        || a.ten_linh_vuc.localeCompare(b.ten_linh_vuc, "vi"));
+    return {
+      nhom,
+      soLinhVuc: linhVuc.length,
+      soTthc: linhVuc.reduce((tong, lv) => tong + lv.so_luong_tthc, 0),
+      linhVuc,
+    };
+  }).filter((tk) => tk.soLinhVuc > 0);
+}
+
+/** Một tem mã QR cỡ lớn trong bộ tem A4. */
+export interface TemQr {
+  khoa: string;
+  nhan: string;
+  ten: string;
+  /** Đường dẫn SVG trong public/ - bản in dùng vector để phóng lớn không nhoè. */
+  qr: string;
+  url: string;
+  soTthc: number;
+  nhomId?: string;
+}
+
+/** Bộ tem: mã tổng, rồi lần lượt từng nhóm - mã nhóm trước, mã lĩnh vực của nhóm sau. */
+export function layDanhSachTem(): TemQr[] {
+  const tem: TemQr[] = [
+    {
+      khoa: "tong",
+      nhan: "Toàn bộ danh mục",
+      ten: "Tra cứu thủ tục hành chính",
+      qr: "/qr/master.svg",
+      url: `${SITE_URL}/`,
+      soTthc: layMeta().tong_so_tthc,
+    },
+  ];
+  for (const tk of layThongKeNhom()) {
+    tem.push({
+      khoa: `nhom-${tk.nhom.id}`,
+      nhan: "Nhóm lĩnh vực",
+      ten: tk.nhom.ten,
+      qr: `/qr/nhom-${tk.nhom.id}.svg`,
+      url: urlNhom(tk.nhom.id),
+      soTthc: tk.soTthc,
+      nhomId: tk.nhom.id,
+    });
+    for (const lv of tk.linhVuc) {
+      tem.push({
+        khoa: `lv-${lv.slug}`,
+        nhan: "Lĩnh vực",
+        ten: lv.ten_linh_vuc,
+        qr: `/qr/lv-${lv.slug}.svg`,
+        url: urlLinhVuc(lv.slug),
+        soTthc: lv.so_luong_tthc,
+        nhomId: lv.nhom,
+      });
+    }
+  }
+  return tem;
 }

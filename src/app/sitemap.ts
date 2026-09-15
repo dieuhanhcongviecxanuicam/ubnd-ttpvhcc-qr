@@ -1,17 +1,23 @@
 import type { MetadataRoute } from "next";
 import { layTatCaLinhVuc, layTatCaTthc } from "@/lib/data";
+import { NHOM_LINH_VUC } from "@/lib/nhom-linh-vuc";
 import { SITE_URL } from "@/lib/site-config";
 
 /** Bắt buộc với output: "export" - báo Next đây là tệp sinh sẵn lúc build. */
 export const dynamic = "force-static";
 
-/** Sitemap tĩnh gồm trang chủ, danh mục, 77 trang lĩnh vực và toàn bộ trang chi tiết. */
+/** Sitemap tĩnh gồm trang chủ, danh mục, 13 trang nhóm, 77 trang lĩnh vực và toàn bộ trang chi tiết. */
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
   return [
     { url: `${SITE_URL}/`, lastModified: now, priority: 1 },
     { url: `${SITE_URL}/danh-muc`, lastModified: now, priority: 0.9 },
+    ...NHOM_LINH_VUC.map((n) => ({
+      url: `${SITE_URL}/nhom/${n.id}`,
+      lastModified: now,
+      priority: 0.85,
+    })),
     ...layTatCaLinhVuc().map((lv) => ({
       url: `${SITE_URL}/linh-vuc/${lv.slug}`,
       lastModified: now,

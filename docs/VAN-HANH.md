@@ -41,13 +41,31 @@ QR nào không khớp.
 
 ## 2. In mã QR để dán tại quầy
 
-1. Mở trang `/in-ma-qr/` trên website.
-2. Đối chiếu URL nhỏ dưới mỗi mã QR - phải đúng tên miền đang triển khai.
-3. Bấm **In trang này**, chọn khổ A4, bật *In hình nền/màu nền* để mã QR rõ nét.
-4. Muốn in riêng một lĩnh vực: mở trang lĩnh vực đó và bấm **PNG** (in ấn) hoặc
-   **SVG** (phóng to cỡ lớn không bị vỡ nét).
+Vào **https://ttpvhcc.xanuicam.vn/in-ma-qr**. Có ba bản in, đều là tệp PDF dựng
+sẵn mỗi lần triển khai từ chính dữ liệu đang chạy trên site - không cần in từ
+trình duyệt, không lo mất màu nền hay lệch tỉ lệ.
 
-Trước khi dán, hãy dùng điện thoại quét thử ít nhất 2-3 mã bất kỳ.
+| Bản in | Khổ | Dùng để |
+|---|---|---|
+| **Bảng niêm yết tổng** | A1 ngang, 1 trang | Treo tại sảnh. 13 nhóm lĩnh vực, mỗi nhóm một mã QR, kèm hướng dẫn tra cứu, số hỗ trợ và mã QR Cổng Dịch vụ công |
+| **Tờ niêm yết theo nhóm** | A4 dọc, 13 trang | Dán tại quầy phụ trách. Mỗi tờ gồm mã QR của nhóm và mã QR từng lĩnh vực trong nhóm |
+| **Tem mã QR cỡ lớn** | A4 dọc, 91 trang | Dán từng vị trí. Mỗi mã một tờ: mã tổng, 13 mã nhóm, 77 mã lĩnh vực |
+
+Bấm **Tải PDF** để xem trước tệp, đối chiếu khổ giấy và địa chỉ mã QR trỏ tới,
+rồi mới tải.
+
+**Khi mang ra tiệm in:**
+
+- Bảng niêm yết tổng là tệp **vector**: in A1 ở tỉ lệ 100%, hoặc phóng lên A0 mà
+  không vỡ nét, vì A0 và A1 cùng tỉ lệ khổ A. Chỉ có logo là ảnh điểm, ở cỡ A0
+  vẫn đạt khoảng 280 dpi.
+- Tờ A4 in ở tỉ lệ **100% (Actual size)**, không chọn "Vừa trang" - chọn nhầm là
+  mã QR co lại, máy quét chậm bắt hơn.
+- **Quét thử vài mã trên bản in đầu tiên trước khi in hàng loạt**, nhất là khi in
+  bạt khổ lớn.
+
+Sau khi thay dữ liệu hoặc đổi tên miền, PDF tự dựng lại ở lượt triển khai kế
+tiếp; mã QR đã dán ngoài quầy thì không tự đổi - xem mục 3.
 
 ## 3. Chuyển sang tên miền chính thức
 

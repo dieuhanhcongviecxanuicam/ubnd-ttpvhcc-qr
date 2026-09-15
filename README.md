@@ -42,6 +42,7 @@ ubnd-ttpvhcc-qr/
 ├── data/                        # Dữ liệu JSON - đọc lúc build, không gửi xuống trình duyệt
 │   ├── tthc.json                #   376 TTHC kèm các bảng con (5,3 MB)
 │   ├── linh-vuc.json            #   77 lĩnh vực: tên, slug, danh sách mã TTHC
+│   ├── nhom-linh-vuc.json       #   13 nhóm ngành và cách xếp 77 lĩnh vực vào nhóm
 │   ├── meta.json                #   Số liệu tổng hợp hiển thị trên site
 │   └── source/                  #   File Excel nguồn (không đưa lên Git)
 ├── brand/                       # logo-ttpvhcc.png - file gốc duy nhất (xem brand/README.md)
@@ -51,24 +52,28 @@ ubnd-ttpvhcc-qr/
 │   ├── favicon.ico              # Biểu tượng trình duyệt
 │   ├── brand/                   # Logo, favicon, icon PWA website phục vụ
 │   ├── minh-hoa/                # 33 hình SVG minh hoạ lĩnh vực (nền trong suốt)
-│   └── qr/                      # 78 mã QR × 2 định dạng (PNG in ấn, SVG web)
+│   └── qr/                      # 92 mã QR × 2 định dạng: 1 tổng, 77 lĩnh vực,
+│                                #   13 nhóm, 1 Cổng Dịch vụ công
 ├── scripts/                     # Pipeline dữ liệu bằng Python
 │   ├── trich-xuat-du-lieu.py    #   Excel  → data/*.json
 │   ├── tao-ma-qr.py             #   JSON   → public/qr/*
 │   ├── kiem-tra-ma-qr.py        #   Giải mã ngược QR (zxing), đối chiếu URL
+│   ├── dung-ban-in.ts           #   out/ → 3 tệp PDF bản in (Chromium)
 │   ├── cau-hinh-cloudflare.py   #   Cache Rule + xoá cache khi triển khai
 │   └── bao-ve-cloudflare.py     #   WAF, giới hạn tần suất, chế độ chống tấn công
 ├── src/
 │   ├── app/                     # Route (App Router)
 │   │   ├── page.tsx             #   /                     trang chủ + QR tổng
 │   │   ├── danh-muc/            #   /danh-muc             tra cứu toàn bộ danh mục
+│   │   ├── nhom/[id]/           #   /nhom/<id>            13 trang - ĐÍCH CỦA MÃ QR NHÓM
 │   │   ├── linh-vuc/[slug]/     #   /linh-vuc/<slug>      77 trang - ĐÍCH CỦA MÃ QR
 │   │   ├── tthc/[ma]/           #   /tthc/<mã>            376 trang chi tiết
-│   │   ├── in-ma-qr/            #   /in-ma-qr             bảng in A4 toàn bộ mã QR
+│   │   ├── in-ma-qr/            #   /in-ma-qr             tải 3 bản in PDF + 3 trang nguồn
 │   │   └── globals.css          #   Hệ thống thiết kế "Dấu son & Mã QR"
 │   ├── components/              # Thành phần giao diện dùng lại
 │   └── lib/                     # Truy xuất dữ liệu, cấu hình, tiện ích chuỗi
-│       └── nhom-linh-vuc.ts     #   Xếp 77 lĩnh vực vào 13 nhóm ngành + hình minh hoạ
+│       ├── nhom-linh-vuc.ts     #   Nhóm ngành + hình minh hoạ (dữ liệu ở data/nhom-linh-vuc.json)
+│       └── ban-in.ts            #   Khai báo 3 bản in: route, tên tệp, khổ giấy
 └── .github/workflows/           # CI (typecheck/lint/build + kiểm tra QR) và deploy
 ```
 

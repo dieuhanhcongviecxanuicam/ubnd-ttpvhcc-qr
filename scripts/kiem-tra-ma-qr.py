@@ -36,6 +36,9 @@ except ImportError:
 GOC_DU_AN = Path(__file__).resolve().parent.parent
 THU_MUC_QR = GOC_DU_AN / "public" / "qr"
 FILE_LINH_VUC = GOC_DU_AN / "data" / "linh-vuc.json"
+FILE_NHOM = GOC_DU_AN / "data" / "nhom-linh-vuc.json"
+# Phải khớp URL_DICH_VU_CONG trong scripts/tao-ma-qr.py - test đối chiếu.
+URL_DICH_VU_CONG = "https://dichvucong.gov.vn"
 
 ORIGIN_MAC_DINH = "https://ttpvhcc.xanuicam.vn"
 BASE_PATH_MAC_DINH = ""
@@ -75,6 +78,12 @@ def main() -> int:
                 f"{base_url}/linh-vuc/{lv['slug']}",
             )
         )
+
+    for n in json.loads(FILE_NHOM.read_text(encoding="utf-8"))["nhom"]:
+        can_kiem_tra.append(
+            (THU_MUC_QR / f"nhom-{n['id']}.png", f"{base_url}/nhom/{n['id']}")
+        )
+    can_kiem_tra.append((THU_MUC_QR / "dich-vu-cong.png", URL_DICH_VU_CONG))
 
     print(f"Đối chiếu {len(can_kiem_tra)} mã QR với gốc URL: {base_url}")
 

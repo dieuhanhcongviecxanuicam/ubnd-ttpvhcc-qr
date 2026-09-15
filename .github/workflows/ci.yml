@@ -74,6 +74,11 @@ jobs:
       - name: Kiểm tra trợ năng WCAG 2.1 AA
         run: npm run kiem-tra-tro-nang
 
+      # Dựng thử ba bản in PDF ngay trong PR, để lỗi bố cục in hoặc mã QR thiếu tệp
+      # lộ ra trước khi hợp nhất, không phải ở lượt triển khai production.
+      - name: Dựng thử bản in PDF
+        run: npm run dung-ban-in
+
       # Rà lỗ hổng đã biết của phụ thuộc npm. Dùng --audit-level=high để bản vá
       # mức thấp không chặn triển khai, nhưng Dependabot vẫn mở PR cho chúng.
       - name: Rà lỗ hổng phụ thuộc npm

@@ -44,6 +44,9 @@ MEM_TU, MEM_DEN = 4, 40
 KICH_THUOC_LOGO = [
     ("logo.png", 128),      # logo trên thanh điều hướng
     ("logo-512.png", 512),  # ảnh chia sẻ mạng xã hội
+    # Bảng niêm yết in khổ A1-A0: logo rộng khoảng 110 mm, 1200 px cho ~280 dpi.
+    # logo-512.png phóng tới cỡ đó chỉ còn ~120 dpi, nhoè thấy rõ khi đứng gần.
+    ("logo-in.png", 1200),
 ]
 
 # Favicon chép nguyên bản: (file nguồn trong brand/favicon, tên file đích)

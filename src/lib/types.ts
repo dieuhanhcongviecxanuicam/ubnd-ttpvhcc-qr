@@ -114,3 +114,22 @@ export interface TheLinhVuc {
   /** Vài tên thủ tục đầu tiên, đã rút gọn, để người dân biết lĩnh vực gồm những gì. */
   thu_tuc_tieu_bieu: string[];
 }
+
+/** Một dòng thông tin trong cửa sổ xem trước khi tải về. */
+export interface ThongTinTep {
+  nhan: string;
+  giaTri: string;
+}
+
+/**
+ * Mọi thứ cửa sổ xem trước cần để người dùng kiểm tra một tệp trước khi tải:
+ * ảnh xem trước, các dòng thông tin (mã QR mở tới đâu, định dạng, dung lượng...).
+ */
+export interface DuLieuTaiVe {
+  href: string;
+  tenTep: string;
+  tieuDe: string;
+  anhXemTruoc?: string;
+  thongTin: ThongTinTep[];
+  ghiChu?: string;
+}
