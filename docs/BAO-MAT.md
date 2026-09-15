@@ -236,7 +236,7 @@ WAF và một luật chống brute-force cho `POST /api/auth/login`. Ba nguyên 
 | Cài đặt zone: HSTS 1 năm + preload, TLS ≥ 1.2, luôn HTTPS, Browser Integrity Check, Security Level `medium` | **Đã đúng sẵn**, không phải ghi | Không |
 | Công tắc chống tấn công | **Có sẵn, đang tắt** - đã thử bật/tắt thật | Chỉ khi bật |
 | Giới hạn tần suất | **Nhường chỗ**, xem dưới | - |
-| Bot Fight Mode | **Chưa xác nhận** - token dùng khi áp dụng không có quyền Bot Management | Không |
+| Bot Fight Mode | **Đang bật** (đơn vị bật tay 15/09/2026) - kèm xung đột với CSP, xem dưới | Không |
 
 Ngoài các lớp trên, Cloudflare luôn chạy lớp chống DDoS tầng mạng và tầng HTTP tự
 động ở mọi gói, không cần cấu hình.
@@ -256,6 +256,41 @@ luật của họ.
 (`cf.waf.score`) chỉ có từ gói Business.
 
 **Bot Fight Mode** cần bật tay: Cloudflare > Security > Bots > Bot Fight Mode.
+Đơn vị đã bật ngày 15/09/2026 - kèm theo một xung đột phải biết, xem ngay dưới.
+
+### Bot Fight Mode và CSP chặt: xung đột đã biết
+
+Phần "JavaScript Detections" của Bot Fight Mode **chèn một script nội tuyến vào
+mọi trang HTML** để dò trình duyệt thật. CSP của site chặn script đó, và mỗi lượt
+tải trang ghi một lỗi trong console của trình duyệt:
+
+```
+Executing inline script violates the following Content-Security-Policy directive
+'script-src 'self' 'sha256-...''
+```
+
+**Không băm được script này.** Nội dung của nó mang mã định danh riêng cho từng
+lượt tải: `window.__CF$cv$params={r:'a3ba1a72ac625c35', t:'...'}`, hai lần tải là
+hai giá trị khác nhau - đã kiểm bằng cách tải trang hai lần và so chuỗi. Băm
+SHA-256 chỉ dùng được cho nội dung cố định.
+
+Hậu quả thực tế:
+
+| | |
+|---|---|
+| Người dân | Không ảnh hưởng - trang chạy bình thường, script bị chặn chỉ là phần dò bot của Cloudflare |
+| Bot Fight Mode | Mất tín hiệu JavaScript; các tín hiệu còn lại (danh tiếng IP, dấu vân tay kết nối) vẫn chạy |
+| Nhật ký | Mỗi lượt xem trang ghi một lỗi CSP trong console |
+
+**Ba lựa chọn, và lý do nên chọn cách đầu:**
+
+1. **Tắt "JavaScript Detections"**, giữ Bot Fight Mode (Cloudflare > Security >
+   Bots). Hết lỗi CSP, vẫn còn phần lớn khả năng chặn bot. Kiểm chứng:
+   `curl -s https://ttpvhcc.xanuicam.vn/ | grep -c '__CF$cv$params'` phải trả `0`.
+2. Chấp nhận nguyên trạng: lỗi console vô hại nhưng che mất lỗi thật khi cần gỡ rối.
+3. **Đừng** thêm `'unsafe-inline'` vào `script-src` để "cho qua". Làm vậy là phá
+   bỏ chính lớp bảo vệ mà `scripts/them-csp.mjs` dựng nên: băm từng khối script
+   để trang không thể bị chèn mã lạ. Đánh đổi sai hướng.
 
 ```bash
 export CLOUDFLARE_API_TOKEN=...                       # xem quyền ở đầu script
