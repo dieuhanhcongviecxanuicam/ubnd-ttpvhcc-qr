@@ -85,12 +85,19 @@ export default function BangNiemYet({
                   unoptimized
                 />
               </div>
-              <ol className={s.theDs}>
-                {hien.map((lv) => (
-                  <li key={lv.slug}>{catNgan(lv.ten_linh_vuc, DAI_TOI_DA_TEN)}</li>
-                ))}
-              </ol>
-              {conLai > 0 && <p className={s.theCon}>và {conLai} lĩnh vực khác</p>}
+              {/* Khối này giãn hết chỗ còn lại, nên danh sách và dòng "và N lĩnh
+                  vực khác" dính liền nhau ở phía trên, còn nút "Quét mã" bị đẩy
+                  xuống sát đáy thẻ. Không dùng margin-top: auto trên nút: quy tắc
+                  chung `.to p { margin: 0 }` có độ ưu tiên cao hơn nên lề tự động
+                  bị ghi đè, đã đo trong trình duyệt thấy margin-top ra 0px. */}
+              <div className={s.theThan}>
+                <ol className={s.theDs}>
+                  {hien.map((lv) => (
+                    <li key={lv.slug}>{catNgan(lv.ten_linh_vuc, DAI_TOI_DA_TEN)}</li>
+                  ))}
+                </ol>
+                {conLai > 0 && <p className={s.theCon}>và {conLai} lĩnh vực khác</p>}
+              </div>
               <p className={s.theNut}>Quét mã để xem {tk.soTthc} thủ tục</p>
             </section>
           );
@@ -107,6 +114,9 @@ export default function BangNiemYet({
             <li>Chọn lĩnh vực, xem thủ tục và thành phần hồ sơ</li>
             <li>Nộp hồ sơ trực tuyến hoặc tại bộ phận một cửa</li>
           </ol>
+          {/* Ô hướng dẫn cũng có dải chân như 13 ô lĩnh vực: thiếu nó, ô này
+              trông như bị cắt dở giữa một lưới mà mọi ô khác đều khép lại. */}
+          <p className={s.theNut}>Hướng dẫn quy trình thủ tục</p>
         </section>
 
         <section className={s.the}>

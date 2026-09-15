@@ -126,13 +126,15 @@
 }
 .theHinh { width: 58mm; height: auto; }
 .theQr { width: 40mm; height: 40mm; background: #fff; padding: 1mm; border-radius: 1.5mm; }
-/* Danh sách bám mép trên và giãn hết phần còn lại, để nút "Quét mã" luôn nằm sát
-   đáy thẻ như bảng giấy mẫu. Đã thử căn giữa danh sách bằng margin-block: auto -
-   nút bị kéo lên theo và đáy thẻ trống hoác. */
-.theDs { flex: 1; padding: 3mm 5mm 0 12mm; font-size: 5.1mm; line-height: 1.3; }
+/* Khối thân thẻ giãn hết chỗ trống, đẩy nút "Quét mã" xuống sát đáy; danh sách
+   và dòng "và N lĩnh vực khác" nằm liền nhau ở đầu khối. */
+.theThan { flex: 1; min-height: 0; }
+.theDs { padding: 3mm 5mm 0 12mm; font-size: 5.1mm; line-height: 1.3; }
 .theDs li::marker { color: var(--lv); font-weight: 700; }
 .theCon { padding: 1mm 5mm 0; font-size: 4.3mm; color: #6b655c; }
-.theNut {
+/* Chọn qua .to để thắng quy tắc chung `.to p { margin: 0 }` - cùng viết trong tệp
+   này nên rất dễ quên: lề của nút từng bị ghi đè âm thầm, nút dính sát mép thẻ. */
+.to .theNut {
   margin: 2.5mm 4mm 4mm;
   padding: 2.4mm;
   border-radius: 2mm;

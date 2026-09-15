@@ -62,10 +62,6 @@ export default function TrangInMaQr() {
             <Link href="/">Trang chủ</Link> / In bộ mã QR
           </nav>
           <h1>In bộ mã QR</h1>
-          <p>
-            {BAN_IN.length} bản in dựng sẵn thành PDF từ chính dữ liệu đang chạy trên website ({meta.tong_so_tthc} thủ
-            tục, {meta.tong_so_linh_vuc} lĩnh vực). Bấm “Tải PDF” để xem trước và kiểm tra trước khi tải về.
-          </p>
         </div>
 
         <section className={s.hubSanPham} aria-labelledby="ban-bang">
