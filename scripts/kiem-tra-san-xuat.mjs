@@ -31,14 +31,35 @@ import path from "node:path";
 const THU_MUC = path.join(process.cwd(), "out");
 const SO_MAU = Number(process.env.SO_MAU ?? 5);
 
-/** Đọc tên miền từ public/CNAME - cùng nguồn sự thật mà script Cloudflare dùng. */
-async function gocMacDinh() {
-  const mien = (await readFile(path.join(process.cwd(), "public", "CNAME"), "utf8")).trim();
-  return `https://${mien}`;
+/*
+ * Tên miền viết thẳng, KHÔNG đọc từ public/CNAME rồi ghép vào URL.
+ *
+ * Bản đầu đọc CNAME cho khỏi lặp, và CodeQL báo js/file-access-to-http: nội dung
+ * một tệp chảy thẳng vào request mạng. Cảnh báo đúng về nguyên tắc - ai sửa
+ * được tệp đó thì lái được mọi request của script đi nơi khác.
+ *
+ * Cách xử lý theo đúng tiền lệ trong scripts/kiem-tra-tro-nang.mjs: bỏ hẳn
+ * đường dẫn dữ liệu thay vì dựng chốt canh, vì chốt canh dễ hỏng khi người sau
+ * sửa, còn thứ không tồn tại thì không hỏng được.
+ *
+ * Viết thẳng ở đây không làm mất nguồn sự thật duy nhất - CNAME vẫn là nguồn,
+ * và phép đối chiếu ngay bên dưới bắt lỗi ngay nếu hai bên lệch nhau.
+ */
+const MIEN = "ttpvhcc.xanuicam.vn";
+
+const theoCname = (await readFile(
+  path.join(process.cwd(), "public", "CNAME"), "utf8")).trim();
+if (theoCname !== MIEN) {
+  console.error(
+    `SẢN XUẤT: public/CNAME ghi "${theoCname}" nhưng script canh "${MIEN}".\n` +
+    "  Tên miền đã đổi thì sửa hằng số MIEN trong scripts/kiem-tra-san-xuat.mjs " +
+    "cho khớp,\n  nếu không script sẽ canh nhầm site."
+  );
+  process.exit(1);
 }
 
 const doiSo = process.argv.indexOf("--goc");
-const GOC = doiSo !== -1 ? process.argv[doiSo + 1] : await gocMacDinh();
+const GOC = doiSo !== -1 ? process.argv[doiSo + 1] : `https://${MIEN}`;
 
 /**
  * Tệp phải khớp giữa out/ và site thật, kèm hàm chuẩn hoá trước khi so.
