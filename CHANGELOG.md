@@ -2,6 +2,31 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.16.1] - 2026-09-16
+
+### Tài liệu
+
+- **Ghi nhận xung đột giữa Bot Fight Mode và CSP chặt** (`docs/BAO-MAT.md` mục 9).
+  Phần "JavaScript Detections" của Bot Fight Mode chèn một script nội tuyến vào
+  mọi trang HTML; CSP của site chặn nó, nên mỗi lượt xem trang ghi một lỗi trong
+  console. Phát hiện khi kiểm chứng trang `/in-ma-qr` trên production sau khi
+  triển khai, không phải do thay đổi nào của bản phát hành.
+
+  **Không băm được script đó**: nội dung mang mã định danh riêng cho từng lượt
+  tải (`window.__CF$cv$params={r:'...'}`), hai lần tải là hai giá trị khác nhau -
+  đã kiểm bằng cách tải trang hai lần và so chuỗi.
+
+  Người dân không bị ảnh hưởng; cái mất là tín hiệu JavaScript của Bot Fight Mode.
+  Ghi thêm một quan sát đo được ngày 16/09: **tắt Bot Fight Mode chưa chắc hết** -
+  lượt tải mới hoàn toàn vẫn còn script trong khi trang gốc GitHub Pages không có.
+
+  **Trên gói Free không tắt riêng được phần JavaScript Detections** - tài liệu
+  Cloudflare nói rõ nó bật kèm Bot Fight Mode và chỉ Super Bot Fight Mode (từ gói
+  Pro) mới tách công tắc. Nên tài liệu ghi bốn lựa chọn thật sự: tắt hẳn Bot Fight
+  Mode, giữ và chấp nhận lỗi console, nâng gói Pro, hoặc - điều KHÔNG nên làm -
+  nới `script-src` bằng `'unsafe-inline'`, vì như vậy là phá bỏ chính lớp băm
+  script mà dự án dựng lên.
+
 ## [1.16.0] - 2026-09-16
 
 ### Thay đổi

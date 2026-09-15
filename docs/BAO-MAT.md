@@ -236,7 +236,7 @@ WAF và một luật chống brute-force cho `POST /api/auth/login`. Ba nguyên 
 | Cài đặt zone: HSTS 1 năm + preload, TLS ≥ 1.2, luôn HTTPS, Browser Integrity Check, Security Level `medium` | **Đã đúng sẵn**, không phải ghi | Không |
 | Công tắc chống tấn công | **Có sẵn, đang tắt** - đã thử bật/tắt thật | Chỉ khi bật |
 | Giới hạn tần suất | **Nhường chỗ**, xem dưới | - |
-| Bot Fight Mode | **Chưa xác nhận** - token dùng khi áp dụng không có quyền Bot Management | Không |
+| Bot Fight Mode | **Đang bật** (đơn vị bật tay 15/09/2026) - kèm xung đột với CSP, xem dưới | Không |
 
 Ngoài các lớp trên, Cloudflare luôn chạy lớp chống DDoS tầng mạng và tầng HTTP tự
 động ở mọi gói, không cần cấu hình.
@@ -256,6 +256,64 @@ luật của họ.
 (`cf.waf.score`) chỉ có từ gói Business.
 
 **Bot Fight Mode** cần bật tay: Cloudflare > Security > Bots > Bot Fight Mode.
+Đơn vị đã bật ngày 15/09/2026 - kèm theo một xung đột phải biết, xem ngay dưới.
+
+### Bot Fight Mode và CSP chặt: xung đột đã biết
+
+Phần "JavaScript Detections" của Bot Fight Mode **chèn một script nội tuyến vào
+mọi trang HTML** để dò trình duyệt thật. CSP của site chặn script đó, và mỗi lượt
+tải trang ghi một lỗi trong console của trình duyệt:
+
+```
+Executing inline script violates the following Content-Security-Policy directive
+'script-src 'self' 'sha256-...''
+```
+
+**Không băm được script này.** Nội dung của nó mang mã định danh riêng cho từng
+lượt tải: `window.__CF$cv$params={r:'a3ba1a72ac625c35', t:'...'}`, hai lần tải là
+hai giá trị khác nhau - đã kiểm bằng cách tải trang hai lần và so chuỗi. Băm
+SHA-256 chỉ dùng được cho nội dung cố định.
+
+Hậu quả thực tế:
+
+| | |
+|---|---|
+| Người dân | Không ảnh hưởng - trang chạy bình thường, script bị chặn chỉ là phần dò bot của Cloudflare |
+| Bot Fight Mode | Mất tín hiệu JavaScript; các tín hiệu còn lại (danh tiếng IP, dấu vân tay kết nối) vẫn chạy |
+| Nhật ký | Mỗi lượt xem trang ghi một lỗi CSP trong console |
+
+**Trên gói Free KHÔNG tắt riêng được phần JavaScript Detections.** Tài liệu
+Cloudflare nói rõ: với Bot Fight Mode, JS detections bật kèm và không tắt được;
+chỉ Super Bot Fight Mode (từ gói Pro) mới tách công tắc riêng. Nên lựa chọn thật
+sự chỉ còn:
+
+1. **Tắt hẳn Bot Fight Mode** (chọn tên miền `xanuicam.vn` > Security > Settings >
+   Bot fight mode). Các lớp còn lại vẫn nguyên: luật WAF chặn đường dẫn quét lỗ
+   hổng, Browser Integrity Check, và lớp chống DDoS tự động mà Cloudflare luôn
+   chạy ở mọi gói. Kiểm chứng:
+   `curl -s "https://ttpvhcc.xanuicam.vn/?t=$RANDOM" | grep -c '__CF$cv$params'`
+   phải trả `0`.
+
+   > **Đã gặp: tắt rồi mà script vẫn được chèn.** Ngày 16/09/2026, sau khi tắt Bot
+   > Fight Mode, lượt tải mới hoàn toàn (`cf-cache-status: MISS`) vẫn còn script,
+   > trong khi trang gốc GitHub Pages không có - tức Cloudflare vẫn chèn, không
+   > phải do cache. Đây là hiện tượng đã có người báo trên diễn đàn Cloudflare
+   > ("JS Detections stuck on with Bot Fight Mode off"). Cách xử lý theo thứ tự:
+   > tải lại trang cài đặt để chắc công tắc đã lưu; bật lại rồi tắt lần nữa; kiểm
+   > mục *Configure AI bot policies* và *AI Crawl Control* xem có chính sách nào
+   > đang bật kéo theo JS detections; nếu vẫn còn thì mở ticket với Cloudflare.
+   > Trong lúc chờ, hệ thống không hỏng gì - chỉ là lỗi trong console.
+2. **Giữ Bot Fight Mode, chấp nhận lỗi console.** Cần biết rõ cái giá: tín hiệu
+   JavaScript - phần đáng giá nhất của Bot Fight Mode - đã bị CSP chặn nên không
+   chạy; thứ còn lại là các tín hiệu danh tiếng IP và dấu vân tay kết nối.
+3. **Nâng lên gói Pro** để dùng Super Bot Fight Mode, nơi JS detections bật/tắt
+   riêng được. Chỉ đáng khi đơn vị cần thêm các tính năng khác của gói Pro.
+4. **Đừng** thêm `'unsafe-inline'` vào `script-src` để "cho qua". Làm vậy là phá
+   bỏ chính lớp bảo vệ mà `scripts/them-csp.mjs` dựng nên: băm từng khối script
+   để trang không thể bị chèn mã lạ. Đánh đổi sai hướng.
+
+Lưu ý zone dùng chung: Bot Fight Mode áp cho cả `xanuicam.vn`, nên quyết định này
+ảnh hưởng luôn hệ thống khác trên cùng zone.
 
 ```bash
 export CLOUDFLARE_API_TOKEN=...                       # xem quyền ở đầu script
