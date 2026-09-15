@@ -28,7 +28,7 @@
   /* Typography */
   --font-display: var(--font-lora), 'Lora', Georgia, serif;
   --font-body: var(--font-inter), 'Inter', -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: var(--font-plex-mono), 'IBM Plex Mono', 'Courier New', monospace;
+  --font-mono: var(--font-chivo-mono), 'Chivo Mono', 'Courier New', monospace;
 
   --radius: 3px;
   --shadow-the: 0 1px 2px rgba(36,31,28,0.06), 0 4px 16px rgba(36,31,28,0.05);
@@ -671,7 +671,7 @@ h1, h2, h3, h4 {
 
 /* ---------- Trang chi tiết TTHC ---------- */
 .tt-hero { padding: 32px 0 8px; }
-/* 600 chứ không phải 700: next/font chỉ tải IBM Plex Mono ở weight 500 và 600
+/* 600 chứ không phải 700: next/font chỉ tải chữ mono ở khoảng weight 500-600
    (xem layout.tsx), nên khai 700 khiến trình duyệt phải tự làm đậm giả. */
 .tt-ma { font-family: var(--font-mono); color: var(--dong); font-size: 14px; font-weight: 600; }
 .tt-hero h1 { font-size: clamp(24px, 3vw, 32px); margin-top: 8px; max-width: 40ch; }

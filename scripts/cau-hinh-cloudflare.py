@@ -25,7 +25,9 @@ workflow: bản đầu nhân đôi phần tra zone và đã sai đúng chỗ đ�
 miền đầy đủ `ttpvhcc.xanuicam.vn` trong khi zone của Cloudflare là tên miền gốc
 `xanuicam.vn`, khiến job xoá cache trượt ngay lượt triển khai đầu tiên.
 
-Chỉ dùng thư viện chuẩn, nên chạy được ngay trên runner mà không cần cài gì.
+Phần gọi API và tra zone nằm ở scripts/cloudflare_chung.py, dùng chung với
+scripts/bao-ve-cloudflare.py. Chỉ dùng thư viện chuẩn, nên chạy được ngay trên
+runner mà không cần cài gì.
 
 Cần biến môi trường CLOUDFLARE_API_TOKEN với quyền:
     Zone / Zone / Read          (tra zone id - luôn cần)
@@ -40,52 +42,12 @@ Cách dùng:
 """
 from __future__ import annotations
 
-import json
-import os
 import sys
-import urllib.error
-import urllib.request
-from pathlib import Path
 
-GOC_DU_AN = Path(__file__).resolve().parent.parent
-API = "https://api.cloudflare.com/client/v4"
-
-# Dấu nhận biết luật do script này quản lý, để chạy lại không tạo trùng và
-# không đụng vào luật do người khác đặt tay.
-DAU = "[ubnd-ttpvhcc-qr]"
+from cloudflare_chung import DAU, doc_token, goi_hoac_dung as goi, ten_mien, tra_zone
 
 TTL_TINH = 31536000    # một năm cho file có băm nội dung
 TTL_TRANG = 3600       # một giờ ở biên cho trang; xoá cache lúc triển khai là hết cũ
-
-
-def ten_mien() -> str:
-    """Đọc tên miền từ public/CNAME - nguồn sự thật đã có sẵn trong kho."""
-    return (GOC_DU_AN / "public" / "CNAME").read_text(encoding="utf-8").strip()
-
-
-def goi(duong_dan: str, token: str, method: str = "GET", than=None,
-        cho_phep_404: bool = False) -> dict:
-    yc = urllib.request.Request(
-        f"{API}{duong_dan}",
-        method=method,
-        data=json.dumps(than).encode() if than is not None else None,
-        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-    )
-    try:
-        with urllib.request.urlopen(yc, timeout=60) as p:
-            return json.loads(p.read())
-    except urllib.error.HTTPError as loi:
-        kq = json.loads(loi.read() or b"{}")
-        # Zone chưa có luật nào trong phase này thì Cloudflare trả 404 - đó là
-        # trạng thái bình thường, không phải lỗi.
-        if loi.code == 404 and cho_phep_404:
-            return {"result": {}}
-        loi_ct = "; ".join(x.get("message", "") for x in kq.get("errors", []))
-        print(f"LỖI API {loi.code} khi {method} {duong_dan}: {loi_ct}", file=sys.stderr)
-        if loi.code in (401, 403):
-            print("  Token thiếu quyền hoặc sai. Cần Zone/Zone/Read và "
-                  "Zone/Cache Rules/Edit.", file=sys.stderr)
-        raise SystemExit(1)
 
 
 def luat_mong_muon(mien: str) -> list[dict]:
@@ -117,42 +79,19 @@ def luat_mong_muon(mien: str) -> list[dict]:
     ]
 
 
-def tra_zone(token: str, mien: str) -> tuple[str, str]:
-    """Trả (zone id, tên zone).
-
-    Zone của Cloudflare là tên miền GỐC (`xanuicam.vn`), không phải subdomain mà
-    site chạy trên đó (`ttpvhcc.xanuicam.vn`). Nên phải duyệt danh sách zone rồi
-    chọn zone là hậu tố dài nhất của tên miền, chứ không tra thẳng theo tên.
-    """
-    kq = goi("/zones?per_page=50", token)
-    ung_vien = [z for z in (kq.get("result") or [])
-                if mien == z["name"] or mien.endswith("." + z["name"])]
-    if not ung_vien:
-        thay = ", ".join(z["name"] for z in (kq.get("result") or [])) or "(không có)"
-        print(f"Không tìm thấy zone chứa {mien}. Token thấy các zone: {thay}",
-              file=sys.stderr)
-        raise SystemExit(1)
-    z = max(ung_vien, key=lambda x: len(x["name"]))
-    return z["id"], z["name"]
-
-
 def main() -> int:
     ap_dung = "--ap-dung" in sys.argv
     xoa_cache = "--xoa-cache" in sys.argv
-    token = os.environ.get("CLOUDFLARE_API_TOKEN", "").strip()
-    if not token:
-        print("Thiếu CLOUDFLARE_API_TOKEN.\n"
-              "Tạo tại Cloudflare > My Profile > API Tokens, quyền:\n"
-              "  Zone / Zone / Read\n"
-              "  Zone / Cache Rules / Edit\n"
-              "rồi: export CLOUDFLARE_API_TOKEN=...", file=sys.stderr)
-        return 1
+    token = doc_token("    Zone / Zone / Read\n"
+                      "    Zone / Cache Rules / Edit   (cho --ap-dung)\n"
+                      "    Zone / Cache Purge / Purge  (cho --xoa-cache)")
 
     mien = ten_mien()
     zone, ten_zone = tra_zone(token, mien)
 
     if xoa_cache:
-        goi(f"/zones/{zone}/purge_cache", token, "POST", {"purge_everything": True})
+        goi(f"/zones/{zone}/purge_cache", token, "POST", {"purge_everything": True},
+            goi_y_quyen="    Zone / Cache Purge / Purge")
         print(f"Đã xoá toàn bộ cache của zone {ten_zone}.")
         return 0
 
@@ -183,7 +122,8 @@ def main() -> int:
         print("\nĐây mới là xem trước. Thêm --ap-dung để ghi thật.")
         return 0
 
-    goi(duong, token, "PUT", {"rules": cuoi})
+    goi(duong, token, "PUT", {"rules": cuoi},
+        goi_y_quyen="    Zone / Cache Rules / Edit")
     print(f"\nĐã ghi {len(cuoi)} luật.")
     print("Kiểm lại sau vài giây:")
     print(f"  curl -sI https://{mien}/ | grep -i cf-cache-status")

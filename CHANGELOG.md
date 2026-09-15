@@ -2,6 +2,113 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.13.0] - 2026-09-15
+
+### Thay đổi
+
+- **Đổi chữ mono từ IBM Plex Mono sang Chivo Mono: số 0 không còn dấu chấm ở
+  giữa.** Mã thủ tục là thứ người dân đọc để đối chiếu với giấy tờ, mà "3.000442"
+  hiện lên với ba cái chấm nằm trong ba số 0 trông như trang bị lỗi phông.
+
+  Không sửa được bằng `font-feature-settings`. Đã soi trực tiếp bảng glyph của
+  bản IBM Plex Mono đang dùng: glyph số 0 mặc định gồm **ba đường khép kín** -
+  vành ngoài, vành trong và cái chấm. Đặc tính `zero` của font đổi sang số 0
+  **gạch chéo** (cũng ba đường), còn `salt`/`ss04` trỏ tới glyph rỗng. Nghĩa là
+  font này không có biến thể số 0 trơn để bật, phải đổi họ chữ.
+
+  Đã soi glyph số 0 của **tám họ mono** khác trên Google Fonts - Roboto Mono,
+  Noto Sans Mono, Source Code Pro, Red Hat Mono, DM Mono, Geist Mono, Reddit
+  Mono, Overpass Mono - tất cả đều đánh dấu số 0 bằng chấm hoặc gạch. Đó là chủ
+  ý của thể loại: chữ mono sinh ra cho người viết mã, nơi phân biệt 0 với O quan
+  trọng hơn vẻ ngoài. Trên bảng niêm yết hành chính thì ưu tiên ngược lại.
+
+  **Chivo Mono** là họ duy nhất trong nhóm khảo sát vừa có số 0 trơn (hai đường
+  khép kín), vừa phủ trọn tiếng Việt (đủ U+1EA0-1EF9, đã đối chiếu bằng
+  `scripts/kiem-tra-bo-chu.py`), vừa là **bộ chữ biến thiên** - nên một file phủ
+  cả weight 500 lẫn 600, thay cho hai file tĩnh của Plex:
+
+  | | Trước | Sau |
+  |---|---|---|
+  | Số file chữ mono | 2 | 1 |
+  | Dung lượng | 32.892 B | 30.396 B |
+  | Khai báo `@font-face` nhúng mỗi trang | 2 | 1 |
+
+  Trợ năng giữ nguyên: `npm run kiem-tra-tro-nang` báo 0 vi phạm WCAG 2.1 AA sau
+  khi đổi.
+
+### Thêm mới
+
+- **Lớp chống DDoS, bot và spam IP, viết thành mã trong `scripts/bao-ve-cloudflare.py`.**
+  Site là tệp tĩnh trên GitHub Pages - không máy chủ ứng dụng, không cơ sở dữ
+  liệu, nên mã nguồn trang không có chỗ nào để đếm hay chặn IP. Request bị chặn
+  hay không đã được quyết định xong ở Cloudflare, trước khi tới máy chủ gốc. Đưa
+  cấu hình đó vào kho mã để nó được rà soát và dựng lại được, thay vì nằm trong
+  trí nhớ của người từng bấm dashboard.
+
+  Bốn lớp thường trực, **người dân không thấy gì**:
+
+  1. **Luật WAF** - bỏ qua bot tìm kiếm đã xác minh (đặt đầu tiên có chủ đích:
+     chặn nhầm Googlebot là tự cắt đường người dân tìm thấy trang); **chặn** các
+     đường dẫn quét lỗ hổng mà site tĩnh không bao giờ có (`/wp-admin`, `/.env`,
+     `/.git`, `*.php`…); **bắt xác minh** khi điểm đe doạ cao - xác minh chứ
+     không chặn thẳng, vì người dân dùng chung IP nhà mạng không được phép mất
+     quyền tra cứu vì một máy khác cùng IP.
+  2. **Giới hạn tần suất** - một IP vượt 60 request/10 giây thì phải qua xác minh
+     trong 60 giây rồi tự trở lại bình thường. Ngưỡng đặt theo hành vi thật: một
+     lượt mở trang chi tiết tải khoảng 10-14 tệp, nên người dân bấm nhanh liên
+     tiếp vẫn cách ngưỡng rất xa. Không có danh sách đen nào để quên xoá.
+  3. **Bot Fight Mode** - nhận diện bot giả mạo trình duyệt.
+  4. **Cài đặt zone** - HSTS 1 năm + preload, TLS tối thiểu 1.2, luôn HTTPS,
+     Browser Integrity Check.
+
+  Mặc định script chỉ in ra dự định, phải thêm `--ap-dung` mới ghi; và chỉ ghi đè
+  luật mang dấu `[ubnd-ttpvhcc-qr]`, luật ai đó đặt tay trên dashboard được giữ
+  nguyên.
+
+- **Công tắc "chế độ chống tấn công" (Under Attack Mode) - có, nhưng CỐ Ý KHÔNG
+  bật thường trực.** Đây là trang xác minh vài giây kiểu grok.com. Trên trang
+  dịch vụ công, cái giá của nó rơi đúng vào người dân: quét mã QR tại quầy phải
+  chờ thêm mỗi lần mở trang, trên máy cũ bước xác minh có thể thất bại hẳn và họ
+  mất luôn đường tra cứu, người dùng trình đọc màn hình gặp thêm rào cản trong
+  khi dự án cam kết WCAG 2.1 AA, còn bot tìm kiếm thì bị chặn. Nội dung ở đây là
+  thông tin bắt buộc phải niêm yết công khai - bắt người dân chứng minh mình
+  không phải máy để đọc thông tin công khai là đặt sai ưu tiên.
+
+  Nên nó là **công tắc sự cố**: bật bằng một lệnh khi đang bị tấn công thật, tắt
+  ngay khi hết đợt.
+
+- **Workflow `Chế độ chống tấn công`** (`workflow_dispatch`): bật/tắt và kiểm tra
+  lớp bảo vệ **từ trình duyệt điện thoại**, vì khi site đang bị dội request thì
+  người trực có thể chỉ có điện thoại trong tay. Hai thao tác có ảnh hưởng bắt gõ
+  `DONG Y` để tránh bấm nhầm trong danh sách chọn. Dùng secret riêng
+  `CLOUDFLARE_API_TOKEN_BAO_VE` chứ không dùng chung token xoá cache: token xoá
+  cache chạy tự động mỗi lượt triển khai cạnh một job đang giữ `pages:write`,
+  gộp quyền sửa tường lửa vào đó là cho lượt triển khai hằng ngày mang theo quyền
+  nó không bao giờ dùng tới.
+
+- **`public/.well-known/security.txt`** theo RFC 9116 - kênh báo lỗ hổng mà công
+  cụ quét và người nghiên cứu bảo mật đọc trước khi tìm cách liên hệ.
+  `tests/bao-mat.test.ts` canh trường `Expires`: đây là thứ duy nhất trong kho mã
+  **tự hỏng theo thời gian** - quá hạn thì theo RFC tệp bị coi là hết hiệu lực,
+  kênh báo lỗ hổng lặng lẽ biến mất trong khi trang vẫn chạy và CI vẫn xanh. Test
+  bắt đầu báo đỏ trước 60 ngày.
+
+- `docs/BAO-MAT.md` mục 9 và `docs/VAN-HANH.md` mục 8: cấu hình, cách kiểm chứng,
+  và **giới hạn cần biết** - không có bảo mật tuyệt đối; địa chỉ gốc
+  `*.github.io` vẫn đi thẳng không qua Cloudflare (đó là cách GitHub Pages hoạt
+  động, không tắt được), nên rủi ro thật là lách lớp giới hạn tần suất chứ không
+  phải lộ dữ liệu - hệ thống không có dữ liệu cá nhân nào để lộ.
+
+### Thay đổi kỹ thuật
+
+- Tách `scripts/cloudflare_chung.py` dùng chung cho hai script Cloudflare. Chép
+  thay vì tách là chép luôn cơ hội sai lại: phần tra zone đã từng sai đúng một
+  lần và làm job xoá cache trượt ngay lượt triển khai đầu tiên, vì tra theo tên
+  miền đầy đủ trong khi zone là tên miền gốc.
+- Sinh lại `inter-viet.woff2` và `lora-viet.woff2` từ bản thượng nguồn hiện tại
+  (+80 B và +120 B) vì `scripts/tao-bo-chu.py` dựng lại cả ba họ trong một lần
+  chạy.
+
 ## [1.12.1] - 2026-09-15
 
 ### Thay đổi

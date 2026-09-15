@@ -23,14 +23,13 @@ from fontTools.ttLib import TTFont
 GOC_DU_AN = Path(__file__).resolve().parent.parent
 THU_MUC_CHU = GOC_DU_AN / "src" / "fonts"
 
-# Chữ nội dung phải phủ mọi ký tự. Lora chỉ dựng tiêu đề và IBM Plex Mono chỉ
-# dựng mã thủ tục, nhưng vẫn kiểm cả bốn: rẻ, và bắt được trường hợp bộ sinh
-# chạy hụt một file.
+# Chữ nội dung phải phủ mọi ký tự. Lora chỉ dựng tiêu đề và Chivo Mono chỉ dựng
+# mã thủ tục, nhưng vẫn kiểm cả ba: rẻ, và bắt được trường hợp bộ sinh chạy hụt
+# một file.
 CAC_BO = [
     ("Inter (chữ nội dung)", "inter-viet.woff2"),
     ("Lora (tiêu đề)", "lora-viet.woff2"),
-    ("IBM Plex Mono 500", "plex-mono-500.woff2"),
-    ("IBM Plex Mono 600", "plex-mono-600.woff2"),
+    ("Chivo Mono (mã thủ tục)", "chivo-mono-viet.woff2"),
 ]
 
 # Ký tự lạc trong dữ liệu nguồn, chấp nhận rơi về chữ hệ thống. Bản chưa tự host
@@ -79,7 +78,7 @@ def main() -> int:
 
     if loi:
         return 1
-    print("BỘ CHỮ: cả 4 bộ phủ hết ký tự trong dữ liệu.")
+    print(f"BỘ CHỮ: cả {len(CAC_BO)} bộ phủ hết ký tự trong dữ liệu.")
     return 0
 
 

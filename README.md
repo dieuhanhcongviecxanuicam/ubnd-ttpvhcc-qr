@@ -47,6 +47,7 @@ ubnd-ttpvhcc-qr/
 ├── brand/                       # logo-ttpvhcc.png - file gốc duy nhất (xem brand/README.md)
 ├── public/
 │   ├── CNAME                    # Tên miền riêng - bắt buộc cho GitHub Pages
+│   ├── .well-known/             # security.txt (RFC 9116) - kênh báo lỗ hổng
 │   ├── favicon.ico              # Biểu tượng trình duyệt
 │   ├── brand/                   # Logo, favicon, icon PWA website phục vụ
 │   ├── minh-hoa/                # 33 hình SVG minh hoạ lĩnh vực (nền trong suốt)
@@ -54,7 +55,9 @@ ubnd-ttpvhcc-qr/
 ├── scripts/                     # Pipeline dữ liệu bằng Python
 │   ├── trich-xuat-du-lieu.py    #   Excel  → data/*.json
 │   ├── tao-ma-qr.py             #   JSON   → public/qr/*
-│   └── kiem-tra-ma-qr.py        #   Giải mã ngược QR (zxing), đối chiếu URL
+│   ├── kiem-tra-ma-qr.py        #   Giải mã ngược QR (zxing), đối chiếu URL
+│   ├── cau-hinh-cloudflare.py   #   Cache Rule + xoá cache khi triển khai
+│   └── bao-ve-cloudflare.py     #   WAF, giới hạn tần suất, chế độ chống tấn công
 ├── src/
 │   ├── app/                     # Route (App Router)
 │   │   ├── page.tsx             #   /                     trang chủ + QR tổng
@@ -136,7 +139,7 @@ thực sự phục vụ, chạy tự động trong CI mỗi lần đẩy mã lê
 chứ không dùng OpenCV: bộ giải mã của OpenCV đọc hụt mã QR từ version 5 trở lên
 (gặp thực tế với các lĩnh vực có slug dài) và sẽ báo lỗi giả.
 
-**Font.** Lora + Inter + IBM Plex Mono tự host trong `src/fonts/`, **mỗi họ một file**
+**Font.** Lora + Inter + Chivo Mono tự host trong `src/fonts/`, **mỗi họ một file**
 phủ trọn latin và tiếng Việt, sinh sẵn bằng `scripts/tao-bo-chu.py`. Trang hiển thị đúng
 cả trong mạng nội bộ không có Internet. Không dùng `next/font/google` vì nó giữ cách
 Google cắt bộ chữ theo `unicode-range`, khiến dấu tiếng Việt nằm ở file khác với chữ cái

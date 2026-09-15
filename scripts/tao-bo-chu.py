@@ -66,7 +66,7 @@ DAI_UNICODE = [
 
 # `wght` giới hạn theo weight THỰC SỰ dùng trong src/app/globals.css. Đã đối
 # chiếu bằng cách nạp cả sáu loại trang và đọc document.fonts:
-#   Inter 400/500/600/700 - Lora 600/700 - IBM Plex Mono 500/600.
+#   Inter 400/500/600/700 - Lora 600/700 - chữ mono 500/600.
 # Lora khai 500 nhưng không trang nào dùng, nên bỏ.
 BO_CHU = [
     {
@@ -84,21 +84,28 @@ BO_CHU = [
         "ghim": {},
         "wght": (600, 700),
     },
-    # IBM Plex Mono trên Google Fonts là bộ chữ tĩnh, không có trục biến thiên,
-    # nên mỗi weight vẫn là một file riêng.
+    # Chữ mono dựng mã thủ tục, URL và số đếm.
+    #
+    # Trước đây dùng IBM Plex Mono và đã phải đổi: số 0 của nó CÓ MỘT CHẤM ở giữa
+    # (glyph mặc định gồm ba đường khép kín - vành ngoài, vành trong và cái chấm).
+    # Với người viết mã thì chấm đó là tính năng, dùng để phân biệt 0 với O; còn
+    # trên bảng niêm yết hành chính, mã thủ tục kiểu "3.000442" hiện ra như bị lỗi
+    # phông. IBM Plex Mono KHÔNG có biến thể số 0 trơn để bật bằng
+    # `font-feature-settings`: đặc tính `zero` của nó đổi sang số 0 gạch chéo, còn
+    # `salt`/`ss04` trỏ tới glyph rỗng. Nên phải đổi họ chữ, không có đường vòng.
+    #
+    # Đã soi glyph số 0 của tám họ mono trên Google Fonts: Roboto Mono, Noto Sans
+    # Mono, Source Code Pro, Red Hat Mono, DM Mono, Geist Mono, Reddit Mono,
+    # Overpass Mono - tất cả đều đánh dấu số 0 bằng chấm hoặc gạch. Chivo Mono là
+    # họ duy nhất vừa có số 0 TRƠN (hai đường khép kín), vừa phủ trọn tiếng Việt
+    # (đủ U+1EA0-1EF9), vừa là bộ chữ biến thiên - nên một file phủ cả 500 lẫn 600,
+    # đúng nguyên tắc "mỗi họ một file" của dự án.
     {
-        "ten": "IBM Plex Mono 500",
-        "nguon": "ofl/ibmplexmono/IBMPlexMono-Medium.ttf",
-        "ra": "plex-mono-500.woff2",
+        "ten": "Chivo Mono",
+        "nguon": "ofl/chivomono/ChivoMono[wght].ttf",
+        "ra": "chivo-mono-viet.woff2",
         "ghim": {},
-        "wght": None,
-    },
-    {
-        "ten": "IBM Plex Mono 600",
-        "nguon": "ofl/ibmplexmono/IBMPlexMono-SemiBold.ttf",
-        "ra": "plex-mono-600.woff2",
-        "ghim": {},
-        "wght": None,
+        "wght": (500, 600),
     },
 ]
 
