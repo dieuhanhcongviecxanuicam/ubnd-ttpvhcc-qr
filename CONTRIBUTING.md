@@ -61,6 +61,43 @@ request nếu chúng lệch nhau.
 **Luôn dùng `npm run build`, không gọi `npx next build` trực tiếp** - lệnh build
 đã gói sẵn bước sinh CSP. Thiếu bước đó, trình duyệt chặn script và trang trắng.
 
+## Script cài đặt của gói npm (`allowScripts`)
+
+Từ npm 11, gói nào chạy script lúc cài (`postinstall`...) mà chưa được duyệt thì
+`npm ci` in cảnh báo `npm warn allow-scripts`. Danh sách đã duyệt nằm ở trường
+`allowScripts` trong `package.json`, hiện gồm hai gói:
+
+| Gói | Kéo vào qua | Script làm gì |
+|---|---|---|
+| `esbuild` | `tsx` (chạy test) | Kiểm tra và dựng tệp nhị phân đúng nền tảng |
+| `unrs-resolver` | `eslint-config-next` | Kiểm tra bản native binding |
+
+Khi thêm phụ thuộc mới mà cảnh báo xuất hiện lại: đọc script của gói đó trước,
+rồi mới `npm approve-scripts --no-allow-scripts-pin <tên-gói>`.
+
+Duyệt **theo tên, không ghim phiên bản**, có chủ đích. Phiên bản chính xác của mọi
+gói đã bị khoá bằng băm toàn vẹn trong `package-lock.json`, và mọi thay đổi lock
+đều phải qua pull request cùng CI - đó mới là lớp chặn bản độc hại. Ghim phiên bản
+trong `allowScripts` thì mỗi lần Dependabot nâng `esbuild`, cảnh báo quay lại; tệ
+hơn, nếu npm về sau chuyển từ cảnh báo sang chặn hẳn, script bị bỏ qua âm thầm và
+`tsx` hỏng mà build vẫn xanh.
+
+## Phụ thuộc đang cố ý hoãn
+
+`.github/dependabot.yml` đang chặn hai bản nâng cấp vì hệ sinh thái chưa theo kịp.
+Mỗi dòng có ghi điều kiện để gỡ:
+
+| Gói | Chặn từ | Lý do | Kiểm bằng |
+|---|---|---|---|
+| `eslint` | 10.0.0 | `eslint-plugin-react` chưa hỗ trợ, lint sập | `npm view eslint-plugin-react peerDependencies` |
+| `typescript` | 6.1.0 | `typescript-eslint` chỉ nhận `<6.1.0` | `npm view typescript-eslint peerDependencies` |
+
+Hệ quả phải chấp nhận trong thời gian hoãn: `npm ci` in **một** cảnh báo
+`npm warn deprecated eslint@9.39.5`. ESLint chỉ chạy lúc phát triển và trong CI,
+không có mặt trong trang người dân tải về. Không tắt cảnh báo này bằng
+`--loglevel=error`: lệnh đó giấu luôn mọi cảnh báo khác, kể cả cảnh báo mới
+đáng lo.
+
 ## Test
 
 Dùng bộ chạy test có sẵn của Node, không thêm framework.

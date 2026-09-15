@@ -146,6 +146,8 @@ lượt triển khai nào.
 | Việc                                   | Tần suất            | Cách làm                                        |
 | -------------------------------------- | ------------------- | ----------------------------------------------- |
 | Duyệt PR của Dependabot                | Hằng tuần           | Đọc changelog rồi hợp nhất; CI tự chặn nếu hỏng |
+| Rà hai phụ thuộc đang hoãn (ESLint 10, TypeScript 6.1+) | Hằng quý | Điều kiện gỡ ghi trong `.github/dependabot.yml` và `CONTRIBUTING.md` |
+| Đọc cảnh báo trong log CI và triển khai | Hằng tháng          | Tab **Actions** > lượt chạy gần nhất > phần *Annotations* |
 | Xem cảnh báo CodeQL và secret scanning | Hằng tuần           | Tab **Security** của kho mã                     |
 | Kiểm chứng mã QR                       | Mỗi lần đổi dữ liệu | `python3 scripts/kiem-tra-ma-qr.py`             |
 | Kiểm tra header bảo mật                | Hằng quý            | Lệnh `curl` ở mục 3                             |
