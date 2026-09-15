@@ -11,11 +11,17 @@
  * của EU - nội dung UBND xã không soạn và không duyệt. Kho mã vẫn 5 dòng, CI
  * vẫn xanh, build vẫn đúng. Phát hiện được chỉ vì tình cờ curl tay.
  *
- * LẤY NHIỀU MẪU, KHÔNG LẤY MỘT. Cũng hôm đó, sau khi tắt công tắc, 20 lượt gọi
- * liên tiếp trả về 4 lượt bản mới và 16 lượt bản cũ - mỗi request rơi vào một
- * nút edge có trạng thái khác nhau. Một mẫu đơn lẻ vì thế vừa báo động giả được
- * (trúng nút chưa cập nhật) vừa bỏ lọt được (trúng nút đã sạch). Script lấy
- * SO_MAU mẫu cho mỗi tệp và báo cả tỉ lệ, để phân biệt "hỏng" với "đang lan".
+ * LẤY NHIỀU MẪU, KHÔNG LẤY MỘT. Cũng hôm đó, sau khi tắt công tắc, các lượt gọi
+ * liên tiếp trả về lẫn lộn bản mới và bản cũ, tỉ lệ sạch đứng yên quanh 20%
+ * suốt mười phút. Đã thử quy cho việc cấu hình lan dần giữa các trung tâm dữ
+ * liệu, nhưng 24 lượt đo kèm mã cf-ray cho thấy CẢ HAI kết quả cùng đến từ một
+ * trung tâm (SIN) - nên không phải chuyện lan theo vị trí địa lý. Nguyên nhân
+ * thật vẫn chưa biết; điều đo được là Cloudflare áp cấu hình không nhất quán
+ * giữa các request giống hệt nhau.
+ *
+ * Hệ quả cho script: một mẫu đơn lẻ vừa báo động giả được vừa bỏ lọt được, bất
+ * kể nguyên nhân là gì. Lấy SO_MAU mẫu mỗi tệp và báo tỉ lệ, để người đọc log
+ * phân biệt "lệch hoàn toàn" với "lệch một phần".
  *
  * Cách dùng:
  *     npm run build && npm run kiem-tra-san-xuat
@@ -131,12 +137,13 @@ for (const [duongDan, tuongUng, chuanHoa] of TEP_DOI_CHIEU) {
   const lech = mau.filter((m) => chuanHoa(m.than) !== mongDoi);
   if (lech.length === 0) continue;
 
-  // Tách "đang lan" khỏi "hỏng hẳn": nếu chỉ một phần số mẫu lệch, cấu hình vừa
-  // đổi và edge chưa đồng bộ xong - vẫn là lỗi, nhưng người đọc log cần biết để
-  // chờ thay vì đi sửa nhầm chỗ.
+  // Tách "lệch hoàn toàn" khỏi "lệch một phần". Lệch một phần nghĩa là Cloudflare
+  // đang áp cấu hình không nhất quán giữa các request giống hệt nhau - đã đo
+  // được trạng thái này và nó đứng yên hàng chục phút, nên đừng mặc định cứ chờ
+  // là hết.
   const tinhTrang = lech.length === mau.length
-    ? "toàn bộ edge"
-    : `${lech.length}/${mau.length} nút edge (có thể đang lan, chạy lại sau vài phút)`;
+    ? "mọi mẫu đều lệch"
+    : `${lech.length}/${mau.length} mẫu lệch - Cloudflare áp cấu hình không nhất quán`;
   const m = lech[0];
   loi.push(
     `${duongDan}: nội dung phục vụ khác bản trong out/ - ${tinhTrang}\n` +
