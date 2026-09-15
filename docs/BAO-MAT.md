@@ -282,15 +282,27 @@ Hậu quả thực tế:
 | Bot Fight Mode | Mất tín hiệu JavaScript; các tín hiệu còn lại (danh tiếng IP, dấu vân tay kết nối) vẫn chạy |
 | Nhật ký | Mỗi lượt xem trang ghi một lỗi CSP trong console |
 
-**Ba lựa chọn, và lý do nên chọn cách đầu:**
+**Trên gói Free KHÔNG tắt riêng được phần JavaScript Detections.** Tài liệu
+Cloudflare nói rõ: với Bot Fight Mode, JS detections bật kèm và không tắt được;
+chỉ Super Bot Fight Mode (từ gói Pro) mới tách công tắc riêng. Nên lựa chọn thật
+sự chỉ còn:
 
-1. **Tắt "JavaScript Detections"**, giữ Bot Fight Mode (Cloudflare > Security >
-   Bots). Hết lỗi CSP, vẫn còn phần lớn khả năng chặn bot. Kiểm chứng:
+1. **Tắt hẳn Bot Fight Mode** (chọn tên miền `xanuicam.vn` > Security > Settings >
+   Bot fight mode). Hết lỗi CSP. Các lớp còn lại vẫn nguyên: luật WAF chặn đường
+   dẫn quét lỗ hổng, Browser Integrity Check, và lớp chống DDoS tự động mà
+   Cloudflare luôn chạy ở mọi gói. Kiểm chứng sau khi tắt:
    `curl -s https://ttpvhcc.xanuicam.vn/ | grep -c '__CF$cv$params'` phải trả `0`.
-2. Chấp nhận nguyên trạng: lỗi console vô hại nhưng che mất lỗi thật khi cần gỡ rối.
-3. **Đừng** thêm `'unsafe-inline'` vào `script-src` để "cho qua". Làm vậy là phá
+2. **Giữ Bot Fight Mode, chấp nhận lỗi console.** Cần biết rõ cái giá: tín hiệu
+   JavaScript - phần đáng giá nhất của Bot Fight Mode - đã bị CSP chặn nên không
+   chạy; thứ còn lại là các tín hiệu danh tiếng IP và dấu vân tay kết nối.
+3. **Nâng lên gói Pro** để dùng Super Bot Fight Mode, nơi JS detections bật/tắt
+   riêng được. Chỉ đáng khi đơn vị cần thêm các tính năng khác của gói Pro.
+4. **Đừng** thêm `'unsafe-inline'` vào `script-src` để "cho qua". Làm vậy là phá
    bỏ chính lớp bảo vệ mà `scripts/them-csp.mjs` dựng nên: băm từng khối script
    để trang không thể bị chèn mã lạ. Đánh đổi sai hướng.
+
+Lưu ý zone dùng chung: Bot Fight Mode áp cho cả `xanuicam.vn`, nên quyết định này
+ảnh hưởng luôn hệ thống khác trên cùng zone.
 
 ```bash
 export CLOUDFLARE_API_TOKEN=...                       # xem quyền ở đầu script

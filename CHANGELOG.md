@@ -17,9 +17,13 @@
   đã kiểm bằng cách tải trang hai lần và so chuỗi.
 
   Người dân không bị ảnh hưởng; cái mất là tín hiệu JavaScript của Bot Fight Mode.
-  Tài liệu ghi ba lựa chọn và khuyến nghị tắt riêng "JavaScript Detections" thay
-  vì nới `script-src` bằng `'unsafe-inline'` - nới như vậy là phá bỏ chính lớp
-  băm script mà dự án dựng lên.
+
+  **Trên gói Free không tắt riêng được phần JavaScript Detections** - tài liệu
+  Cloudflare nói rõ nó bật kèm Bot Fight Mode và chỉ Super Bot Fight Mode (từ gói
+  Pro) mới tách công tắc. Nên tài liệu ghi bốn lựa chọn thật sự: tắt hẳn Bot Fight
+  Mode, giữ và chấp nhận lỗi console, nâng gói Pro, hoặc - điều KHÔNG nên làm -
+  nới `script-src` bằng `'unsafe-inline'`, vì như vậy là phá bỏ chính lớp băm
+  script mà dự án dựng lên.
 
 ## [1.16.0] - 2026-09-16
 
