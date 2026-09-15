@@ -9,5 +9,5 @@ zxing-cpp>=3.1.1
 
 # Sinh và đối chiếu bộ chữ tự host (tao-bo-chu.py, kiem-tra-bo-chu.py).
 # brotli cần cho định dạng woff2.
-fonttools>=4.64.0
+fonttools>=4.65.0
 brotli>=1.2.0
