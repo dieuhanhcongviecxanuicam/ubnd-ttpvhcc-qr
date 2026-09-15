@@ -270,6 +270,12 @@ Nên chế độ này là **công tắc sự cố**, không phải cấu hình t
 `https://ttpvhcc.xanuicam.vn/.well-known/security.txt`. Công cụ quét và người
 nghiên cứu bảo mật đọc tệp này trước khi tìm cách liên hệ.
 
+> **Cạm bẫy đã gặp.** `actions/upload-pages-artifact` đóng gói bằng `tar` kèm
+> `--exclude=.[^/]*`, nên nó ném đi **mọi mục bắt đầu bằng dấu chấm** - cả
+> `.well-known/` lẫn `.nojekyll`. Tệp có mặt trong `out/`, build và deploy đều
+> xanh, nhưng URL trả 404. Từ 1.13.1, `deploy.yml` tự đóng gói và có bước chặn
+> deploy nếu gói thiếu tệp bắt buộc.
+
 Trường `Expires` là thứ duy nhất trong kho mã **tự hỏng theo thời gian**: quá hạn
 thì theo RFC, tệp phải bị coi là không còn hiệu lực. `tests/bao-mat.test.ts` bắt
 đầu báo đỏ trước 60 ngày để còn kịp gia hạn.

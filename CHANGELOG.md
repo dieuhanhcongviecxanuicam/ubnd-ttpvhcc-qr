@@ -2,6 +2,31 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.13.1] - 2026-09-15
+
+### Sửa lỗi
+
+- **Gói triển khai bị ném mất mọi tệp bắt đầu bằng dấu chấm, kể cả
+  `/.well-known/security.txt` vừa thêm ở 1.13.0.** Tệp nằm đúng chỗ trong `out/`,
+  build xanh, deploy xanh, không một cảnh báo nào - nhưng mở
+  `https://ttpvhcc.xanuicam.vn/.well-known/security.txt` thì trả 404. Phát hiện
+  bằng cách kiểm chứng trên site thật sau khi triển khai, không phải bằng CI.
+
+  Nguyên nhân: `actions/upload-pages-artifact` đóng gói bằng `tar` kèm
+  `--exclude=.[^/]*`, tức loại bỏ mọi mục bắt đầu bằng dấu chấm ở gốc thư mục
+  xuất bản. Đã dựng lại đúng lệnh tar đó tại máy để xác nhận chứ không đoán:
+  thư mục `.well-known/` biến mất, và **chính `.nojekyll`** mà bước ngay trước đó
+  vừa tạo cũng bị ném đi cùng.
+
+  Sửa bằng cách tự đóng gói artifact rồi đẩy qua `actions/upload-artifact`, giữ
+  nguyên hợp đồng của Pages (một artifact tên `github-pages` chứa `artifact.tar`).
+
+  Thêm hàng rào trong chính lượt triển khai: bước mới liệt kê nội dung gói và
+  **chặn deploy** nếu thiếu `CNAME`, `.nojekyll`, `index.html` hoặc
+  `.well-known/security.txt`. Lớp lỗi này không thể bắt bằng test trong kho mã -
+  tệp có mặt ở mọi khâu trừ khâu cuối - nên chỗ duy nhất kiểm được là ngay trước
+  khi gói rời runner.
+
 ## [1.13.0] - 2026-09-15
 
 ### Thay đổi

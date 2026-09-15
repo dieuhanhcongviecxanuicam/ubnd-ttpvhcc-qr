@@ -47,9 +47,42 @@ jobs:
 
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
 
-      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+      # Tự đóng gói thay vì dùng actions/upload-pages-artifact.
+      #
+      # Action đó chạy tar kèm `--exclude=.[^/]*`, tức LOẠI BỎ mọi mục bắt đầu
+      # bằng dấu chấm ở gốc thư mục xuất bản. Hậu quả đã gặp thật:
+      # `/.well-known/security.txt` trả 404 trên production dù tệp nằm đúng chỗ
+      # trong out/, và chính `.nojekyll` vừa tạo ở bước trên cũng bị ném đi.
+      # Build xanh, deploy xanh, không một cảnh báo nào - đúng lớp lỗi âm thầm.
+      #
+      # Phần còn lại giữ nguyên hợp đồng của Pages: một artifact tên
+      # `github-pages` chứa `artifact.tar`, đúng thứ actions/deploy-pages chờ.
+      - name: Đóng gói artifact, giữ lại cả mục bắt đầu bằng dấu chấm
+        run: |
+          tar --dereference --hard-dereference --directory out \
+            -cf "$RUNNER_TEMP/artifact.tar" --exclude=.git --exclude=.github .
+
+      # Hàng rào: tệp nào bắt buộc phải có mặt thì kiểm ngay trong gói sắp gửi
+      # đi, chứ không đợi phát hiện bằng cách mở trang rồi thấy 404.
+      - name: Đối chiếu những tệp bắt buộc có trong gói
+        run: |
+          thieu=0
+          for tep in ./CNAME ./.nojekyll ./index.html ./.well-known/security.txt; do
+            if tar -tf "$RUNNER_TEMP/artifact.tar" | grep -qxF "$tep"; then
+              echo "  có $tep"
+            else
+              echo "::error::Gói triển khai thiếu $tep"
+              thieu=1
+            fi
+          done
+          exit $thieu
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          path: out
+          name: github-pages
+          path: ${{ runner.temp }}/artifact.tar
+          retention-days: 1
+          if-no-files-found: error
 
   deploy:
     name: Triển khai
