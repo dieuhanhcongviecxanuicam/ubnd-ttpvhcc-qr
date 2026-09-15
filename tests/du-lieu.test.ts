@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { describe, it } from "node:test";
+import {
+  hinhCuaLinhVuc,
+  NHOM_CUA_LINH_VUC,
+  NHOM_LINH_VUC,
+} from "../src/lib/nhom-linh-vuc.ts";
 import { taoSlug } from "../src/lib/text.ts";
 import type { LinhVuc, Meta, Tthc } from "../src/lib/types.ts";
 
@@ -105,6 +110,41 @@ describe("Mã QR", () => {
     hop_le.add("master.png");
     hop_le.add("master.svg");
     const thua = fs.readdirSync(THU_MUC_QR).filter((f) => !hop_le.has(f));
+    assert.deepEqual(thua, []);
+  });
+});
+
+describe("Nhóm ngành và hình minh hoạ", () => {
+  const THU_MUC_HINH = path.join(process.cwd(), "public", "minh-hoa");
+
+  it("mọi lĩnh vực đều được xếp vào một nhóm đã khai báo", () => {
+    const hop_le = new Set(NHOM_LINH_VUC.map((n) => n.id));
+    const sai = linhVuc
+      .filter((lv) => !hop_le.has(NHOM_CUA_LINH_VUC[lv.slug]))
+      .map((lv) => lv.slug);
+    assert.deepEqual(sai, [], "lĩnh vực chưa xếp nhóm sẽ rơi hết vào nhóm 'Khác'");
+  });
+
+  it("bảng xếp nhóm không còn slug của lĩnh vực đã bị gỡ", () => {
+    const co_that = new Set(linhVuc.map((lv) => lv.slug));
+    const mo_coi = Object.keys(NHOM_CUA_LINH_VUC).filter((s) => !co_that.has(s));
+    assert.deepEqual(mo_coi, []);
+  });
+
+  it("mọi hình minh hoạ được tham chiếu đều tồn tại", () => {
+    const thieu = linhVuc
+      .map((lv) => hinhCuaLinhVuc(lv.slug))
+      .filter((h) => !fs.existsSync(path.join(THU_MUC_HINH, h)));
+    assert.deepEqual([...new Set(thieu)], []);
+  });
+
+  /** Hình không ai dùng vẫn bị tải về theo bản build - phát hiện sớm còn hơn để rác. */
+  it("không có tệp hình minh hoạ mồ côi", () => {
+    const dang_dung = new Set([
+      ...NHOM_LINH_VUC.map((n) => n.hinh),
+      ...linhVuc.map((lv) => hinhCuaLinhVuc(lv.slug)),
+    ]);
+    const thua = fs.readdirSync(THU_MUC_HINH).filter((f) => !dang_dung.has(f));
     assert.deepEqual(thua, []);
   });
 });

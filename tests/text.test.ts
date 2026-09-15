@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { boDau, taoSlug, chuanHoaCoViTri, timDoanKhop } from "../src/lib/text.ts";
+import {
+  boDau,
+  catNgan,
+  chuanHoaCoViTri,
+  rutGonTenTthc,
+  taoSlug,
+  timDoanKhop,
+} from "../src/lib/text.ts";
 
 describe("boDau", () => {
   it("bỏ dấu tiếng Việt và chuyển chữ thường", () => {
@@ -88,5 +95,40 @@ describe("timDoanKhop", () => {
     assert.deepEqual(timDoanKhop("Hộ tịch", ""), []);
     assert.deepEqual(timDoanKhop("Hộ tịch", "   "), []);
     assert.deepEqual(timDoanKhop("Hộ tịch", "xyz"), []);
+  });
+});
+
+describe("rutGonTenTthc", () => {
+  it("bỏ tiền tố 'Thủ tục' rồi viết hoa lại chữ đầu", () => {
+    assert.equal(
+      rutGonTenTthc("Thủ tục đăng ký khai tử lưu động"),
+      "Đăng ký khai tử lưu động",
+    );
+  });
+
+  it("giữ nguyên tên không có tiền tố", () => {
+    assert.equal(rutGonTenTthc("Hòa giải tranh chấp đất đai"), "Hòa giải tranh chấp đất đai");
+  });
+
+  it("gộp khoảng trắng thừa", () => {
+    assert.equal(rutGonTenTthc("  Cấp   bản sao  "), "Cấp bản sao");
+  });
+});
+
+describe("catNgan", () => {
+  it("giữ nguyên chuỗi ngắn hơn giới hạn", () => {
+    assert.equal(catNgan("Hòa giải tranh chấp đất đai", 40), "Hòa giải tranh chấp đất đai");
+  });
+
+  it("cắt ở ranh giới từ, không cắt giữa chữ", () => {
+    const ra = catNgan("Đăng ký biến động đất đai tài sản gắn liền với đất", 20);
+    assert.ok(ra.endsWith("…"));
+    assert.ok(ra.length <= 21, `dài ${ra.length}`);
+    assert.ok(!ra.includes("  "));
+    assert.ok("Đăng ký biến động đất đai tài sản gắn liền với đất".startsWith(ra.slice(0, -1)));
+  });
+
+  it("không để lại dấu câu lơ lửng trước dấu ba chấm", () => {
+    assert.equal(catNgan("Cấp, đổi, cấp lại giấy tờ", 11), "Cấp, đổi…");
   });
 });

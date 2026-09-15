@@ -2,6 +2,90 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.12.1] - 2026-09-15
+
+### Thay đổi
+
+- **Tái cấu trúc vùng "Mã QR theo lĩnh vực" ở trang chủ theo mẫu bảng niêm yết
+  giấy của đơn vị.** Bản cũ là 77 thẻ xám giống hệt nhau, mỗi thẻ chỉ có tên lĩnh
+  vực, một mã QR 52 px và con số đếm. Người dân phải đọc từng chữ mới tìm được
+  lĩnh vực cần, còn mã QR thì nhỏ tới mức phải mở trang lĩnh vực rồi mới quét
+  được - tức là vùng này không làm được đúng việc mà tên nó hứa.
+
+  Bản mới dựng lại theo đúng cấu trúc bảng niêm yết đang treo tại bộ phận một
+  cửa (`docs/mau-tham-khao-ttpvhcc.png`): mỗi lĩnh vực là một thẻ có dải tiêu đề màu
+  theo nhóm ngành, hình minh hoạ, mã QR 104 px quét được thẳng từ màn hình, ba
+  thủ tục tiêu biểu và nút mở trang chi tiết. Thẻ gom theo 13 nhóm ngành, mỗi
+  nhóm một khối có tiêu đề riêng.
+
+  Ba quyết định đáng ghi lại:
+
+  1. **Gom nhóm bằng bảng khai báo tay, không đoán theo từ khoá trong tên.**
+     Đoán theo chuỗi sẽ xếp "An toàn đập, hồ chứa thuỷ điện" vào Điện lực thay vì
+     Thuỷ lợi, và xếp "Đăng ký, quản lý cư trú" ra ngoài nhóm Hộ tịch - sai âm
+     thầm, không ai phát hiện. Bảng tay sai thì test chặn ngay: `npm test` đối
+     chiếu cả hai chiều, không lĩnh vực nào thiếu nhóm và không slug nào trong
+     bảng trỏ tới lĩnh vực đã bị gỡ.
+  2. **Màu nhóm khai báo trong `globals.css`, không nằm trong TypeScript.** Màu
+     là chuyện trình bày; ngoài ra 77 thẻ mang `style=` nội tuyến sẽ phình HTML,
+     mà trang này nhúng CSS thẳng vào HTML nên mỗi byte lặp lại ba lần trong
+     payload. Toàn bộ 13 bộ màu đã tính tương phản trước khi chọn: thấp nhất là
+     5,50:1 (chữ trắng trên nền cam Xây dựng), đều trên ngưỡng 4,5:1 của WCAG AA.
+     Màu không bao giờ là dấu hiệu duy nhất - mỗi khối vẫn có tên nhóm bằng chữ.
+  3. **Cắt tên thủ tục ở tầng dữ liệu (95 ký tự), không dùng
+     `-webkit-line-clamp`.** Thuộc tính đó buộc phần tử về `display: -webkit-box`
+     và hộp đó nuốt mất số thứ tự của thẻ `<li>`. Tên thủ tục dài nhất trong dữ
+     liệu là 409 ký tự, gấp sáu lần tên trung vị (67) - để nguyên thì một thẻ cao
+     gấp ba thẻ bên cạnh.
+
+  Thêm hai bộ lọc độc lập: chip theo nhóm ngành và ô lọc theo tên (giữ nguyên
+  cách so khớp bỏ dấu, gõ "giao duc mam" vẫn ra "Giáo dục mầm non"). Toàn bộ 77
+  thẻ vẫn nằm sẵn trong HTML tĩnh, bộ lọc chỉ ẩn/hiện phía trình duyệt, nên
+  người tắt JavaScript vẫn đọc và quét được đủ mã QR.
+
+### Thêm mới
+
+- **33 hình minh hoạ SVG tự vẽ trong `public/minh-hoa/`** - 13 hình cho 13 nhóm
+  ngành và 20 hình riêng cho những lĩnh vực mà hình nhóm nói sai hẳn: "Biển và
+  hải đảo" nằm chung nhóm Đất đai nên sẽ mang hình thửa ruộng, "Hàng hải và đường
+  thuỷ nội địa" sẽ mang hình đường bộ. Bảng `HINH_RIENG` phủ 41 lĩnh vực, trong
+  đó có hầu hết các lĩnh vực nhiều thủ tục nhất (Hộ tịch 38, Người có công 33,
+  Hàng hải 21, Thuỷ lợi 17).
+
+  Hình vẽ tay bằng SVG chứ không lấy từ kho ảnh: tệp nhỏ (25,6 KB cho cả 33 hình,
+  10,6 KB sau brotli), không ràng buộc bản quyền, và nét vẽ đồng bộ với nhau. Nền
+  để trong suốt, màu nền do chính thẻ tô - nhờ vậy một hình dùng lại được cho
+  lĩnh vực ở nhóm khác mà không lạc màu.
+
+- `src/lib/nhom-linh-vuc.ts`: bảng phân nhóm 77 lĩnh vực và bảng hình riêng.
+- `rutGonTenTthc()` và `catNgan()` trong `src/lib/text.ts`, kèm test.
+- Bốn bất biến mới trong `tests/du-lieu.test.ts`: mọi lĩnh vực có nhóm, bảng nhóm
+  không còn slug mồ côi, mọi hình được tham chiếu đều tồn tại, và không có tệp
+  hình nào không ai dùng.
+
+### Hiệu năng
+
+Đo bằng cách build lại đúng commit trước đó trong một worktree riêng rồi so từng
+tệp, nên đây là số đối chứng chứ không phải ước lượng (kích thước brotli mức 11 -
+đúng thứ Cloudflare phục vụ):
+
+| Trang | Trước | Sau | Chênh |
+|---|---|---|---|
+| Trang chủ | 12,7 KB | 19,6 KB | +6,9 KB |
+| Lĩnh vực | 9,8 KB | 10,7 KB | +0,9 KB |
+| Chi tiết TTHC | 15,0 KB | 15,9 KB | +0,8 KB |
+| Danh mục | 32,8 KB | 33,7 KB | +0,8 KB |
+
+Trang chủ tăng 6,9 KB vì 77 thẻ nay mang thêm 157 tên thủ tục và cấu trúc thẻ đầy
+đủ. Các trang còn lại tăng 0,8-0,9 KB vì phần CSS mới nằm trong `globals.css`, mà
+`experimental.inlineCss` nhúng CSS vào mọi trang. Đây là cái giá đã biết trước của
+lựa chọn nhúng CSS (xem `next.config.mjs`); đổi lại không có vòng tải CSS chặn
+hiển thị. Hình minh hoạ tải lười, một lượt xem trang chủ chỉ tải vài hình đầu
+tiên, mỗi hình 300-700 byte sau brotli.
+
+Trợ năng giữ nguyên mức cam kết: `npm run kiem-tra-tro-nang` báo 0 vi phạm WCAG
+2.1 AA trên cả 6 bố cục.
+
 ## [1.12.0] - 2026-09-15
 
 ### Bảo mật

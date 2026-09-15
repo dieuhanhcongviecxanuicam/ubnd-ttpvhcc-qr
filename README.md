@@ -49,6 +49,7 @@ ubnd-ttpvhcc-qr/
 │   ├── CNAME                    # Tên miền riêng - bắt buộc cho GitHub Pages
 │   ├── favicon.ico              # Biểu tượng trình duyệt
 │   ├── brand/                   # Logo, favicon, icon PWA website phục vụ
+│   ├── minh-hoa/                # 33 hình SVG minh hoạ lĩnh vực (nền trong suốt)
 │   └── qr/                      # 78 mã QR × 2 định dạng (PNG in ấn, SVG web)
 ├── scripts/                     # Pipeline dữ liệu bằng Python
 │   ├── trich-xuat-du-lieu.py    #   Excel  → data/*.json
@@ -64,6 +65,7 @@ ubnd-ttpvhcc-qr/
 │   │   └── globals.css          #   Hệ thống thiết kế "Dấu son & Mã QR"
 │   ├── components/              # Thành phần giao diện dùng lại
 │   └── lib/                     # Truy xuất dữ liệu, cấu hình, tiện ích chuỗi
+│       └── nhom-linh-vuc.ts     #   Xếp 77 lĩnh vực vào 13 nhóm ngành + hình minh hoạ
 └── .github/workflows/           # CI (typecheck/lint/build + kiểm tra QR) và deploy
 ```
 

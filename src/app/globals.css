@@ -294,54 +294,286 @@ h1, h2, h3, h4 {
 .section-head h2 { font-size: 26px; }
 .section-head p { color: var(--muc-nhat); font-size: 14px; margin: 4px 0 0; }
 
-/* ---------- Lưới lĩnh vực ---------- */
+/* ==========================================================================
+   BẢNG NIÊM YẾT MÃ QR THEO LĨNH VỰC (trang chủ)
+   Dựng theo bảng niêm yết giấy treo tại bộ phận một cửa: mỗi lĩnh vực là một
+   thẻ có dải tiêu đề màu theo nhóm ngành, hình minh hoạ, mã QR quét trực tiếp
+   từ màn hình, vài thủ tục tiêu biểu và một nút mở trang chi tiết.
+   ========================================================================== */
+
+/* ---------- Bảng màu 13 nhóm ngành ----------
+   Nguồn duy nhất của màu nhóm; TypeScript chỉ giữ id, tên và tên tệp hình.
+   Mọi cặp màu ở đây đã kiểm tương phản (WCAG 2.1 AA, ngưỡng 4.5:1):
+     --lv với chữ trắng      : thấp nhất 5,50:1 (xay-dung)
+     --lv làm chữ trên --nga : thấp nhất 5,22:1 (xay-dung)
+     --lv-dam với chữ trắng  : thấp nhất 8,37:1 (xay-dung)
+     --lv trên nền --lv-nhat : thấp nhất 4,79:1 (xay-dung)
+   Đổi bất kỳ giá trị nào thì tính lại tương phản rồi chạy
+   `npm run build && npm run kiem-tra-tro-nang` trước khi mở pull request.
+   Màu không bao giờ là dấu hiệu duy nhất: thẻ luôn kèm tên nhóm bằng chữ. */
+.the-lv,
+.khoi-nhom,
+.chip {
+  --lv: var(--son);
+  --lv-dam: var(--son-dam);
+  --lv-nhat: var(--nga);
+  --lv-vien: var(--duong-vien);
+}
+[data-nhom="dat-dai"]     { --lv:#9B2226; --lv-dam:#721C1E; --lv-nhat:#F5E9E9; --lv-vien:#DDB4B5; }
+[data-nhom="xay-dung"]    { --lv:#A8500F; --lv-dam:#7C3C0E; --lv-nhat:#F6EEE7; --lv-vien:#E1C4AD; }
+[data-nhom="nong-nghiep"] { --lv:#1F6B3C; --lv-dam:#1C4F2E; --lv-nhat:#E9F0EC; --lv-vien:#B3CDBD; }
+[data-nhom="tu-phap"]     { --lv:#1B4D8A; --lv-dam:#193A64; --lv-nhat:#E8EDF3; --lv-vien:#B1C2D7; }
+[data-nhom="lao-dong"]    { --lv:#6B3FA0; --lv-dam:#513174; --lv-nhat:#F0ECF6; --lv-vien:#CDBEDF; }
+[data-nhom="van-hoa"]     { --lv:#0F6E6E; --lv-dam:#105251; --lv-nhat:#E7F0F0; --lv-vien:#ADCECE; }
+[data-nhom="giao-duc"]    { --lv:#A61E5D; --lv-dam:#7A1A45; --lv-nhat:#F6E8EF; --lv-vien:#E1B2C8; }
+[data-nhom="y-te"]        { --lv:#8A5A00; --lv-dam:#674404; --lv-nhat:#F3EEE6; --lv-vien:#D7C7A8; }
+[data-nhom="thong-tin"]   { --lv:#0E5FA4; --lv-dam:#104776; --lv-nhat:#E7EFF6; --lv-vien:#ADC9E0; }
+[data-nhom="kinh-te"]     { --lv:#7E5822; --lv-dam:#5E421B; --lv-nhat:#F2EEE9; --lv-vien:#D3C6B4; }
+[data-nhom="giao-thong"]  { --lv:#2C4A6E; --lv-dam:#253851; --lv-nhat:#EAEDF0; --lv-vien:#B7C1CE; }
+[data-nhom="noi-vu"]      { --lv:#4A5568; --lv-dam:#3A404C; --lv-nhat:#EDEEF0; --lv-vien:#C1C5CC; }
+[data-nhom="khac"]        { --lv:#57534E; --lv-dam:#433F3A; --lv-nhat:#EEEEED; --lv-vien:#C6C5C3; }
+
+/* ---------- Tiêu đề bảng ---------- */
+.bang-niem-yet-dau { max-width: 68ch; margin-bottom: 26px; }
+.bang-niem-yet-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--son);
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+.bang-niem-yet-dau h2 {
+  font-size: clamp(26px, 3.2vw, 34px);
+  margin: 0 0 10px;
+}
+.bang-niem-yet-mo-ta {
+  color: var(--muc-nhat);
+  font-size: 15px;
+  margin: 0;
+}
+
+/* ---------- Bộ lọc: ô tìm + chip nhóm ---------- */
+.bo-loc-linhvuc {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 30px;
+}
+.bo-loc-linhvuc .o-tim-lon { margin-bottom: 0; }
+.chip-nhom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--duong-vien);
+  background: var(--nga);
+  color: var(--muc-nhat);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.chip:hover { border-color: var(--lv); color: var(--lv); }
+.chip[aria-pressed="true"] {
+  background: var(--lv);
+  border-color: var(--lv);
+  color: var(--trang);
+}
+.chip-dem {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+.dem-linhvuc {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--muc-nhat);
+}
+
+/* ---------- Khối theo nhóm ngành ---------- */
+.khoi-nhom { margin-bottom: 40px; }
+.khoi-nhom-tieu-de {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 16px;
+  padding: 2px 0 2px 14px;
+  border-left: 5px solid var(--lv);
+  font-family: var(--font-display);
+  font-size: 19px;
+  color: var(--lv-dam);
+}
+.khoi-nhom-dem {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muc-nhat);
+  white-space: nowrap;
+}
+
+/* ---------- Thẻ lĩnh vực ---------- */
 .luoi-linhvuc {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(288px, 1fr));
+  gap: 18px;
 }
-.the-linhvuc {
-  background: var(--nga);
-  border: 1px solid var(--duong-vien);
-  border-radius: 6px;
-  padding: 18px;
+.the-lv {
+  position: relative;
   display: flex;
-  gap: 14px;
-  align-items: center;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-  cursor: pointer;
-}
-.the-linhvuc:hover {
-  transform: translateY(-2px);
+  flex-direction: column;
+  background: var(--nga);
+  border: 1px solid var(--lv-vien);
+  border-radius: 10px;
+  overflow: hidden;
   box-shadow: var(--shadow-the);
-  border-color: var(--son);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.the-linhvuc .mini-qr {
-  width: 52px;
-  height: 52px;
-  border: 1px solid var(--duong-vien);
-  border-radius: 4px;
+.the-lv:hover { transform: translateY(-3px); box-shadow: var(--shadow-noi); }
+
+.the-lv-dau {
+  background: linear-gradient(135deg, var(--lv), var(--lv-dam));
+  color: var(--trang);
+  padding: 12px 16px 14px;
+  text-align: center;
+}
+.the-lv-nhan {
+  margin: 0 0 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.the-lv-ten {
+  /* Tên lĩnh vực dài từ 6 tới 52 ký tự. Chiều cao tối thiểu 2 dòng giữ cho các
+     thẻ cùng hàng thẳng dải tiêu đề với nhau, dài hơn thì thẻ tự giãn. */
+  min-height: 2.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.the-lv-anh {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--lv-nhat);
+  border-bottom: 1px solid var(--lv-vien);
+}
+/* Hình minh hoạ nền trong suốt, nằm thẳng trên nền màu của nhóm. */
+.the-lv-hinh {
+  width: 46%;
+  max-width: 130px;
+  height: auto;
+}
+.the-lv-qr {
+  width: 104px;
+  height: 104px;
   flex-shrink: 0;
   background: var(--trang);
-  padding: 3px;
+  border: 1px solid var(--lv-vien);
+  border-radius: 6px;
+  padding: 5px;
 }
-.the-linhvuc-noidung { min-width: 0; }
-.the-linhvuc h3 {
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 14.5px;
-  margin: 0 0 4px;
-  color: var(--muc);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+
+.the-lv-than {
+  flex: 1;
+  padding: 14px 16px 4px;
 }
-.the-linhvuc .so-luong {
-  font-size: 12px;
-  color: var(--son);
-  font-weight: 600;
+.the-lv-dem {
+  margin: 0 0 10px;
   font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--lv);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.the-lv-dem strong { font-size: 14px; }
+.the-lv-ds {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muc);
+}
+.the-lv-ds li { margin-bottom: 6px; }
+.the-lv-ds li::marker { color: var(--lv); font-weight: 700; }
+.the-lv-con {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  color: var(--muc-nhat);
+}
+
+.the-lv-nut {
+  display: block;
+  margin: 14px 14px 14px;
+  padding: 11px 14px;
+  border-radius: 6px;
+  background: var(--lv);
+  color: var(--trang);
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: background 0.15s ease;
+}
+/* Phủ kín thẻ để bấm đâu cũng mở được trang lĩnh vực, mà vùng nhận bàn phím
+   vẫn chỉ là một liên kết duy nhất. */
+.the-lv-nut::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+}
+.the-lv:hover .the-lv-nut,
+.the-lv-nut:hover { background: var(--lv-dam); }
+/* Viền focus mặc định của site màu đỏ son, đặt trên nút đỏ hay tím thì gần như
+   không thấy. Dùng màu mực trên nền thẻ sáng để vòng focus luôn nổi bật. */
+.the-lv-nut:focus-visible {
+  outline: 3px solid var(--muc);
+  outline-offset: 2px;
+}
+
+/* Lối thoát khi lọc ra rỗng - không bắt người dùng tự đoán phải xoá chữ ở đâu. */
+.nut-bo-loc {
+  margin-top: 14px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--son);
+  background: transparent;
+  color: var(--son);
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.nut-bo-loc:hover { background: var(--son); color: var(--trang); }
+
+/* ---------- Bảng niêm yết trên màn hình hẹp ---------- */
+@media (max-width: 520px) {
+  .khoi-nhom-tieu-de { flex-wrap: wrap; gap: 6px 12px; font-size: 17px; }
+  .khoi-nhom-dem { margin-left: 0; width: 100%; }
+  .the-lv-hinh { width: 40%; }
+  .chip { font-size: 12.5px; padding: 6px 12px; }
 }
 
 /* ---------- Ô tìm kiếm lớn ---------- */

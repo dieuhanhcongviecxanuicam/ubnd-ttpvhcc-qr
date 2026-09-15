@@ -8,8 +8,9 @@
 import "server-only";
 import fs from "node:fs";
 import path from "node:path";
-import { boDau } from "./text";
-import type { LinhVuc, Meta, Tthc, TthcTomTat } from "./types";
+import { nhomCuaLinhVuc } from "./nhom-linh-vuc";
+import { boDau, catNgan, rutGonTenTthc } from "./text";
+import type { LinhVuc, Meta, TheLinhVuc, Tthc, TthcTomTat } from "./types";
 
 const THU_MUC_DU_LIEU = path.join(process.cwd(), "data");
 
@@ -130,4 +131,39 @@ export function layDanhSachCapThucHien(): string[] {
     }
   }
   return [...tap].sort((a, b) => a.localeCompare(b, "vi"));
+}
+
+/**
+ * Số thủ tục tiêu biểu in trên mỗi thẻ lĩnh vực ở trang chủ.
+ *
+ * Ba là mức cân bằng: đủ để đoán lĩnh vực chứa gì, mà 77 thẻ vẫn không kéo trang
+ * chủ dài quá. Tên thủ tục ở đây dài trung bình 106 ký tự nên mỗi dòng thêm vào
+ * là thêm khoảng 8 KB HTML.
+ */
+const SO_THU_TUC_TIEU_BIEU = 3;
+
+/**
+ * Độ dài tối đa một tên thủ tục in trên thẻ. Tên dài nhất trong dữ liệu là 409
+ * ký tự - gấp sáu lần tên trung vị (67), đủ để một thẻ cao gấp ba thẻ bên cạnh.
+ */
+const DAI_TOI_DA_TEN_TTHC = 95;
+
+/**
+ * Dữ liệu dựng thẻ lĩnh vực cho trang chủ: tên, số lượng, nhóm ngành và vài thủ
+ * tục tiêu biểu. Lấy tên thủ tục theo `danh_sach_ma_tthc` - cùng nguồn với số
+ * đếm, nên thẻ không thể hiện "9 thủ tục" mà danh sách lại trống.
+ */
+export function layTheLinhVuc(): TheLinhVuc[] {
+  const { theoMa } = nap();
+  return nap().linhVuc.map((lv) => ({
+    ten_linh_vuc: lv.ten_linh_vuc,
+    slug: lv.slug,
+    so_luong_tthc: lv.so_luong_tthc,
+    nhom: nhomCuaLinhVuc(lv.slug).id,
+    thu_tuc_tieu_bieu: lv.danh_sach_ma_tthc
+      .map((ma) => theoMa.get(ma))
+      .filter((t): t is Tthc => t !== undefined)
+      .slice(0, SO_THU_TUC_TIEU_BIEU)
+      .map((t) => catNgan(rutGonTenTthc(t.ten_tthc), DAI_TOI_DA_TEN_TTHC)),
+  }));
 }

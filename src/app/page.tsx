@@ -2,12 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import SiteFooter from "@/components/SiteFooter";
 import LuoiLinhVuc from "@/components/LuoiLinhVuc";
-import { layMeta, layTatCaLinhVuc } from "@/lib/data";
+import { layMeta, layTheLinhVuc } from "@/lib/data";
 import { duongDan, SITE_URL } from "@/lib/site-config";
 
 export default function TrangChu() {
   const meta = layMeta();
-  const linhVuc = layTatCaLinhVuc();
+  const linhVuc = layTheLinhVuc();
 
   return (
     <>
@@ -81,10 +81,14 @@ export default function TrangChu() {
         </section>
 
         <section className="section" id="linh-vuc">
-          <div className="section-head">
-            <div>
-              <h2>Mã QR theo lĩnh vực</h2>
-            </div>
+          <div className="bang-niem-yet-dau">
+            <p className="bang-niem-yet-eyebrow">Bảng niêm yết điện tử</p>
+            <h2>Mã QR theo lĩnh vực</h2>
+            <p className="bang-niem-yet-mo-ta">
+              {meta.tong_so_linh_vuc} lĩnh vực với {meta.tong_so_tthc} thủ tục hành
+              chính thuộc phạm vi giải quyết của Ủy ban nhân dân xã Núi Cấm. Quét mã
+              QR bằng camera điện thoại, hoặc bấm vào thẻ để xem danh sách thủ tục.
+            </p>
           </div>
           <LuoiLinhVuc danhSach={linhVuc} />
         </section>
