@@ -2,6 +2,84 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.15.0] - 2026-09-16
+
+### Thêm mới
+
+- **Tái cấu trúc trang `/in-ma-qr` theo mẫu bảng niêm yết giấy của đơn vị.** Bản
+  cũ là một lưới 78 ô giống hệt nhau kèm URL chữ nhỏ 8px; in ra hết khoảng 9
+  trang A4 rời rạc, không dải tiêu đề, không logo, không thông tin liên hệ - tức
+  là một bản in dữ liệu, không phải một bảng niêm yết của cơ quan.
+
+  Nay là ba bản in dựng sẵn thành PDF, đều lấy bố cục từ
+  `docs/mau-tham-khao-ttpvhcc.png`:
+
+  | Bản in | Khổ | Số trang | Dung lượng |
+  |---|---|---|---|
+  | Bảng niêm yết tổng | A1 ngang (841 × 594 mm) | 1 | 672 KB |
+  | Tờ niêm yết theo nhóm | A4 dọc | 13 | 973 KB |
+  | Tem mã QR cỡ lớn | A4 dọc | 91 | 1.464 KB |
+
+- **13 trang nhóm `/nhom/<id>` và 13 mã QR cấp nhóm.** Bảng niêm yết tổng cần một
+  mã QR cho mỗi nhóm ngành - thứ hệ thống chưa từng có. Kèm theo là mã QR Cổng
+  Dịch vụ công in ở chân bảng. Tổng số mã QR trong kho: **78 → 92**, tất cả đều
+  qua bước giải mã ngược đối chiếu URL.
+
+- **Cửa sổ xem trước trước khi tải.** Mọi nút Tải PNG / SVG / PDF trên toàn site
+  nay mở một cửa sổ cho xem tệp và các thông tin cần đối chiếu: mã QR mở tới địa
+  chỉ nào, định dạng, kích thước, dung lượng. Mã QR in ra dán tại quầy là thứ
+  không sửa được sau khi dán, nên một bước nhìn lại rẻ hơn nhiều so với in nhầm
+  cả xấp. Hộp "Trước khi in..." ở đầu trang `/in-ma-qr` được gỡ: thông tin hữu
+  ích của nó (mã QR đang trỏ về đâu) chuyển vào đúng chỗ cần - ngay cạnh nút tải.
+
+  Dùng thẻ `<dialog>` gốc của trình duyệt: có sẵn bẫy focus, đóng bằng Esc, trả
+  focus về nút đã mở. Xem trước bằng ảnh chứ không nhúng PDF, vì CSP của site đặt
+  `frame-src 'none'` và `object-src 'none'` - không nới chính sách chỉ để hiện
+  một khung xem trước.
+
+### Chi tiết kỹ thuật đáng ghi lại
+
+- **PDF dựng bằng Chromium lúc triển khai** (`scripts/dung-ban-in.ts`), từ chính
+  trang HTML của site. In trực tiếp từ trình duyệt phụ thuộc hộp thoại in của
+  từng máy: Chrome, Edge, Firefox mặc định **không in màu nền**, tự thêm lề, tự
+  co "vừa trang". Bảng niêm yết mang ra tiệm in bạt phải giống hệt nhau dù ai tải
+  về.
+
+- **Mã QR trong bản in dùng SVG, không dùng PNG.** Đã kiểm chứng bằng
+  `pdfimages`: mỗi trang PDF chỉ có **2 đối tượng ảnh điểm** - là logo và lớp mặt
+  nạ của nó. Toàn bộ mã QR, hình minh hoạ và chữ đều là vector, nên phóng A1 lên
+  A0 không vỡ nét. Logo sinh thêm bản 1200 px (`logo-in.png`), đạt khoảng 280 dpi
+  ở khổ A0.
+
+- **Script tự chặn ba lỗi âm thầm**: ảnh mã QR không tải được (PDF vẫn "thành
+  công" nhưng có ô trống), số trang lệch với dữ liệu, route bản in trả lỗi. Ảnh
+  trong bản in đặt `loading="eager"` có chủ đích - ảnh tải lười có thể chưa kịp
+  hiện lúc Chromium chụp PDF.
+
+- **Dữ liệu nhóm chuyển sang `data/nhom-linh-vuc.json`.** Pipeline Python sinh mã
+  QR cần đúng danh sách id nhóm, mà Python không đọc được TypeScript. Chép danh
+  sách sang Python là tạo hai nguồn sự thật - lệch nhau một lần là in ra mã QR
+  trỏ tới trang không tồn tại.
+
+- **CSS bản in để trong CSS Module**, không nhập vào `globals.css`: cấu hình
+  `experimental.inlineCss` nhúng CSS thẳng vào HTML của **cả 474 trang**, mà phần
+  này chỉ ba trang cần. Cùng lúc gỡ toàn bộ CSS của trang in cũ, nên
+  `globals.css` giảm 34.869 → 31.923 ký tự - mọi trang trong site nhẹ đi theo.
+
+- **Bốn bất biến mới trong test**: mỗi nhóm có đủ mã QR, URL Cổng Dịch vụ công
+  khớp giữa Python và TypeScript, mỗi bản in có trang nguồn tương ứng, và mọi khổ
+  giấy giữ đúng tỉ lệ khổ A (1:√2) - sai tỉ lệ thì in A4 hay A0 đều lệch lề.
+
+### Sửa trong lúc làm, ghi lại để khỏi lặp
+
+- Căn giữa danh sách lĩnh vực trong thẻ nhóm bằng `margin-block: auto` kéo luôn
+  nút "Quét mã" lên theo, để lại khoảng trắng lớn ở đáy thẻ. Đã hoàn lại cách cũ:
+  danh sách bám mép trên, nút giãn xuống đáy.
+- Ảnh xem trước chụp ở chế độ màn hình nên dính thanh điều hướng của site đè lên
+  đầu bảng. Script nay ẩn thanh đó trước khi chụp.
+- Nhóm 13 lĩnh vực xếp 4 hàng chạm sát dải chân trang; đã giảm cỡ mã QR trong lưới
+  4 cột và thêm đệm đáy.
+
 ## [1.14.0] - 2026-09-16
 
 ### Bảo mật

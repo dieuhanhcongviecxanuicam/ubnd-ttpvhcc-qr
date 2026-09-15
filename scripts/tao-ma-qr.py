@@ -8,6 +8,8 @@ Sinh mã QR (PNG + SVG) cho trang chủ và từng lĩnh vực.
 
     QR tổng      ->  {BASE_URL}/
     QR lĩnh vực  ->  {BASE_URL}/linh-vuc/<slug>
+    QR nhóm      ->  {BASE_URL}/nhom/<id>        (id đọc từ data/nhom-linh-vuc.json)
+    QR dịch vụ công -> URL_DICH_VU_CONG          (chân bảng niêm yết, không phụ thuộc BASE_URL)
 
 Cách dùng:
     python3 scripts/tao-ma-qr.py
@@ -36,6 +38,10 @@ THU_MUC_QR = GOC_DU_AN / "public" / "qr"
 # chắc chắn hơn mọi màu khác, kể cả khi bản in bị phai hoặc thiếu sáng.
 MAU_QR = "#000000"
 MAU_NEN = "#FFFFFF"
+
+# Cổng dịch vụ công in ở chân bảng niêm yết. PHẢI khớp LIEN_HE.dichVuCongUrl
+# trong src/lib/site-config.ts - tests/du-lieu.test.ts đối chiếu hai chỗ này.
+URL_DICH_VU_CONG = "https://dichvucong.gov.vn"
 
 ORIGIN_MAC_DINH = "https://ttpvhcc.xanuicam.vn"
 BASE_PATH_MAC_DINH = ""
@@ -111,7 +117,19 @@ def main() -> int:
         sinh_ma_qr(f"{base_url}/linh-vuc/{slug}", THU_MUC_QR / f"lv-{slug}")
 
     print(f"  QR lĩnh vực  -> {len(danh_sach)} mã")
-    print(f"Đã ghi {2 * (len(danh_sach) + 1)} file vào {THU_MUC_QR}")
+
+    # Mã QR cấp nhóm - in trên bảng niêm yết tổng, mở trang /nhom/<id>.
+    for cu in THU_MUC_QR.glob("nhom-*.*"):
+        cu.unlink()
+    nhom = json.loads((THU_MUC_DU_LIEU / "nhom-linh-vuc.json").read_text(encoding="utf-8"))["nhom"]
+    for n in nhom:
+        sinh_ma_qr(f"{base_url}/nhom/{n['id']}", THU_MUC_QR / f"nhom-{n['id']}")
+    print(f"  QR nhóm      -> {len(nhom)} mã")
+
+    sinh_ma_qr(URL_DICH_VU_CONG, THU_MUC_QR / "dich-vu-cong")
+    print(f"  QR dịch vụ công -> {URL_DICH_VU_CONG}")
+
+    print(f"Đã ghi {2 * (len(danh_sach) + len(nhom) + 2)} file vào {THU_MUC_QR}")
     return 0
 
 

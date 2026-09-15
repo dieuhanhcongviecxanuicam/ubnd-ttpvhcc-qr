@@ -1,0 +1,395 @@
+/* ==========================================================================
+   BẢN IN MÃ QR - bảng niêm yết A1, tờ nhóm A4, tem A4
+   Để trong CSS Module chứ không đưa vào globals.css: next.config nhúng CSS
+   thẳng vào HTML, mà globals.css có mặt ở CẢ 470 trang - phần in này chỉ ba
+   trang cần. Mọi kích thước tính bằng mm để bản xem trước và PDF là cùng một
+   bố cục, chỉ khác tỉ lệ hiển thị.
+   ========================================================================== */
+
+@page bang-niem-yet { size: 841mm 594mm; margin: 0; }
+@page to-a4 { size: 210mm 297mm; margin: 0; }
+
+/* ---------- Tờ giấy ---------- */
+.to {
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #fff;
+  color: #241f1c;
+  font-family: var(--font-body);
+  line-height: 1.25;
+  /* Trình duyệt mặc định KHÔNG in màu nền - thiếu dòng này, mọi dải màu ra trắng. */
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.to *, .to *::before, .to *::after { box-sizing: border-box; }
+.to h2, .to h3, .to p, .to ol, .to ul, .to dl, .to dd { margin: 0; }
+.to h2, .to h3 { letter-spacing: 0; }
+.to img { max-width: none; }
+/* Bảng màu mặc định (đỏ son) cho ô không thuộc nhóm nào: ô hướng dẫn, ô số liệu,
+   tem mã tổng. Dùng :not([data-nhom]) để không đè bảng màu nhóm trong globals.css. */
+.to:not([data-nhom]), .the:not([data-nhom]) {
+  --lv: #9b2226;
+  --lv-dam: #721c1e;
+  --lv-nhat: #f5e9e9;
+  --lv-vien: #ddb4b5;
+}
+
+.toBang { page: bang-niem-yet; width: 841mm; height: 594mm; display: flex; flex-direction: column; }
+.toA4 { page: to-a4; width: 210mm; height: 297mm; display: flex; flex-direction: column; }
+
+/* ==================== BẢNG NIÊM YẾT A1 ==================== */
+.bangDau {
+  flex: 0 0 76mm;
+  display: grid;
+  grid-template-columns: 120mm 1fr 118mm;
+  align-items: center;
+  gap: 10mm;
+  padding: 0 16mm;
+  background: linear-gradient(100deg, #9b2226 0%, #8a1e22 55%, #721c1e 100%);
+  color: #fff;
+}
+.bangLogo { display: flex; align-items: center; gap: 5mm; }
+.bangLogoAnh { width: 50mm; height: 50mm; background: #fff; border-radius: 50%; padding: 3mm; }
+.bangLogo p { display: flex; flex-direction: column; gap: 1mm; }
+.bangLogo strong { font-size: 7.4mm; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; }
+.bangLogo span { font-size: 4.8mm; font-weight: 500; }
+.bangTieuDe {
+  font-family: var(--font-body);
+  color: #ffd54a;
+  font-size: 14.5mm;
+  font-weight: 700;
+  line-height: 1.12;
+  text-align: center;
+  text-transform: uppercase;
+}
+.bangTieuDe span { display: block; margin-top: 1.5mm; font-size: 11mm; }
+.bangKhauHieu {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 9.5mm;
+  line-height: 1.22;
+  text-align: right;
+  color: #fff1c2;
+}
+
+.bangLuoi {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 5mm;
+  padding: 7mm 14mm;
+  background: #f3f6fa;
+}
+.the {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: #fff;
+  border: 0.6mm solid var(--lv-vien);
+  border-radius: 3.5mm;
+}
+.theDau {
+  flex: 0 0 auto;
+  min-height: 25mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3mm 4mm 3.5mm;
+  background: linear-gradient(135deg, var(--lv), var(--lv-dam));
+  color: #fff;
+  text-align: center;
+}
+.theDau p { font-size: 4mm; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; }
+.theDau h3 {
+  margin-top: 1mm;
+  font-family: var(--font-body);
+  font-size: 6mm;
+  font-weight: 700;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+.theAnh {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3mm;
+  padding: 3mm 5mm;
+  background: var(--lv-nhat);
+}
+.theHinh { width: 58mm; height: auto; }
+.theQr { width: 40mm; height: 40mm; background: #fff; padding: 1mm; border-radius: 1.5mm; }
+/* Danh sách bám mép trên và giãn hết phần còn lại, để nút "Quét mã" luôn nằm sát
+   đáy thẻ như bảng giấy mẫu. Đã thử căn giữa danh sách bằng margin-block: auto -
+   nút bị kéo lên theo và đáy thẻ trống hoác. */
+.theDs { flex: 1; padding: 3mm 5mm 0 11mm; font-size: 4.3mm; line-height: 1.32; }
+.theDs li::marker { color: var(--lv); font-weight: 700; }
+.theCon { padding: 0.5mm 5mm 0; font-size: 3.8mm; color: #6b655c; }
+.theNut {
+  margin: 2.5mm 4mm 4mm;
+  padding: 2.4mm;
+  border-radius: 2mm;
+  background: var(--lv);
+  color: #fff;
+  font-size: 4.3mm;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.huongDan {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3.5mm;
+  padding: 5mm 7mm 5mm 13mm;
+  font-size: 5mm;
+  line-height: 1.35;
+}
+.huongDan li::marker { color: var(--lv); font-weight: 700; }
+.soLieu { flex: 1; display: grid; align-content: center; gap: 4mm; padding: 5mm 8mm; }
+.soLieu div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4mm;
+  padding-bottom: 2.5mm;
+  border-bottom: 0.4mm dashed var(--lv-vien);
+}
+.soLieu dt { font-size: 5mm; color: #6b655c; }
+.soLieu dd { font-family: var(--font-display); font-size: 13mm; font-weight: 700; line-height: 1; color: var(--lv); }
+
+.bangChan {
+  flex: 0 0 50mm;
+  display: grid;
+  grid-template-columns: 1.05fr 1.5fr 0.95fr 1.05fr;
+  align-items: center;
+  gap: 8mm;
+  padding: 5mm 16mm;
+  background: #fff;
+  border-top: 1.6mm solid #9b2226;
+}
+.chanKhoi { display: flex; align-items: center; gap: 5mm; }
+.chanKhoi p { display: flex; flex-direction: column; gap: 1mm; }
+.chanKhoi strong { font-size: 5.6mm; color: #0e5fa4; text-transform: uppercase; letter-spacing: 0.02em; }
+.chanKhoi span { font-size: 4.4mm; color: #241f1c; }
+.chanQr { width: 34mm; height: 34mm; flex-shrink: 0; padding: 0.8mm; border: 0.4mm solid #dfd9c8; border-radius: 1.5mm; }
+.chanUrl { font-family: var(--font-mono); }
+.chanKhauHieu {
+  font-family: var(--font-display);
+  font-weight: 600;
+  /* 8.4mm để khẩu hiệu nằm trọn một dòng: xuống dòng giữa câu trông như lỗi dàn trang. */
+  font-size: 8.4mm;
+  line-height: 1.2;
+  text-align: center;
+  color: #9b2226;
+}
+.chanIcon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 18mm;
+  height: 18mm;
+  border-radius: 50%;
+  background: #0e5fa4;
+  color: #fff;
+}
+.chanIcon svg { width: 10mm; height: 10mm; }
+.chanKhoi .chanHotline { font-size: 9mm; font-weight: 700; color: #9b2226; letter-spacing: 0.01em; }
+
+/* ==================== TỜ A4: phần dùng chung ==================== */
+.a4Dau {
+  flex: 0 0 24mm;
+  display: flex;
+  align-items: center;
+  gap: 4mm;
+  padding: 0 10mm;
+  background: linear-gradient(100deg, #9b2226, #721c1e);
+  color: #fff;
+}
+.a4Logo { width: 15mm; height: 15mm; flex-shrink: 0; background: #fff; border-radius: 50%; padding: 0.9mm; }
+.a4Dau p { display: flex; flex-direction: column; gap: 0.6mm; }
+.a4Dau strong { font-size: 4.6mm; color: #ffd54a; text-transform: uppercase; letter-spacing: 0.01em; }
+.a4Dau span { font-size: 3.3mm; }
+.a4Chan {
+  flex: 0 0 14mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4mm;
+  padding: 0 10mm;
+  border-top: 0.8mm solid #9b2226;
+  font-size: 3.4mm;
+  color: #241f1c;
+}
+.a4Chan strong { color: #9b2226; }
+
+/* ---------- Tờ nhóm ---------- */
+.a4Nhom {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6mm;
+  margin: 6mm 10mm 0;
+  padding: 5mm 6mm;
+  border-radius: 3mm;
+  background: linear-gradient(135deg, var(--lv), var(--lv-dam));
+  color: #fff;
+}
+.a4Nhom p { font-size: 3.4mm; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; }
+.a4Nhom h2 {
+  margin: 1mm 0 1.5mm;
+  font-family: var(--font-body);
+  font-size: 7.4mm;
+  font-weight: 700;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+.a4Nhom .a4NhomSo { font-size: 3.8mm; font-weight: 500; letter-spacing: 0; text-transform: none; }
+.a4NhomQr { width: 30mm; height: 30mm; flex-shrink: 0; background: #fff; padding: 1mm; border-radius: 1.5mm; }
+.a4Luoi {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  align-content: start;
+  gap: 3.5mm;
+  /* Đệm đáy 4mm: nhóm 13 lĩnh vực xếp 4 hàng, hàng cuối không được chạm dải chân. */
+  padding: 6mm 10mm 4mm;
+  list-style: none;
+}
+.cot2 { grid-template-columns: repeat(2, 1fr); }
+.cot3 { grid-template-columns: repeat(3, 1fr); }
+.cot4 { grid-template-columns: repeat(4, 1fr); }
+.a4O {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3mm 2.5mm;
+  border: 0.4mm solid var(--lv-vien);
+  border-radius: 2.5mm;
+  text-align: center;
+}
+.a4OQr { width: 100%; height: auto; aspect-ratio: 1; }
+/* Cỡ mã QR tính từ chiều cao còn lại của trang chia cho số hàng tối đa của mỗi
+   kiểu lưới: 2 cột tối đa 2 hàng, 3 cột tối đa 3 hàng, 4 cột tối đa 4 hàng. */
+.cot2 .a4OQr { max-width: 60mm; }
+.cot3 .a4OQr { max-width: 44mm; }
+.cot4 .a4OQr { max-width: 25mm; }
+.a4O strong { margin-top: 2mm; font-size: 3.3mm; line-height: 1.25; }
+.a4O span { margin-top: 1mm; font-family: var(--font-mono); font-size: 3mm; font-weight: 600; color: var(--lv); }
+
+/* ---------- Tem mã QR ---------- */
+.temNhan {
+  flex: 0 0 auto;
+  margin: 10mm 14mm 0;
+  padding: 7mm 8mm;
+  border-radius: 3mm;
+  background: linear-gradient(135deg, var(--lv), var(--lv-dam));
+  color: #fff;
+  text-align: center;
+}
+.temNhan p { font-size: 4.2mm; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; }
+.temNhan h2 {
+  margin-top: 2mm;
+  font-family: var(--font-body);
+  font-size: 9.5mm;
+  font-weight: 700;
+  line-height: 1.18;
+  text-transform: uppercase;
+}
+.temKhung {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5mm;
+  padding: 6mm 14mm;
+}
+.temQr { width: 125mm; height: 125mm; padding: 3mm; background: #fff; border: 0.6mm solid var(--lv-vien); border-radius: 3mm; }
+.temHuongDan { font-size: 6mm; font-weight: 700; color: var(--lv); text-align: center; }
+.temUrl { max-width: 170mm; font-family: var(--font-mono); font-size: 3.8mm; color: #6b655c; text-align: center; overflow-wrap: anywhere; }
+
+/* ==================== TRÊN MÀN HÌNH ==================== */
+.trangIn {
+  /* Nổi lên trên lớp chấm trang trí của body::before (position: fixed). */
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 16px 48px;
+  background: #e7e4dc;
+}
+.trangInGhiChu { max-width: 70ch; margin: 0; font-size: 14px; color: #4a453e; text-align: center; }
+.anChu {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.khung { position: relative; width: 100%; overflow: hidden; }
+.khungNoi { transform-origin: top left; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18); }
+
+/* ---------- Trang /in-ma-qr ---------- */
+.hubMoDau { padding: 28px 0 8px; }
+.hubMoDau h1 { margin: 8px 0 10px; font-size: clamp(28px, 3.4vw, 38px); }
+.hubMoDau > p { max-width: 72ch; margin: 0; color: var(--muc-nhat); font-size: 15.5px; }
+.hubSanPham {
+  margin: 28px 0;
+  padding: 24px;
+  background: var(--nga);
+  border: 1px solid var(--duong-vien);
+  border-radius: 12px;
+}
+.hubDau { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.hubDau h2 { margin: 0 0 6px; font-size: 23px; }
+.hubDau p { max-width: 70ch; margin: 0; color: var(--muc-nhat); font-size: 14.5px; }
+.hubNhan { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.hubNhan span {
+  padding: 3px 10px;
+  border: 1px solid var(--duong-vien);
+  border-radius: 999px;
+  background: var(--trang);
+  color: var(--muc);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.hubNut { display: flex; flex-wrap: wrap; gap: 10px; }
+.hubXem { display: flex; justify-content: center; padding: 18px; border-radius: 8px; background: #e7e4dc; }
+.hubDaiA4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 16px;
+  padding: 18px;
+  border-radius: 8px;
+  background: #e7e4dc;
+}
+
+/* ==================== KHI IN ==================== */
+@media print {
+  .trangIn { display: block; padding: 0; background: none; }
+  .trangInGhiChu, .anChu { display: none; }
+  .khung {
+    max-width: none !important;
+    height: auto !important;
+    overflow: visible;
+    break-after: page;
+  }
+  .khung:last-child { break-after: auto; }
+  .khungNoi {
+    width: auto !important;
+    height: auto !important;
+    transform: none !important;
+    box-shadow: none;
+  }
+}

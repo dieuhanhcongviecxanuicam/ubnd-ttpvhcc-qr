@@ -123,7 +123,9 @@ export default function LuoiLinhVuc({ danhSach }: { danhSach: TheLinhVuc[] }) {
         khoiNhom.map(({ nhom, linhVuc }) => (
           <section className="khoi-nhom" key={nhom.id} data-nhom={nhom.id}>
             <h3 className="khoi-nhom-tieu-de">
-              <span className="khoi-nhom-ten">{nhom.ten}</span>
+              <span className="khoi-nhom-ten">
+                <Link href={`/nhom/${nhom.id}`}>{nhom.ten}</Link>
+              </span>
               <span className="khoi-nhom-dem">{linhVuc.length} lĩnh vực</span>
             </h3>
 
@@ -139,17 +141,29 @@ export default function LuoiLinhVuc({ danhSach }: { danhSach: TheLinhVuc[] }) {
   );
 }
 
-/** Một thẻ lĩnh vực: dải tiêu đề, hình minh hoạ, mã QR, thủ tục tiêu biểu, nút xem. */
-function TheLinhVucQr({ lv, tuKhoa }: { lv: TheLinhVuc; tuKhoa: string }) {
+/**
+ * Một thẻ lĩnh vực: dải tiêu đề, hình minh hoạ, mã QR, thủ tục tiêu biểu, nút xem.
+ * Dùng chung cho trang chủ (tiêu đề h4, dưới tiêu đề nhóm h3) và trang nhóm
+ * (tiêu đề h3, dưới h2) - để thứ bậc tiêu đề không nhảy cóc ở trang nào.
+ */
+export function TheLinhVucQr({
+  lv,
+  tuKhoa,
+  capTieuDe: TieuDe = "h4",
+}: {
+  lv: TheLinhVuc;
+  tuKhoa: string;
+  capTieuDe?: "h3" | "h4";
+}) {
   const conLai = lv.so_luong_tthc - lv.thu_tuc_tieu_bieu.length;
 
   return (
     <article className="the-lv" data-nhom={lv.nhom}>
       <header className="the-lv-dau">
         <p className="the-lv-nhan">Lĩnh vực</p>
-        <h4 className="the-lv-ten">
+        <TieuDe className="the-lv-ten">
           <ChuKhop chuoi={lv.ten_linh_vuc} tuKhoa={tuKhoa} />
-        </h4>
+        </TieuDe>
       </header>
 
       <div className="the-lv-anh">

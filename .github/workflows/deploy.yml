@@ -36,6 +36,15 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Bản in PDF dựng từ chính các trang vừa build (scripts/dung-ban-in.ts).
+      # Script tự dừng nếu ảnh mã QR không tải được hoặc số trang lệch dữ liệu -
+      # thà lượt triển khai đỏ còn hơn đăng lên một bảng niêm yết có ô trống.
+      - name: Cài Chromium để dựng bản in PDF
+        run: npx playwright install --with-deps chromium
+
+      - name: Dựng bản in PDF
+        run: npm run dung-ban-in
+
       # Bỏ qua xử lý Jekyll - nếu không, GitHub Pages sẽ nuốt thư mục _next/
       - name: Thêm .nojekyll
         run: touch out/.nojekyll
@@ -67,7 +76,7 @@ jobs:
       - name: Đối chiếu những tệp bắt buộc có trong gói
         run: |
           thieu=0
-          for tep in ./CNAME ./.nojekyll ./index.html ./.well-known/security.txt; do
+          for tep in ./CNAME ./.nojekyll ./index.html ./.well-known/security.txt ./ban-in/ttpvhcc-bang-niem-yet-a1.pdf ./ban-in/ttpvhcc-to-nhom-a4.pdf ./ban-in/ttpvhcc-tem-ma-qr-a4.pdf; do
             if tar -tf "$RUNNER_TEMP/artifact.tar" | grep -qxF "$tep"; then
               echo "  có $tep"
             else

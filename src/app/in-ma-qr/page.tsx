@@ -1,77 +1,163 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
-import ThanhCongCuIn from "@/components/ThanhCongCuIn";
+import NutTaiXemTruoc from "@/components/NutTaiXemTruoc";
 import SiteFooter from "@/components/SiteFooter";
-import { layMeta, layTatCaLinhVuc } from "@/lib/data";
-import { duongDan, SITE_URL, urlLinhVuc } from "@/lib/site-config";
+import BangNiemYet from "@/components/ban-in/BangNiemYet";
+import KhungXemTruoc from "@/components/ban-in/KhungXemTruoc";
+import TemMa from "@/components/ban-in/TemMa";
+import ToNhom from "@/components/ban-in/ToNhom";
+import s from "@/components/ban-in/ban-in.module.css";
+import { BAN_IN, banIn, tenTepAnh, tenTepPdf, THU_MUC_BAN_IN, type BanIn } from "@/lib/ban-in";
+import { layDanhSachTem, layMeta, layThongKeNhom } from "@/lib/data";
+import { duongDan, SITE_URL } from "@/lib/site-config";
+import type { DuLieuTaiVe } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "In bộ mã QR",
   description:
-    "Bảng in khổ A4 toàn bộ mã QR lĩnh vực để dán tại bộ phận một cửa.",
+    "Bảng niêm yết tổng khổ A1, tờ niêm yết theo nhóm và tem mã QR khổ A4 - dựng sẵn thành PDF để in.",
   robots: { index: false, follow: true },
 };
 
+/** Dữ liệu cửa sổ xem trước cho một tệp PDF bản in. */
+function taiPdf(b: BanIn, soTrang: number, noiDung: string): DuLieuTaiVe {
+  return {
+    href: duongDan(`${THU_MUC_BAN_IN}/${tenTepPdf(b)}`),
+    tenTep: tenTepPdf(b),
+    tieuDe: b.ten,
+    anhXemTruoc: duongDan(`${THU_MUC_BAN_IN}/${tenTepAnh(b)}`),
+    thongTin: [
+      { nhan: "Khổ giấy", giaTri: `${b.khoGiay} · ${b.rongMm} × ${b.caoMm} mm` },
+      { nhan: "Số trang", giaTri: String(soTrang) },
+      { nhan: "Nội dung", giaTri: noiDung },
+      { nhan: "Mã QR mở tới", giaTri: SITE_URL },
+    ],
+    ghiChu: b.ghiChu,
+  };
+}
+
 /**
- * Trang tiện ích cho cán bộ một cửa: in một lần ra toàn bộ mã QR lĩnh vực,
- * mỗi ô kèm tên lĩnh vực, số lượng thủ tục và URL đích để đối chiếu trước khi dán.
+ * Trang in bộ mã QR: ba bản in dựng sẵn thành PDF lúc triển khai
+ * (scripts/dung-ban-in.ts), mỗi bản kèm bản xem trước ngay trên trang và nút tải
+ * có bước kiểm tra.
+ *
+ * Bản xem trước ở đây ẩn khỏi trình đọc màn hình: nó là bản sao minh hoạ của tệp
+ * PDF, đọc lên sẽ thành hàng chục mã QR lặp lại. Nội dung thật đọc được ở trang
+ * xem toàn trang của từng bản in.
  */
 export default function TrangInMaQr() {
   const meta = layMeta();
-  const linhVuc = layTatCaLinhVuc();
+  const nhom = layThongKeNhom();
+  const tem = layDanhSachTem();
+  const bang = banIn("bang-niem-yet");
+  const toNhom = banIn("to-nhom");
+  const temMa = banIn("tem-ma-qr");
+  const soQrToNhom = nhom.reduce((tong, tk) => tong + 1 + tk.soLinhVuc, 0);
 
   return (
     <>
       <main className="container" id="noi-dung">
-        <div className="in-thanh-cong-cu">
-          <div>
-            <nav className="duong-dan" aria-label="Đường dẫn">
-              <Link href="/">Trang chủ</Link> / In bộ mã QR
-            </nav>
-            <h1>Bảng in mã QR theo lĩnh vực</h1>
-            <p className="hop-luu-y khong-in">
-              <strong>Trước khi in:</strong> các mã QR đang trỏ tới{" "}
-              <code>{SITE_URL}</code> ({meta.tong_so_linh_vuc} mã QR lĩnh vực + 1
-              mã QR tổng). Nếu đơn vị bạn cần triển khai trên tên miền khác, vui
-              lòng liên hệ Giám đốc TTPVHCC xã Núi Cấm để trao đổi.
-            </p>
-          </div>
-          <ThanhCongCuIn />
+        <div className={s.hubMoDau}>
+          <nav className="duong-dan" aria-label="Đường dẫn">
+            <Link href="/">Trang chủ</Link> / In bộ mã QR
+          </nav>
+          <h1>In bộ mã QR</h1>
+          <p>
+            {BAN_IN.length} bản in dựng sẵn thành PDF từ chính dữ liệu đang chạy trên website ({meta.tong_so_tthc} thủ
+            tục, {meta.tong_so_linh_vuc} lĩnh vực). Bấm “Tải PDF” để xem trước và kiểm tra trước khi tải về.
+          </p>
         </div>
 
-        <div className="in-luoi">
-          <div className="in-o">
-            <Image
-              src={duongDan("/qr/master.png")}
-              alt="Mã QR tổng"
-              width={128}
-              height={128}
-              unoptimized
-            />
-            <div className="in-ten">TOÀN BỘ DANH MỤC</div>
-            <div className="in-so">{meta.tong_so_tthc} thủ tục</div>
-            <div className="in-url">{SITE_URL}/</div>
-          </div>
-
-          {linhVuc.map((lv) => (
-            <div className="in-o" key={lv.slug}>
-              <Image
-                src={duongDan(`/qr/lv-${lv.slug}.png`)}
-                alt={`Mã QR lĩnh vực ${lv.ten_linh_vuc}`}
-                width={128}
-                height={128}
-                unoptimized
-              />
-              <div className="in-ten">{lv.ten_linh_vuc}</div>
-              <div className="in-so">{lv.so_luong_tthc} thủ tục</div>
-              <div className="in-url">{urlLinhVuc(lv.slug)}</div>
+        <section className={s.hubSanPham} aria-labelledby="ban-bang">
+          <div className={s.hubDau}>
+            <div>
+              <h2 id="ban-bang">{bang.ten}</h2>
+              <p>{bang.moTa}</p>
+              <div className={s.hubNhan}>
+                <span>{bang.khoGiay}</span>
+                <span>1 trang</span>
+                <span>{nhom.length + 2} mã QR</span>
+              </div>
             </div>
-          ))}
-        </div>
+            <div className={s.hubNut}>
+              <NutTaiXemTruoc
+                nhan="Tải PDF"
+                {...taiPdf(bang, 1, `${nhom.length} nhóm lĩnh vực, hướng dẫn tra cứu, số hỗ trợ`)}
+              />
+              <Link className="btn-taixuong btn-phu" href={bang.route}>
+                Xem toàn trang
+              </Link>
+            </div>
+          </div>
+          <div className={s.hubXem}>
+            <KhungXemTruoc rongMm={bang.rongMm} caoMm={bang.caoMm} anVoiTroNang>
+              <BangNiemYet nhom={nhom} tongTthc={meta.tong_so_tthc} tongLinhVuc={meta.tong_so_linh_vuc} />
+            </KhungXemTruoc>
+          </div>
+        </section>
+
+        <section className={s.hubSanPham} aria-labelledby="ban-nhom">
+          <div className={s.hubDau}>
+            <div>
+              <h2 id="ban-nhom">{toNhom.ten}</h2>
+              <p>{toNhom.moTa}</p>
+              <div className={s.hubNhan}>
+                <span>{toNhom.khoGiay}</span>
+                <span>{nhom.length} trang</span>
+                <span>{soQrToNhom} mã QR</span>
+              </div>
+            </div>
+            <div className={s.hubNut}>
+              <NutTaiXemTruoc
+                nhan="Tải PDF"
+                {...taiPdf(toNhom, nhom.length, `${nhom.length} tờ, mỗi tờ một nhóm lĩnh vực`)}
+              />
+              <Link className="btn-taixuong btn-phu" href={toNhom.route}>
+                Xem toàn trang
+              </Link>
+            </div>
+          </div>
+          <div className={s.hubDaiA4}>
+            {nhom.map((tk) => (
+              <KhungXemTruoc key={tk.nhom.id} rongMm={toNhom.rongMm} caoMm={toNhom.caoMm} anVoiTroNang>
+                <ToNhom tk={tk} />
+              </KhungXemTruoc>
+            ))}
+          </div>
+        </section>
+
+        <section className={s.hubSanPham} aria-labelledby="ban-tem">
+          <div className={s.hubDau}>
+            <div>
+              <h2 id="ban-tem">{temMa.ten}</h2>
+              <p>{temMa.moTa}</p>
+              <div className={s.hubNhan}>
+                <span>{temMa.khoGiay}</span>
+                <span>{tem.length} trang</span>
+                <span>{tem.length} mã QR</span>
+              </div>
+            </div>
+            <div className={s.hubNut}>
+              <NutTaiXemTruoc
+                nhan="Tải PDF"
+                {...taiPdf(temMa, tem.length, `Mã tổng, ${nhom.length} mã nhóm, ${meta.tong_so_linh_vuc} mã lĩnh vực`)}
+              />
+              <Link className="btn-taixuong btn-phu" href={temMa.route}>
+                Xem toàn trang
+              </Link>
+            </div>
+          </div>
+          <div className={s.hubDaiA4}>
+            {tem.slice(0, 4).map((t) => (
+              <KhungXemTruoc key={t.khoa} rongMm={temMa.rongMm} caoMm={temMa.caoMm} anVoiTroNang>
+                <TemMa tem={t} />
+              </KhungXemTruoc>
+            ))}
+          </div>
+        </section>
       </main>
 
-      <SiteFooter ghiChu={`${meta.tong_so_linh_vuc + 1} mã QR`} />
+      <SiteFooter ghiChu={`${tem.length} mã QR trong bộ bản in`} />
     </>
   );
 }

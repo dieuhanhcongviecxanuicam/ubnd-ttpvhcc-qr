@@ -7,6 +7,8 @@ import {
   NHOM_CUA_LINH_VUC,
   NHOM_LINH_VUC,
 } from "../src/lib/nhom-linh-vuc.ts";
+import { BAN_IN } from "../src/lib/ban-in.ts";
+import { LIEN_HE } from "../src/lib/site-config.ts";
 import { taoSlug } from "../src/lib/text.ts";
 import type { LinhVuc, Meta, Tthc } from "../src/lib/types.ts";
 
@@ -99,6 +101,31 @@ describe("Mã QR", () => {
     assert.deepEqual(thieu, []);
   });
 
+  it("mỗi nhóm có đủ mã QR bản PNG và SVG", () => {
+    const thieu: string[] = [];
+    for (const n of NHOM_LINH_VUC) {
+      for (const duoi of ["png", "svg"]) {
+        const f = path.join(THU_MUC_QR, `nhom-${n.id}.${duoi}`);
+        if (!fs.existsSync(f)) thieu.push(path.basename(f));
+      }
+    }
+    assert.deepEqual(thieu, []);
+  });
+
+  /**
+   * URL cổng dịch vụ công khai báo ở hai nơi không chung ngôn ngữ: Python sinh mã
+   * QR, TypeScript in chữ cạnh mã. Lệch nhau là bảng niêm yết in một địa chỉ mà
+   * mã QR bên cạnh lại mở địa chỉ khác.
+   */
+  it("URL dịch vụ công khớp giữa pipeline Python và site-config", () => {
+    for (const tep of ["tao-ma-qr.py", "kiem-tra-ma-qr.py"]) {
+      const noi_dung = fs.readFileSync(path.join(process.cwd(), "scripts", tep), "utf-8");
+      const khop = noi_dung.match(/^URL_DICH_VU_CONG = "([^"]+)"$/m);
+      assert.ok(khop, `${tep} không khai báo URL_DICH_VU_CONG`);
+      assert.equal(khop[1], LIEN_HE.dichVuCongUrl, `${tep} lệch với site-config`);
+    }
+  });
+
   it("có mã QR tổng", () => {
     for (const duoi of ["png", "svg"]) {
       assert.ok(fs.existsSync(path.join(THU_MUC_QR, `master.${duoi}`)), `thiếu master.${duoi}`);
@@ -109,6 +136,12 @@ describe("Mã QR", () => {
     const hop_le = new Set(linhVuc.flatMap((lv) => [`lv-${lv.slug}.png`, `lv-${lv.slug}.svg`]));
     hop_le.add("master.png");
     hop_le.add("master.svg");
+    for (const n of NHOM_LINH_VUC) {
+      hop_le.add(`nhom-${n.id}.png`);
+      hop_le.add(`nhom-${n.id}.svg`);
+    }
+    hop_le.add("dich-vu-cong.png");
+    hop_le.add("dich-vu-cong.svg");
     const thua = fs.readdirSync(THU_MUC_QR).filter((f) => !hop_le.has(f));
     assert.deepEqual(thua, []);
   });
@@ -146,5 +179,35 @@ describe("Nhóm ngành và hình minh hoạ", () => {
     ]);
     const thua = fs.readdirSync(THU_MUC_HINH).filter((f) => !dang_dung.has(f));
     assert.deepEqual(thua, []);
+  });
+});
+
+describe("Bản in PDF", () => {
+  /**
+   * Route khai trong BAN_IN phải có trang thật. Sai ở đây thì trang /in-ma-qr
+   * vẫn hiện nút tải, còn scripts/dung-ban-in.ts dựng ra một tệp PDF của trang
+   * 404 - không ai phát hiện cho tới lúc mang ra tiệm in.
+   */
+  it("mỗi bản in có trang nguồn tương ứng", () => {
+    const thieu = BAN_IN.filter(
+      (b) => !fs.existsSync(path.join(process.cwd(), "src", "app", b.route, "page.tsx")),
+    ).map((b) => b.route);
+    assert.deepEqual(thieu, []);
+  });
+
+  it("tên tệp và id bản in là duy nhất", () => {
+    assert.equal(new Set(BAN_IN.map((b) => b.id)).size, BAN_IN.length);
+    assert.equal(new Set(BAN_IN.map((b) => b.tep)).size, BAN_IN.length);
+  });
+
+  /** Khổ giấy phải theo tỉ lệ khổ A (1:√2) thì in A4, A3, A1, A0 mới không lệch lề. */
+  it("mọi khổ giấy giữ đúng tỉ lệ khổ A", () => {
+    for (const b of BAN_IN) {
+      const tiLe = Math.max(b.rongMm, b.caoMm) / Math.min(b.rongMm, b.caoMm);
+      assert.ok(
+        Math.abs(tiLe - Math.SQRT2) < 0.01,
+        `${b.id}: ${b.rongMm}×${b.caoMm} mm có tỉ lệ ${tiLe.toFixed(3)}, khổ A phải là ${Math.SQRT2.toFixed(3)}`,
+      );
+    }
   });
 });

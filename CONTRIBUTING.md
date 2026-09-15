@@ -52,6 +52,7 @@ request nếu chúng lệch nhau.
 | `npm run kiem-tra-csp` | Kiểm chứng CSP của bản build |
 | `npm run kiem-tra-phien-ban` | Đối chiếu `package.json` với `CHANGELOG.md` |
 | `npm run kiem-tra-qr` | Đối chiếu nội dung mã QR với route thật |
+| `npm run dung-ban-in` | Dựng 3 bản in PDF từ `out/` (chạy sau `npm run build`) |
 | `npm run kiem-tra-bo-chu` | Đối chiếu bộ chữ tự host với ký tự trong dữ liệu |
 | `npm run bo-chu:sinh-lai` | Sinh lại bộ chữ tự host (cần mạng, cần `fonttools`) |
 | `python3 scripts/cau-hinh-cloudflare.py` | Đặt Cache Rule trên Cloudflare (cần API token) |

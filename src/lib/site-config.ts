@@ -41,3 +41,31 @@ export function duongDan(path: string): string {
 export function urlLinhVuc(slug: string): string {
   return `${SITE_URL}/linh-vuc/${slug}`;
 }
+
+/**
+ * Thông tin liên hệ in trên bảng niêm yết và các tờ in mã QR.
+ * Số hotline do đơn vị cung cấp ngày 16/09/2026.
+ */
+export const LIEN_HE = {
+  coQuan: "Ủy ban nhân dân xã Núi Cấm",
+  diaBan: "xã Núi Cấm, tỉnh An Giang",
+  hotline: "0296.3.760.042",
+  /** Dạng quốc tế cho liên kết tel: - bỏ dấu chấm, đổi số 0 đầu thành +84. */
+  hotlineTel: "+842963760042",
+  /**
+   * Cổng dịch vụ công in ở chân bảng niêm yết. PHẢI khớp URL_DICH_VU_CONG trong
+   * scripts/tao-ma-qr.py - tests/du-lieu.test.ts đối chiếu hai chỗ này.
+   */
+  dichVuCongUrl: "https://dichvucong.gov.vn",
+} as const;
+
+/** Khẩu hiệu in trên bảng niêm yết, lấy nguyên văn từ mẫu bảng giấy của đơn vị. */
+export const KHAU_HIEU = {
+  phucVu: "Hành chính phục vụ - Vì Nhân dân phục vụ",
+  caiCach: "Cải cách hành chính - Kiến tạo - Phục vụ - Hài lòng",
+} as const;
+
+/** URL tuyệt đối của một trang nhóm lĩnh vực - giá trị được mã hoá vào QR nhóm. */
+export function urlNhom(id: string): string {
+  return `${SITE_URL}/nhom/${id}`;
+}

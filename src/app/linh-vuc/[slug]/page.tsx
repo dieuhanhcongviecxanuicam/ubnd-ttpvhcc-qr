@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import LocTrongLinhVuc from "@/components/LocTrongLinhVuc";
+import NutTaiXemTruoc from "@/components/NutTaiXemTruoc";
 import SiteFooter from "@/components/SiteFooter";
 import {
   layLinhVucTheoSlug,
@@ -10,6 +11,7 @@ import {
   layTthcTheoLinhVuc,
 } from "@/lib/data";
 import { duongDan, urlLinhVuc } from "@/lib/site-config";
+import { thongTinTepQr } from "@/lib/tep";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -51,16 +53,15 @@ export default async function TrangLinhVuc({ params }: Props) {
               unoptimized
             />
             <div className="lv-qr-nut">
-              <a className="btn-taixuong" href={duongDan(`/qr/lv-${lv.slug}.png`)} download>
-                PNG
-              </a>
-              <a
-                className="btn-taixuong btn-phu"
-                href={duongDan(`/qr/lv-${lv.slug}.svg`)}
-                download
-              >
-                SVG
-              </a>
+              <NutTaiXemTruoc
+                nhan="PNG"
+                {...thongTinTepQr(`/qr/lv-${lv.slug}.png`, urlLinhVuc(lv.slug), `Mã QR lĩnh vực ${lv.ten_linh_vuc}`)}
+              />
+              <NutTaiXemTruoc
+                nhan="SVG"
+                phu
+                {...thongTinTepQr(`/qr/lv-${lv.slug}.svg`, urlLinhVuc(lv.slug), `Mã QR lĩnh vực ${lv.ten_linh_vuc}`)}
+              />
             </div>
           </div>
           <div>
