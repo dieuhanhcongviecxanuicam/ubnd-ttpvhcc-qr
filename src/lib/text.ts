@@ -76,3 +76,35 @@ export function timDoanKhop(chuoi: string, tuKhoa: string): DoanKhop[] {
   }
   return ket_qua;
 }
+
+/**
+ * Rút gọn tên thủ tục để in trong danh sách tóm tắt trên thẻ lĩnh vực.
+ *
+ * Dữ liệu nguồn không thống nhất: một số tên mở đầu bằng "Thủ tục ..." còn phần
+ * lớn thì không. Xếp cạnh nhau trong cùng một danh sách đánh số, chữ "Thủ tục"
+ * lặp lại chỉ chiếm chỗ mà không thêm thông tin - nhất là khi mỗi dòng chỉ hiện
+ * được hai dòng chữ. Bỏ tiền tố rồi viết hoa lại chữ đầu để danh sách đều nhau.
+ */
+export function rutGonTenTthc(ten: string): string {
+  const con = (ten ?? "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^thủ tục\s+/i, "");
+  return con ? con[0].toLocaleUpperCase("vi-VN") + con.slice(1) : con;
+}
+
+/**
+ * Cắt chuỗi về tối đa `toiDa` ký tự, cắt ở ranh giới từ và thêm dấu ba chấm.
+ *
+ * Dùng cho danh sách thủ tục tiêu biểu trên thẻ lĩnh vực: tên thủ tục dài nhất
+ * trong dữ liệu là 409 ký tự, để nguyên thì một thẻ cao gấp ba thẻ bên cạnh.
+ * Cắt ở tầng dữ liệu chứ không bằng `-webkit-line-clamp`: thuộc tính đó buộc
+ * phần tử về `display: -webkit-box`, và hộp đó nuốt mất số thứ tự của thẻ `<li>`.
+ */
+export function catNgan(chuoi: string, toiDa: number): string {
+  const s = (chuoi ?? "").trim();
+  if (s.length <= toiDa) return s;
+  const cat = s.slice(0, toiDa);
+  const khoangTrang = cat.lastIndexOf(" ");
+  return `${(khoangTrang > toiDa * 0.6 ? cat.slice(0, khoangTrang) : cat).replace(/[,;.\s]+$/, "")}…`;
+}

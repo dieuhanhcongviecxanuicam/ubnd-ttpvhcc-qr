@@ -97,3 +97,20 @@ export interface TthcTomTat {
   /** Chuỗi đã bỏ dấu, dựng sẵn lúc build để lọc phía client không phải xử lý lại. */
   tim_kiem: string;
 }
+
+/**
+ * Dữ liệu một thẻ lĩnh vực trên trang chủ.
+ *
+ * Không dùng thẳng `LinhVuc` vì trường `danh_sach_ma_tthc` của nó chứa toàn bộ
+ * 376 mã TTHC - lượng dữ liệu đó phải đi xuống trình duyệt chỉ để hiển thị một
+ * con số đếm. Bản này thay bằng vài tên thủ tục tiêu biểu thật sự được in ra.
+ */
+export interface TheLinhVuc {
+  ten_linh_vuc: string;
+  slug: string;
+  so_luong_tthc: number;
+  /** id nhóm ngành - xem src/lib/nhom-linh-vuc.ts */
+  nhom: string;
+  /** Vài tên thủ tục đầu tiên, đã rút gọn, để người dân biết lĩnh vực gồm những gì. */
+  thu_tuc_tieu_bieu: string[];
+}
