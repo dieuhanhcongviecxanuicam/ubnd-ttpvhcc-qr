@@ -17,6 +17,8 @@
   đã kiểm bằng cách tải trang hai lần và so chuỗi.
 
   Người dân không bị ảnh hưởng; cái mất là tín hiệu JavaScript của Bot Fight Mode.
+  Ghi thêm một quan sát đo được ngày 16/09: **tắt Bot Fight Mode chưa chắc hết** -
+  lượt tải mới hoàn toàn vẫn còn script trong khi trang gốc GitHub Pages không có.
 
   **Trên gói Free không tắt riêng được phần JavaScript Detections** - tài liệu
   Cloudflare nói rõ nó bật kèm Bot Fight Mode và chỉ Super Bot Fight Mode (từ gói

@@ -288,10 +288,21 @@ chỉ Super Bot Fight Mode (từ gói Pro) mới tách công tắc riêng. Nên 
 sự chỉ còn:
 
 1. **Tắt hẳn Bot Fight Mode** (chọn tên miền `xanuicam.vn` > Security > Settings >
-   Bot fight mode). Hết lỗi CSP. Các lớp còn lại vẫn nguyên: luật WAF chặn đường
-   dẫn quét lỗ hổng, Browser Integrity Check, và lớp chống DDoS tự động mà
-   Cloudflare luôn chạy ở mọi gói. Kiểm chứng sau khi tắt:
-   `curl -s https://ttpvhcc.xanuicam.vn/ | grep -c '__CF$cv$params'` phải trả `0`.
+   Bot fight mode). Các lớp còn lại vẫn nguyên: luật WAF chặn đường dẫn quét lỗ
+   hổng, Browser Integrity Check, và lớp chống DDoS tự động mà Cloudflare luôn
+   chạy ở mọi gói. Kiểm chứng:
+   `curl -s "https://ttpvhcc.xanuicam.vn/?t=$RANDOM" | grep -c '__CF$cv$params'`
+   phải trả `0`.
+
+   > **Đã gặp: tắt rồi mà script vẫn được chèn.** Ngày 16/09/2026, sau khi tắt Bot
+   > Fight Mode, lượt tải mới hoàn toàn (`cf-cache-status: MISS`) vẫn còn script,
+   > trong khi trang gốc GitHub Pages không có - tức Cloudflare vẫn chèn, không
+   > phải do cache. Đây là hiện tượng đã có người báo trên diễn đàn Cloudflare
+   > ("JS Detections stuck on with Bot Fight Mode off"). Cách xử lý theo thứ tự:
+   > tải lại trang cài đặt để chắc công tắc đã lưu; bật lại rồi tắt lần nữa; kiểm
+   > mục *Configure AI bot policies* và *AI Crawl Control* xem có chính sách nào
+   > đang bật kéo theo JS detections; nếu vẫn còn thì mở ticket với Cloudflare.
+   > Trong lúc chờ, hệ thống không hỏng gì - chỉ là lỗi trong console.
 2. **Giữ Bot Fight Mode, chấp nhận lỗi console.** Cần biết rõ cái giá: tín hiệu
    JavaScript - phần đáng giá nhất của Bot Fight Mode - đã bị CSP chặn nên không
    chạy; thứ còn lại là các tín hiệu danh tiếng IP và dấu vân tay kết nối.
