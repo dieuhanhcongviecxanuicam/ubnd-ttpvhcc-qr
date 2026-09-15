@@ -2,6 +2,68 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.14.0] - 2026-09-16
+
+### Bảo mật
+
+- **Xử lý 9 PR Dependabot tồn đọng và mọi cảnh báo trong log CI/triển khai,
+  gộp trong một lần tích hợp.** Gộp thay vì hợp nhất lẻ 9 PR: ba PR cùng sửa
+  `package-lock.json` sẽ xung đột nối tiếp, mỗi lần hợp nhất lại phải chạy tay,
+  và sẽ có 9 lượt triển khai lên production thay vì một.
+
+  | PR | Nội dung | Kết quả |
+  |---|---|---|
+  | #44 | 8 bản vá nhỏ: React 19.3, `@types/*`, `eslint-config-next` 16.3.5, Playwright 1.63, tsx | **Đã gộp** |
+  | #33, #32, #31 | `actions/checkout` 7.0.1, `setup-node` 7.0.0, `setup-python` 7.0.0 | **Đã gộp**, SHA trùng khớp với PR |
+  | #36, #30, #29 | Mức tối thiểu `fonttools` 4.64, `brotli` 1.2, `zxing-cpp` 3.1.1 | **Đã gộp** |
+  | #35 | ESLint 10 | **Hoãn**, xem dưới |
+  | #5 | TypeScript 7 | **Hoãn**, xem dưới |
+
+- **Hết cảnh báo "Node.js 20 is deprecated" ở mọi job.** Nguyên nhân nằm ngoài 9
+  PR: Dependabot giới hạn 3 PR cho mỗi hệ sinh thái, nên `configure-pages`,
+  `deploy-pages` và `upload-artifact` chưa từng được mở PR - chúng xếp hàng sau
+  giới hạn trong khi mọi lượt chạy vẫn cảnh báo. Đã nâng cả 14 dòng `uses:` lên
+  bản chạy Node 24, vẫn ghim theo SHA: `configure-pages` 6.0.0, `deploy-pages`
+  5.0.1, `upload-artifact` 7.0.1, CodeQL 4.38.0. Đã đọc ghi chú phát hành từng bản
+  major: thay đổi chính là chuyển sang Node 24; `upload-artifact` 7 thêm tham số
+  `archive` nhưng mặc định vẫn nén như cũ, nên hợp đồng với `deploy-pages` giữ
+  nguyên.
+
+- **Hết cảnh báo `DEP0040 punycode`.** Truy ra nguồn là chính action
+  `setup-python` 5.6.0 chạy trên Node 24, không phải phụ thuộc của dự án. Hết khi
+  lên 7.0.0.
+
+- **Hết cảnh báo `npm warn allow-scripts`.** npm 11 yêu cầu duyệt rõ gói nào được
+  chạy script lúc cài. Đã duyệt `esbuild` và `unrs-resolver` theo tên, không ghim
+  phiên bản - lý do ghi ở `CONTRIBUTING.md`: phiên bản chính xác đã khoá bằng băm
+  trong `package-lock.json`, còn ghim trong `allowScripts` thì cảnh báo quay lại
+  sau mỗi lần Dependabot nâng bản.
+
+### Hoãn có điều kiện
+
+- **ESLint 10 (#35).** `eslint-plugin-react` - thành phần của
+  `eslint-config-next` - chưa hỗ trợ: bản mới nhất 7.37.5 khai peer
+  `eslint ^9.7`, và lint sập với `scopeManager.addGlobals is not a function`. Đã
+  thử lại ngày 16/09/2026 với `eslint-config-next` 16.3.5 mới nhất, vẫn sập.
+- **TypeScript 7 (#5).** `typescript-eslint` mới nhất (8.70.0) chỉ nhận
+  `typescript <6.1.0`. Chặn từ 6.1 chứ không chỉ chặn bản 7: một bản 6.1 lọt vào
+  nhóm vá nhỏ sẽ làm đỏ cả nhóm và giữ chân các bản vá vô hại khác.
+
+Cả hai được ghi thành quy tắc `ignore` trong `.github/dependabot.yml`, **mỗi dòng
+kèm lệnh kiểm tra điều kiện gỡ**, và thêm vào lịch rà soát hằng quý.
+
+Hệ quả phải chấp nhận: `npm ci` còn **một** cảnh báo
+`npm warn deprecated eslint@9.39.5` - bản 9.x cuối cùng đã hết hỗ trợ. ESLint
+chỉ chạy lúc phát triển và trong CI, không có mặt trong trang người dân tải về.
+Không tắt bằng `--loglevel=error`, vì làm vậy giấu luôn mọi cảnh báo khác.
+
+### Thay đổi
+
+- **`dependabot.yml` gom nhóm cho cả ba hệ sinh thái**: một PR cho mọi action,
+  một PR cho mọi phụ thuộc Python, một PR cho bản vá npm nhỏ; bản major npm vẫn
+  tách riêng để đánh giá từng bản. Giới hạn PR nâng lên. Việc hợp nhất phải chạy
+  tay, nên mỗi tuần càng ít PR càng ít khả năng tồn đọng lại.
+
 ## [1.13.2] - 2026-09-15
 
 ### Bảo mật

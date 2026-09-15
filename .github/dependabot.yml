@@ -1,6 +1,12 @@
 # Theo dõi lỗ hổng và bản vá cho cả ba nguồn phụ thuộc của dự án.
 # Riêng github-actions là quan trọng nhất: workflow triển khai giữ quyền
 # pages:write nên một action bị chiếm là chiếm luôn quyền xuất bản trang.
+#
+# Gom nhóm để mỗi tuần có ít PR nhất có thể. Bài học ngày 15/09/2026: giới hạn
+# 3 PR cho mỗi hệ sinh thái cộng với việc tách lẻ từng action khiến 9 PR tồn
+# đọng suốt ba tuần, trong khi CI của MỌI lượt chạy vẫn cảnh báo Node 20 bị khai
+# tử - vì 3 action còn lại không được mở PR, chúng đang xếp hàng sau giới hạn.
+# Việc hợp nhất phải do người quản trị chạy tay, nên số PR càng ít càng tốt.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -8,11 +14,30 @@ updates:
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 10
     groups:
-      # Gom bản vá nhỏ vào một PR để không làm ngập hộp thư.
+      # Gom bản vá nhỏ vào một PR để không làm ngập hộp thư. Bản major vẫn tách
+      # riêng từng PR vì mỗi bản cần đánh giá độ tương thích riêng.
       phu-thuoc-nho:
         update-types: ["minor", "patch"]
+    ignore:
+      # HOÃN ESLint 10. eslint-plugin-react (kéo vào qua eslint-config-next) chưa
+      # hỗ trợ: bản mới nhất 7.37.5 khai peer `eslint ^9.7`, và lint sập với
+      # `scopeManager.addGlobals is not a function` - đã thử lại ngày 16/09/2026
+      # với eslint-config-next 16.3.5, vẫn sập.
+      # GỠ DÒNG NÀY KHI: `npm view eslint-plugin-react peerDependencies` có ^10
+      # VÀ eslint-config-next đã dùng bản đó.
+      - dependency-name: "eslint"
+        versions: [">=10.0.0"]
+      # HOÃN TypeScript từ 6.1. typescript-eslint (cũng kéo vào qua
+      # eslint-config-next) khai peer `typescript >=4.8.4 <6.1.0`, và lint báo
+      # "typescript-eslint does not support TS 7.0". Chặn từ 6.1 chứ không chỉ
+      # chặn bản 7, vì một bản 6.1 lọt vào nhóm phu-thuoc-nho sẽ làm đỏ cả nhóm
+      # và giữ chân bảy bản vá khác đang vô hại.
+      # GỠ DÒNG NÀY KHI: `npm view typescript-eslint peerDependencies` nhận được
+      # bản TypeScript mới nhất.
+      - dependency-name: "typescript"
+        versions: [">=6.1.0"]
     commit-message:
       prefix: "deps"
 
@@ -21,7 +46,12 @@ updates:
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 5
+    groups:
+      # Chỉ là mức tối thiểu trong requirements, CI luôn cài bản mới nhất - nên
+      # một PR cho cả nhóm là đủ.
+      python:
+        patterns: ["*"]
     commit-message:
       prefix: "deps(python)"
 
@@ -30,6 +60,11 @@ updates:
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 5
+    groups:
+      # Một PR cho mọi action. Tách lẻ thì action bị xếp hàng sau giới hạn PR
+      # và workflow vẫn chạy bản cũ - chính là cách cảnh báo Node 20 nằm lì.
+      actions:
+        patterns: ["*"]
     commit-message:
       prefix: "ci"
