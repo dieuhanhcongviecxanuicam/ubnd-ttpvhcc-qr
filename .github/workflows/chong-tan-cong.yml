@@ -6,10 +6,11 @@ name: Chế độ chống tấn công
 # tay. Workflow này chạy được từ trình duyệt điện thoại (tab Actions > Run
 # workflow), nên không phải tìm máy có Python, có token, có kho mã đã tải về.
 #
-# Đọc kỹ trước khi chọn "bat": Under Attack Mode bắt MỌI người truy cập qua trang
-# xác minh vài giây, kể cả người dân đang quét mã QR tại quầy, và chặn luôn bot
-# tìm kiếm. Chỉ dùng khi thật sự đang bị tấn công, và tắt ngay khi hết đợt.
-# Lý do đầy đủ nằm ở đầu scripts/bao-ve-cloudflare.py.
+# Đọc kỹ trước khi chọn "bat": chế độ này bắt MỌI người truy cập site qua trang
+# xác minh vài giây, kể cả người dân đang quét mã QR tại quầy. Chỉ dùng khi thật
+# sự đang bị tấn công, và tắt ngay khi hết đợt. Nó chỉ áp cho ttpvhcc.xanuicam.vn,
+# không chạm tới subdomain khác của zone, và vẫn cho bot tìm kiếm đã xác minh đi
+# qua. Lý do đầy đủ nằm ở đầu scripts/bao-ve-cloudflare.py.
 
 on:
   workflow_dispatch:
@@ -49,7 +50,7 @@ jobs:
           echo "::error::Chưa có secret CLOUDFLARE_API_TOKEN_BAO_VE."
           echo "Token này cần quyền rộng hơn token xoá cache, nên để RIÊNG:"
           echo "  Zone / Zone / Read"
-          echo "  Zone / Zone Settings / Read và Edit"
+          echo "  Zone / Zone Settings / Read"
           echo "  Zone / Zone WAF / Edit"
           echo "Xem docs/BAO-MAT.md mục 9."
           exit 1
@@ -82,6 +83,6 @@ jobs:
       - name: Nhắc tắt lại sau khi hết đợt
         if: env.CF_TOKEN != '' && inputs.viec == 'bat-chong-tan-cong'
         run: |
-          echo "::warning::Under Attack Mode đang BẬT. Người dân phải qua trang"
-          echo "::warning::xác minh và bot tìm kiếm bị chặn. Chạy lại workflow này"
-          echo "::warning::với 'tat-chong-tan-cong' ngay khi hết đợt tấn công."
+          echo "::warning::Chế độ chống tấn công đang BẬT. Người dân phải qua trang"
+          echo "::warning::xác minh. Chạy lại workflow này với 'tat-chong-tan-cong'"
+          echo "::warning::ngay khi hết đợt. Bật/tắt cần 20-30 giây mới có tác dụng."

@@ -22,19 +22,23 @@ BỐN LỚP ĐƯỢC DỰNG
    b. Chặn thẳng những đường dẫn mà site tĩnh KHÔNG BAO GIỜ có: /wp-admin,
       /.env, /.git, *.php... Đây là toàn bộ lưu lượng quét lỗ hổng tự động -
       chặn ở biên thì chúng không tốn của ta một byte băng thông gốc nào.
-   c. Điểm đe doạ cao (cf.threat_score) - bắt xác minh, không chặn thẳng. Điểm
-      đe doạ có thể sai; người dân dùng chung IP nhà mạng hoặc mạng cơ quan
-      không được phép mất quyền tra cứu chỉ vì một máy khác cùng IP từng xấu.
+
+   Từng có luật thứ ba "điểm đe doạ cao thì bắt xác minh" dựa trên
+   cf.threat_score. Đã gỡ trước khi áp dụng lần nào: Cloudflare ngừng trường này
+   từ 30/09/2024 và nó LUÔN trả 0, nên luật đó không bao giờ khớp - một luật
+   chết nằm trong tường lửa chỉ tạo cảm giác an toàn giả. Trường thay thế
+   (cf.waf.score) chỉ có từ gói Business. Trên gói Free, phần đánh giá danh
+   tiếng IP do Security Level và Bot Fight Mode đảm nhận.
 2. Luật giới hạn tần suất (phase http_ratelimit): một IP dội quá ngưỡng thì phải
-   qua trang xác minh trong một khoảng, sau đó tự trở lại bình thường.
+   qua trang xác minh; qua được thì bộ đếm về 0.
 3. Bot Fight Mode: Cloudflare tự nhận diện bot giả mạo trình duyệt.
 4. Cài đặt zone: HSTS, TLS tối thiểu 1.2, luôn dùng HTTPS, Browser Integrity
    Check.
 
 CÒN "TRANG XÁC MINH BẢO MẬT" NHƯ grok.com THÌ SAO
 -------------------------------------------------
-Đó là Under Attack Mode: MỌI người truy cập đều phải qua một trang xác minh vài
-giây trước khi xem được nội dung. Script có sẵn công tắc (--che-do-tan-cong bat),
+Đó là trang MỌI người truy cập đều phải qua vài giây trước khi xem được nội
+dung. Script có sẵn công tắc (--che-do-tan-cong bat),
 nhưng CỐ Ý KHÔNG bật thường trực, vì đây là trang dịch vụ công:
 
   - Người dân quét mã QR tại quầy phải chờ thêm vài giây mỗi lần mở trang, và
@@ -46,18 +50,45 @@ nhưng CỐ Ý KHÔNG bật thường trực, vì đây là trang dịch vụ c�
   - Nội dung ở đây là thông tin công khai bắt buộc phải niêm yết. Bắt người dân
     chứng minh mình không phải máy để đọc thông tin công khai là đặt sai ưu tiên.
 
-Nên: ngày thường chạy bốn lớp ở trên - vốn đã chặn được lưu lượng lạm dụng mà
-người dân không thấy gì; khi thật sự bị tấn công thì bật Under Attack Mode bằng
-một lệnh (hoặc bằng workflow "Chế độ chống tấn công" trên GitHub), và TẮT ngay
-khi hết đợt.
+Nên: ngày thường chạy các lớp ở trên - vốn đã chặn được lưu lượng lạm dụng mà
+người dân không thấy gì; khi thật sự bị tấn công thì bật công tắc bằng một lệnh
+(hoặc bằng workflow "Chế độ chống tấn công" trên GitHub), và TẮT ngay khi hết đợt.
+
+Công tắc KHÔNG dùng Under Attack Mode của Cloudflare dù hiệu ứng giống hệt. Under
+Attack Mode là cài đặt TOÀN ZONE: bật nó là dựng trang xác minh trước mặt mọi
+subdomain của xanuicam.vn, kể cả hệ thống khác không hề bị tấn công. Thay vào đó
+công tắc là một luật WAF managed_challenge chỉ khớp http.host của site này. Nó
+còn hơn Under Attack Mode ở một điểm: luật bỏ qua bot tìm kiếm đã xác minh đứng
+trước nó, nên đang chống tấn công vẫn không rụng khỏi kết quả tìm kiếm - và kẻ
+tấn công không giả được trạng thái "bot đã xác minh", vì Cloudflare xác minh
+bằng IP và DNS ngược chứ không bằng User-Agent.
+
+ZONE DÙNG CHUNG - KHÔNG BAO GIỜ GHI LẠI LUẬT CỦA HỆ THỐNG KHÁC
+-------------------------------------------------------------
+Zone xanuicam.vn phục vụ nhiều subdomain. Lúc áp dụng lần đầu (15/09/2026) đã có
+sẵn luật của một ứng dụng khác, quản lý bởi script cloudflare-waf-apply.sh: một
+luật WAF cho /api/auth/login và luật chống brute-force đăng nhập.
+
+Bản đầu của script này ghi bằng cách PUT lại TOÀN BỘ bộ luật của phase. Cách đó
+tạo lại luật của hệ thống kia với ID mới, đủ để làm hỏng script đang quản lý
+chúng theo ID. Đã phát hiện nhờ đọc trạng thái trước khi ghi, và sửa trước khi
+ghi lần nào: nay script chỉ POST / PATCH / DELETE từng luật mang `ref` bắt đầu
+bằng REF_TIEN_TO. Luật không mang tiền tố đó không bị đọc lại, ghi lại hay đổi
+thứ tự.
+
+Luật tần suất cũng tự NHƯỜNG: gói Free chỉ có một chỗ cho loại luật này, và chỗ
+đó đang giữ luật chống brute-force đăng nhập của hệ thống kia - thứ quan trọng
+hơn nhiều so với giới hạn tần suất cho một trang tĩnh. Gộp hai luật làm một cũng
+không được: một luật chỉ có một ngưỡng, ngưỡng 5 request/10s của trang đăng nhập
+áp lên trang tra cứu thì chặn luôn người dân mở trang bình thường.
 
 MẶC ĐỊNH CHỈ ĐỌC VÀ IN RA DỰ ĐỊNH, KHÔNG GHI GÌ. Muốn ghi thật phải thêm --ap-dung.
 
 Cần biến môi trường CLOUDFLARE_API_TOKEN với quyền:
     Zone / Zone / Read              (tra zone - luôn cần)
     Zone / Zone Settings / Read     (cho --kiem-tra)
-    Zone / Zone Settings / Edit     (cho --ap-dung và --che-do-tan-cong)
-    Zone / Zone WAF / Edit          (cho --ap-dung: luật WAF và giới hạn tần suất)
+    Zone / Zone Settings / Edit     (cho --ap-dung, chỉ khi cài đặt zone lệch)
+    Zone / Zone WAF / Edit          (cho --ap-dung và --che-do-tan-cong)
     Zone / Bot Management / Edit    (cho --ap-dung: Bot Fight Mode; có thể không
                                      cấp được trên gói Free - script tự bỏ qua)
 
@@ -99,12 +130,22 @@ QUYEN = (
 # cách ngưỡng rất xa. Cán bộ một cửa mở hàng loạt tab để in mã QR cũng chỉ chạm
 # tới vài chục request. Vượt 60 trong 10 giây không còn là người đọc trang.
 #
-# Hết 60 giây là tự trở lại bình thường - không có danh sách chặn vĩnh viễn nào
-# để quên xoá, và người bị chặn nhầm chỉ phải đợi một phút.
+# THOI_GIAN_CHAN = 0 là bắt buộc chứ không phải lựa chọn: trên gói Free, Pro và
+# Business, luật dùng hành động xác minh phải đặt mitigation_timeout = 0 - tức
+# "giãn tốc": qua được trang xác minh thì bộ đếm của IP đó về 0, dội tiếp thì
+# gặp xác minh lần nữa. Không có danh sách chặn nào để quên xoá.
 # ---------------------------------------------------------------------------
 NGUONG_REQUEST = 60
 KHOANG_DEM = 10
-THOI_GIAN_CHAN = 60
+THOI_GIAN_CHAN = 0
+
+# Khoá ổn định đánh dấu luật do kho mã này quản lý. So khớp bằng `ref` chứ không
+# bằng mô tả: mô tả chứa ngưỡng, đổi ngưỡng là đổi mô tả, và so theo mô tả sẽ
+# biến một lần sửa ngưỡng thành "xoá luật cũ, tạo luật mới".
+REF_TIEN_TO = "ubnd-ttpvhcc-qr-"
+
+# Số luật giới hạn tần suất tối đa theo gói (tài liệu Cloudflare, 09/2026).
+SO_LUAT_TAN_SUAT_TOI_DA = {"free": 1, "pro": 2, "business": 5}
 
 # Đuôi và thư mục mà một site tĩnh không bao giờ có. Danh sách cố ý ngắn: chỉ
 # gồm thứ chắc chắn không tồn tại, để không có cách nào chặn nhầm người dân.
@@ -155,6 +196,7 @@ def luat_waf(mien: str) -> list[dict]:
     thuoc_mien = f'http.host eq "{mien}"'
     return [
         {
+            "ref": f"{REF_TIEN_TO}bo-qua-bot-tim-kiem",
             "description": f"{DAU} bot tìm kiếm đã xác minh - bỏ qua các luật sau",
             "expression": f"({thuoc_mien} and cf.client.bot)",
             "action": "skip",
@@ -163,29 +205,46 @@ def luat_waf(mien: str) -> list[dict]:
             "enabled": True,
         },
         {
+            "ref": f"{REF_TIEN_TO}chan-duong-dan-quet",
             "description": f"{DAU} chặn đường dẫn quét lỗ hổng - site tĩnh không có",
             "expression": f"({thuoc_mien} and {bieu_thuc_duong_dan_la()})",
             "action": "block",
             "enabled": True,
         },
-        {
-            "description": f"{DAU} điểm đe doạ cao - bắt xác minh, không chặn thẳng",
-            "expression": f"({thuoc_mien} and cf.threat_score gt 20)",
-            "action": "managed_challenge",
-            "enabled": True,
-        },
     ]
+
+
+REF_CONG_TAC = f"{REF_TIEN_TO}che-do-tan-cong"
+
+
+def luat_cong_tac(mien: str, bat: bool) -> dict:
+    """Luật "chế độ chống tấn công": bắt MỌI người vào site này qua xác minh.
+
+    Nằm CUỐI bộ luật WAF: luật bỏ qua bot tìm kiếm đứng trước nên bot đã xác
+    minh vẫn đi qua; luật chặn đường dẫn quét đứng trước nên máy quét vẫn bị
+    chặn thẳng thay vì chỉ bị xác minh. Tắt thì giữ luật ở trạng thái
+    enabled=false để bật lại lần sau chỉ là một lệnh PATCH.
+    """
+    return {
+        "ref": REF_CONG_TAC,
+        "description": f"{DAU} CHẾ ĐỘ CHỐNG TẤN CÔNG - xác minh mọi người truy cập"
+                       " (chỉ bật khi đang bị tấn công)",
+        "expression": f'(http.host eq "{mien}")',
+        "action": "managed_challenge",
+        "enabled": bat,
+    }
 
 
 def luat_tan_suat(mien: str) -> list[dict]:
     return [
         {
+            "ref": f"{REF_TIEN_TO}gioi-han-tan-suat",
             "description": f"{DAU} một IP dội quá {NGUONG_REQUEST} request/"
-                           f"{KHOANG_DEM}s - bắt xác minh {THOI_GIAN_CHAN}s",
+                           f"{KHOANG_DEM}s - bắt xác minh",
             "expression": f'(http.host eq "{mien}")',
             "action": "managed_challenge",
             "ratelimit": {
-                # Đếm theo IP và theo từng điểm biên. Cloudflare khuyến nghị kèm
+                # Đếm theo IP và theo từng điểm biên. Cloudflare bắt buộc kèm
                 # cf.colo.id vì mỗi điểm biên đếm độc lập.
                 "characteristics": ["ip.src", "cf.colo.id"],
                 "period": KHOANG_DEM,
@@ -197,34 +256,101 @@ def luat_tan_suat(mien: str) -> list[dict]:
     ]
 
 
+def cua_ta(r: dict) -> bool:
+    return (r.get("ref") or "").startswith(REF_TIEN_TO)
+
+
 def doc_luat(zone: str, token: str, phase: str) -> list[dict]:
     duong = f"/zones/{zone}/rulesets/phases/{phase}/entrypoint"
     kq = goi_hoac_dung(duong, token, cho_phep_404=True, goi_y_quyen=QUYEN)
     return (kq.get("result") or {}).get("rules") or []
 
 
-def ghi_luat(zone: str, token: str, phase: str, moi: list[dict], ten_phase: str) -> None:
-    """Ghi luật của ta lên đầu, giữ nguyên luật do nơi khác đặt ở phía sau."""
-    hien_co = doc_luat(zone, token, phase)
-    khac = [r for r in hien_co if DAU not in (r.get("description") or "")]
-    cuoi = moi + [
-        {k: v for k, v in r.items()
-         if k in ("description", "expression", "action", "action_parameters",
-                  "ratelimit", "enabled", "logging")}
-        for r in khac
-    ]
-    duong = f"/zones/{zone}/rulesets/phases/{phase}/entrypoint"
+def dong_bo_luat(zone: str, token: str, phase: str, moi: list[dict],
+                 ten_phase: str) -> bool:
+    """Đưa luật của kho mã về đúng `moi`, KHÔNG chạm vào luật nào khác.
+
+    Tạo, sửa, xoá từng luật qua endpoint theo luật. Luật không mang REF_TIEN_TO
+    giữ nguyên ID, nội dung và vị trí. Trả False nếu có luật không ghi được.
+    """
+    duong_entry = f"/zones/{zone}/rulesets/phases/{phase}/entrypoint"
+    kq = goi_hoac_dung(duong_entry, token, cho_phep_404=True, goi_y_quyen=QUYEN)
+    bo_luat = kq.get("result") or {}
+
+    if not bo_luat.get("id"):
+        # Phase chưa có bộ luật nào: tạo mới chỉ với luật của ta. Không tồn tại
+        # luật của ai khác để làm hỏng, nên PUT ở đây là an toàn.
+        try:
+            goi(duong_entry, token, "PUT", {"rules": moi})
+        except LoiAPI as loi:
+            print(f"  LỖI khi tạo {ten_phase}: {loi.thong_diep}", file=sys.stderr)
+            return False
+        print(f"  {ten_phase}: tạo mới {len(moi)} luật.")
+        return True
+
+    goc = f"/zones/{zone}/rulesets/{bo_luat['id']}/rules"
+    hien_co = {r["ref"]: r for r in (bo_luat.get("rules") or []) if cua_ta(r)}
+    so_khac = sum(1 for r in (bo_luat.get("rules") or []) if not cua_ta(r))
+    on = True
+
+    for luat in moi:
+        cu = hien_co.get(luat["ref"])
+        try:
+            if cu:
+                goi(f"{goc}/{cu['id']}", token, "PATCH", luat)
+                print(f"  {ten_phase}: cập nhật  {luat['ref']}")
+            else:
+                goi(goc, token, "POST", luat)   # thêm vào CUỐI, không đẩy luật khác
+                print(f"  {ten_phase}: thêm mới  {luat['ref']}")
+        except LoiAPI as loi:
+            print(f"  LỖI {ten_phase} / {luat['ref']}: {loi.thong_diep}", file=sys.stderr)
+            on = False
+
+    mong_muon = {luat["ref"] for luat in moi}
+    for ref, cu in hien_co.items():
+        # Luật công tắc có vòng đời riêng (--che-do-tan-cong). Chạy --ap-dung
+        # giữa đợt tấn công mà gỡ mất nó là tự tắt lá chắn đúng lúc cần nhất.
+        if ref in mong_muon or ref == REF_CONG_TAC:
+            continue
+        try:
+            goi(f"{goc}/{cu['id']}", token, "DELETE")
+            print(f"  {ten_phase}: gỡ luật cũ {ref}")
+        except LoiAPI as loi:
+            print(f"  LỖI khi gỡ {ref}: {loi.thong_diep}", file=sys.stderr)
+            on = False
+
+    if so_khac:
+        print(f"  {ten_phase}: giữ nguyên {so_khac} luật của hệ thống khác.")
+    return on
+
+
+def goi_zone(zone: str, token: str) -> str:
+    """Tên gói của zone, dạng 'free' / 'pro' / 'business' / 'enterprise'."""
     try:
-        goi(duong, token, "PUT", {"rules": cuoi})
-    except LoiAPI as loi:
-        print(f"  LỖI khi ghi {ten_phase}: {loi.thong_diep}", file=sys.stderr)
-        if "rate" in loi.thong_diep.lower() or loi.ma == 400:
-            print("  Gói Free chỉ cho một luật giới hạn tần suất và giới hạn vài "
-                  "tham số.\n  Xem thông điệp gốc ở trên rồi chỉnh NGUONG_REQUEST/"
-                  "KHOANG_DEM/THOI_GIAN_CHAN.", file=sys.stderr)
-        raise SystemExit(1) from None
-    print(f"  Đã ghi {len(moi)} luật của kho mã vào {ten_phase}"
-          f"{f', giữ nguyên {len(khac)} luật của nơi khác' if khac else ''}.")
+        kq = goi(f"/zones/{zone}", token)
+        return ((kq.get("result") or {}).get("plan") or {}).get("legacy_id") or "?"
+    except LoiAPI:
+        return "?"
+
+
+def cho_trong_tan_suat(zone: str, token: str) -> tuple[bool, str]:
+    """Còn chỗ cho luật tần suất của ta không, và lý do nếu không.
+
+    Luật của ta đã có sẵn thì luôn còn chỗ (chỉ là cập nhật). Chưa có thì chỉ
+    thêm khi số luật của hệ thống khác còn dưới giới hạn gói - tuyệt đối không
+    gỡ luật của ai để lấy chỗ.
+    """
+    goi_dv = goi_zone(zone, token)
+    toi_da = SO_LUAT_TAN_SUAT_TOI_DA.get(goi_dv)
+    luat = doc_luat(zone, token, "http_ratelimit")
+    if any(cua_ta(r) for r in luat) or toi_da is None:
+        return True, ""
+    khac = [r for r in luat if not cua_ta(r)]
+    if len(khac) < toi_da:
+        return True, ""
+    ten = "; ".join((r.get("description") or "(không mô tả)")[:70] for r in khac)
+    return False, (f"gói {goi_dv} chỉ cho {toi_da} luật tần suất và chỗ đã được dùng: "
+                   f"{ten}")
 
 
 def doc_cai_dat(zone: str, token: str, ten: str) -> str:
@@ -250,27 +376,51 @@ def in_trang_thai(zone: str, token: str, mien: str) -> None:
         except SystemExit:
             print(f"  {nhan:26s} (không đọc được)")
             continue
-        cua_ta = [r for r in luat if DAU in (r.get("description") or "")]
-        print(f"  {nhan:26s} {len(luat)} luật ({len(cua_ta)} của kho mã)")
+        so_cua_ta = sum(1 for r in luat if cua_ta(r))
+        print(f"  {nhan:26s} {len(luat)} luật ({so_cua_ta} của kho mã)")
         for r in luat:
-            dau_hieu = "*" if DAU in (r.get("description") or "") else " "
+            dau_hieu = "*" if cua_ta(r) else " "
             trang_thai = "" if r.get("enabled", True) else "  [đang tắt]"
             print(f"     {dau_hieu} {r.get('action'):18s}"
                   f" {(r.get('description') or '(không mô tả)')[:70]}{trang_thai}")
 
 
-def dat_che_do_tan_cong(zone: str, token: str, bat: bool) -> int:
-    muc = "under_attack" if bat else "medium"
-    goi_hoac_dung(f"/zones/{zone}/settings/security_level", token, "PATCH",
-                  {"value": muc}, goi_y_quyen=QUYEN)
+def dat_che_do_tan_cong(zone: str, token: str, mien: str, bat: bool) -> int:
+    duong_entry = f"/zones/{zone}/rulesets/phases/http_request_firewall_custom/entrypoint"
+    bo_luat = (goi_hoac_dung(duong_entry, token, cho_phep_404=True,
+                             goi_y_quyen=QUYEN).get("result") or {})
+    luat = luat_cong_tac(mien, bat)
+
+    if not bo_luat.get("id"):
+        if not bat:
+            print("Chưa có luật chống tấn công nào - không có gì để tắt.")
+            return 0
+        goi_hoac_dung(duong_entry, token, "PUT", {"rules": [luat]}, goi_y_quyen=QUYEN)
+    else:
+        goc = f"/zones/{zone}/rulesets/{bo_luat['id']}/rules"
+        cu = next((r for r in bo_luat.get("rules") or [] if r.get("ref") == REF_CONG_TAC),
+                  None)
+        if cu:
+            goi_hoac_dung(f"{goc}/{cu['id']}", token, "PATCH", luat, goi_y_quyen=QUYEN)
+        elif bat:
+            goi_hoac_dung(goc, token, "POST", luat, goi_y_quyen=QUYEN)
+        else:
+            print("Chưa có luật chống tấn công nào - không có gì để tắt.")
+            return 0
+
     if bat:
-        print("ĐÃ BẬT chế độ chống tấn công (Under Attack Mode).\n"
-              "  Mọi người truy cập nay phải qua trang xác minh vài giây.\n"
-              "  Bot tìm kiếm cũng bị chặn, nên TẮT ngay khi hết đợt tấn công:\n"
+        print(f"ĐÃ BẬT chế độ chống tấn công cho {mien}.\n"
+              "  Mọi người truy cập site này nay phải qua trang xác minh. Bot tìm kiếm\n"
+              "  đã xác minh vẫn đi qua; các subdomain khác của zone không bị ảnh hưởng.\n"
+              "  TẮT ngay khi hết đợt tấn công:\n"
               "      python3 scripts/bao-ve-cloudflare.py --che-do-tan-cong tat")
     else:
-        print("Đã tắt chế độ chống tấn công, mức bảo mật trở lại 'medium'.\n"
-              "  Bốn lớp bảo vệ thường trực vẫn chạy.")
+        print(f"Đã tắt chế độ chống tấn công cho {mien}. Các lớp thường trực vẫn chạy.")
+    # Đo thật ngày 15/09/2026: sau lệnh tắt, hai lượt tải đầu vẫn gặp trang xác
+    # minh, từ giây thứ 15-20 mới trả 200 ổn định. Không báo trước điều này thì
+    # người trực dễ tưởng lệnh không ăn rồi bật/tắt lung tung.
+    print("  Cloudflare cần khoảng 20-30 giây để cập nhật ở mọi điểm biên -"
+          " chưa thấy tác dụng ngay là bình thường.")
     return 0
 
 
@@ -294,7 +444,7 @@ def main() -> int:
     print(f"Zone {ten_zone} cho {mien}: {zone}")
 
     if che_do is not None:
-        return dat_che_do_tan_cong(zone, token, che_do)
+        return dat_che_do_tan_cong(zone, token, mien, che_do)
 
     if chi_kiem_tra:
         in_trang_thai(zone, token, mien)
@@ -311,9 +461,10 @@ def main() -> int:
     for r in tan_suat:
         rl = r["ratelimit"]
         print(f"  - [{r['action']}] {r['description']}")
+        cach = ("giãn tốc - qua xác minh thì đếm lại" if not rl["mitigation_timeout"]
+                else f"giữ {rl['mitigation_timeout']}s")
         print(f"      đếm theo {', '.join(rl['characteristics'])};"
-              f" {rl['requests_per_period']} request/{rl['period']}s;"
-              f" giữ {rl['mitigation_timeout']}s")
+              f" {rl['requests_per_period']} request/{rl['period']}s; {cach}")
     print("\nSẽ đặt cài đặt zone:")
     for k, v in CAI_DAT_ZONE.items():
         print(f"  - {k} = {v}")
@@ -322,27 +473,37 @@ def main() -> int:
 
     in_trang_thai(zone, token, mien)
 
+    con_cho, ly_do = cho_trong_tan_suat(zone, token)
+    if not con_cho:
+        print(f"\nLuật tần suất sẽ NHƯỜNG: {ly_do}.")
+
     if not ap_dung:
         print("\nĐây mới là xem trước. Thêm --ap-dung để ghi thật.")
         return 0
 
     print("\nĐang ghi:")
-    ghi_luat(zone, token, "http_request_firewall_custom", waf, "phase WAF")
-    ghi_luat(zone, token, "http_ratelimit", tan_suat, "phase giới hạn tần suất")
+    on = dong_bo_luat(zone, token, "http_request_firewall_custom", waf, "WAF")
 
-    for ten, gt in CAI_DAT_ZONE.items():
+    if con_cho:
+        on = dong_bo_luat(zone, token, "http_ratelimit", tan_suat, "tần suất") and on
+    else:
+        print(f"  tần suất: NHƯỜNG, không thêm luật - {ly_do}.\n"
+              "    Không gỡ luật đó để lấy chỗ. Xem phần đầu file để biết vì sao.")
+
+    # Cài đặt zone áp cho MỌI subdomain, kể cả hệ thống khác cùng zone. Nên chỉ
+    # ghi khi giá trị thật sự khác: chạy lại script không được sinh ra một loạt
+    # thay đổi toàn zone trong nhật ký kiểm toán của người quản lý hệ thống kia.
+    for ten, gt in {**CAI_DAT_ZONE, "security_header": HSTS}.items():
         try:
+            hien_tai = (goi(f"/zones/{zone}/settings/{ten}", token)
+                        .get("result") or {}).get("value")
+            if hien_tai == gt:
+                print(f"  {ten}: đã đúng, không ghi")
+                continue
             goi(f"/zones/{zone}/settings/{ten}", token, "PATCH", {"value": gt})
-            print(f"  {ten} = {gt}")
+            print(f"  {ten}: đã đổi")
         except LoiAPI as loi:
             print(f"  BỎ QUA {ten}: {loi.thong_diep}", file=sys.stderr)
-
-    try:
-        goi(f"/zones/{zone}/settings/security_header", token, "PATCH",
-            {"value": HSTS})
-        print("  strict_transport_security = 1 năm, gồm subdomain, preload")
-    except LoiAPI as loi:
-        print(f"  BỎ QUA HSTS: {loi.thong_diep}", file=sys.stderr)
 
     # Bot Fight Mode nằm ở endpoint riêng và gói Free có thể không cho token
     # chạm tới. Không dựng được thì ba lớp còn lại vẫn đứng, nên chỉ cảnh báo.
@@ -352,6 +513,10 @@ def main() -> int:
     except LoiAPI as loi:
         print(f"  BỎ QUA Bot Fight Mode: {loi.thong_diep}\n"
               "    Bật tay tại Cloudflare > Security > Bots.", file=sys.stderr)
+
+    if not on:
+        print("\nCÓ LUẬT KHÔNG GHI ĐƯỢC - xem các dòng LỖI ở trên.", file=sys.stderr)
+        return 1
 
     print("\nXong. Kiểm lại sau vài giây:")
     print("  python3 scripts/bao-ve-cloudflare.py --kiem-tra")

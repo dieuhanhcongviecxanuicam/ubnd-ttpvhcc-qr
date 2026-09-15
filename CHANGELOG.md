@@ -2,6 +2,61 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.13.2] - 2026-09-15
+
+### Bảo mật
+
+- **Đã áp dụng lớp chống bot và quét lỗ hổng lên Cloudflare, và đối chiếu trên
+  site thật.** Chặn thẳng các đường dẫn mà site tĩnh không bao giờ có: 9/9 đường
+  dẫn thử (`/wp-admin`, `/wp-login.php`, `/.env`, `/.git/config`, `/xmlrpc.php`,
+  `/index.php`, `/phpmyadmin`, `/WP-ADMIN`, `/backup.sql`) nhận `403` từ
+  Cloudflare, còn 9/9 trang thật (trang chủ, lĩnh vực, chi tiết, danh mục,
+  `security.txt`, mã QR, hình minh hoạ, `robots.txt`, `sitemap.xml`) vẫn `200`.
+  Cài đặt zone (HSTS, TLS ≥ 1.2, luôn HTTPS, Browser Integrity Check) đã đúng sẵn.
+
+### Sửa lỗi
+
+Ba lỗi trong `scripts/bao-ve-cloudflare.py` bản 1.13.0, **cả ba phát hiện nhờ đọc
+trạng thái zone thật trước khi ghi, và sửa trước khi ghi lần nào**:
+
+- **Script ghi đè luật của một hệ thống khác.** Zone `xanuicam.vn` dùng chung với
+  nhiều subdomain và đã có sẵn luật của một ứng dụng khác, quản lý bởi
+  `cloudflare-waf-apply.sh`. Bản cũ ghi bằng `PUT` cả bộ luật - tạo lại luật kia
+  với ID mới, đủ làm hỏng script đang quản lý chúng theo ID. Nay script chỉ POST /
+  PATCH / DELETE **từng luật** mang `ref` bắt đầu bằng `ubnd-ttpvhcc-qr-`; so khớp
+  theo `ref` chứ không theo mô tả, vì mô tả chứa ngưỡng và đổi ngưỡng không được
+  biến thành "xoá rồi tạo lại". Đã đối chiếu ID luật của hệ thống kia trước và sau
+  khi áp dụng: giữ nguyên.
+
+- **Luật "điểm đe doạ cao" sẽ không bao giờ khớp.** Nó dựa trên `cf.threat_score`,
+  trường Cloudflare đã ngừng từ 30/09/2024 và nay luôn trả 0. Một luật chết trong
+  tường lửa chỉ tạo cảm giác an toàn giả, nên đã gỡ. Trường thay thế
+  (`cf.waf.score`) chỉ có từ gói Business.
+
+- **Công tắc chống tấn công sẽ chặn cả hệ thống khác.** Bản cũ bật Under Attack
+  Mode - một cài đặt TOÀN ZONE - nên sẽ dựng trang xác minh trước mặt mọi
+  subdomain của `xanuicam.vn`. Nay công tắc là một luật WAF `managed_challenge`
+  chỉ khớp host của site này, để sẵn ở trạng thái tắt. Nó còn hơn Under Attack
+  Mode một điểm: luật bỏ qua bot tìm kiếm đứng trước, nên đang chống tấn công vẫn
+  không rụng khỏi kết quả tìm kiếm. Công tắc nay chỉ cần quyền Zone WAF / Edit.
+
+  **Đã thử thật:** bật thì mọi request nhận `403` kèm `cf-mitigated: challenge` và
+  trang "Thực hiện xác minh bảo mật" tiếng Việt của Cloudflare; tắt thì hai lượt
+  tải đầu vẫn gặp xác minh, từ giây thứ 15-20 mới trả `200` ổn định. Tổng thời gian
+  bật trong hai lần thử là 31 giây. Độ trễ này nay được báo ngay trong thông điệp
+  của script, để người trực không tưởng lệnh không ăn rồi bật/tắt lung tung.
+
+### Không áp dụng được, ghi rõ lý do
+
+- **Giới hạn tần suất nhường chỗ.** Gói Free chỉ cho một luật loại này, và chỗ đó
+  đang giữ luật chống brute-force đăng nhập của hệ thống kia - quan trọng hơn nhiều
+  so với giới hạn tần suất cho một trang tĩnh. Script tuyệt đối không gỡ luật của
+  ai để lấy chỗ; gộp làm một cũng không được vì một luật chỉ có một ngưỡng. Luật
+  của site này đã viết sẵn, tự áp dụng khi zone có thêm chỗ. Tham số cũng đã chỉnh
+  cho hợp lệ trên gói Free: hành động xác minh bắt buộc `mitigation_timeout = 0`.
+- **Bot Fight Mode chưa xác nhận được** - token dùng khi áp dụng không có quyền Bot
+  Management. Cần bật tay tại Cloudflare > Security > Bots.
+
 ## [1.13.1] - 2026-09-15
 
 ### Sửa lỗi
