@@ -34,21 +34,18 @@ làm trang trắng, trong khi build vẫn báo thành công).
 > SSL trong console. Đây chỉ là ma sát khi thử cục bộ - trang vẫn hoạt động, và
 > trên production mọi thứ đã là HTTPS nên directive này không gây ảnh hưởng.
 
-### Cloudflare Web Analytics - cần quyết định
+### Cloudflare Web Analytics - đã tắt (26/08/2026)
 
-Cloudflare **tự chèn** `beacon.min.js` từ `static.cloudflareinsights.com` vào mọi
-trang ở tầng biên; kho mã không khai báo script này. CSP hiện đang cho phép nó,
-nếu không mọi lượt truy cập đều sinh lỗi trong console.
+Cloudflare từng **tự chèn** `beacon.min.js` từ `static.cloudflareinsights.com` vào
+mọi trang ở tầng biên. Đơn vị đã chọn **không dùng thống kê truy cập** và tắt Web
+Analytics; CSP siết về chỉ-cho-phép-cùng-miền ở bản 1.7.1. Kiểm lại ngày
+16/09/2026: 0/3 lượt tải trang chủ còn beacon.
 
-Đây là script bên thứ ba chạy trên máy người dân. Cloudflare Web Analytics không
-dùng cookie và không định danh cá nhân, nhưng vẫn là thu thập dữ liệu truy cập.
-
-**Đơn vị cần chọn một trong hai:**
-
-| Lựa chọn                                      | Việc cần làm                                                                                                                                     |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Không cần thống kê truy cập** (an toàn hơn) | Tắt Web Analytics trong Cloudflare, rồi xoá hằng số `CLOUDFLARE_BEACON` trong `scripts/them-csp.mjs`. Chính sách trở lại chỉ-cho-phép-cùng-miền. |
-| **Cần thống kê truy cập**                     | Giữ nguyên. Ghi nhận trong hồ sơ cấp độ an toàn thông tin rằng hệ thống có sử dụng dịch vụ đo lượt truy cập của bên thứ ba.                      |
+Nếu sau này bật lại, phải thêm `https://static.cloudflareinsights.com` vào
+`script-src` và `https://cloudflareinsights.com` vào `connect-src` trong
+`scripts/them-csp.mjs`, và ghi nhận trong hồ sơ cấp độ an toàn thông tin rằng hệ
+thống dùng dịch vụ đo lượt truy cập của bên thứ ba. Lưu ý thêm: luật
+`no-transform` (mục 9) có thể chặn luôn việc chèn beacon - phải đo lại.
 
 ### Hai directive phải đặt bằng header, không đặt được trong thẻ meta
 
@@ -152,6 +149,7 @@ lượt triển khai nào.
 | Kiểm chứng mã QR                       | Mỗi lần đổi dữ liệu | `python3 scripts/kiem-tra-ma-qr.py`             |
 | Kiểm tra header bảo mật                | Hằng quý            | Lệnh `curl` ở mục 3                             |
 | Đối chiếu lớp bảo vệ Cloudflare        | Hằng quý            | `python3 scripts/bao-ve-cloudflare.py --kiem-tra` |
+| Đối chiếu sản xuất đầy đủ từ mạng thường | Hằng tháng        | `npm run build && npm run kiem-tra-san-xuat` trên máy trong mạng thường - job GitHub hằng ngày không kiểm được trang chủ và `sitemap.xml` khi Bot Fight Mode bật (xem `docs/VIEC-CUA-DON-VI.md`) |
 | Gia hạn `security.txt`                 | Hằng năm            | Sửa `Expires`; `npm test` kêu trước 60 ngày     |
 | Rà quyền truy cập                      | Hằng quý            | Settings → Collaborators                        |
 | Diễn tập khôi phục                     | Hằng năm            | Dựng lại hệ thống từ kho mã và tệp Excel nguồn  |

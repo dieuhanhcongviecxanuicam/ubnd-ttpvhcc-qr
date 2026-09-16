@@ -87,16 +87,17 @@ const TEP_DOI_CHIEU = [
 /**
  * Sai lệch đã biết, đã ghi trong docs/BAO-MAT.md mục 9, chỉ cảnh báo.
  *
- * Cloudflare chèn script JavaScript Detections vào mọi trang HTML kể cả khi Bot
- * Fight Mode đã tắt. Script này mang ray ID riêng cho từng request nên không thể
- * băm trước, và nó vi phạm CSP của chính site. Đây là lỗi phía Cloudflare, đã
- * quyết định chấp nhận chứ không nới CSP để chiều nó.
+ * Cloudflare chèn script JavaScript Detections vào trang HTML. Script mang ray
+ * ID riêng cho từng request nên không băm trước được, và vi phạm CSP của site.
+ * Từ 16/09/2026 luật `no-transform` (scripts/bao-ve-cloudflare.py) đã chặn được
+ * việc chèn: đo 0/30 trang. Vẫn giữ mục này để cảnh báo nếu script quay lại -
+ * khi đó luật biến đổi header đã bị gỡ hoặc hết tác dụng.
  */
 const BIET_TRUOC = [
   {
     dau: "__CF$cv$params",
     ten: "Cloudflare chèn script JavaScript Detections",
-    ghi: "Lỗi phía Cloudflare, đã chấp nhận. Xem docs/BAO-MAT.md mục 9.",
+    ghi: "Luật no-transform có thể đã mất tác dụng - chạy scripts/bao-ve-cloudflare.py --kiem-tra. Xem docs/BAO-MAT.md mục 9.",
   },
 ];
 
@@ -112,7 +113,16 @@ async function laySoMau(duongDan, soMau = SO_MAU) {
     const url = `${GOC}${duongDan}?kiem-tra=${Date.now()}-${i}`;
     try {
       const ph = await fetch(url, { headers: { "cache-control": "no-cache" } });
-      mau.push({ ok: ph.ok, ma: ph.status, than: await ph.text(), dau: ph.headers });
+      mau.push({
+        ok: ph.ok,
+        ma: ph.status,
+        than: await ph.text(),
+        dau: ph.headers,
+        // Cloudflare gắn header này khi trả trang thách thức thay cho nội dung
+        // thật - phân biệt được "bị chặn vì trông giống bot" với lỗi máy chủ.
+        thachThuc: ph.headers.get("cf-mitigated") === "challenge",
+        ray: ph.headers.get("cf-ray") ?? "",
+      });
     } catch (loi) {
       mau.push({ ok: false, ma: 0, than: "", dau: new Headers(), loiMang: String(loi) });
     }
@@ -122,12 +132,34 @@ async function laySoMau(duongDan, soMau = SO_MAU) {
 
 const loi = [];
 const canhBao = [];
+/*
+ * Mục không kiểm được vì Cloudflare thách thức chính script này.
+ *
+ * Đã xảy ra thật, 16/09/2026: sau khi Bot Fight Mode bật lại (hệ thống khác trên
+ * zone cần nó), máy chạy GitHub Actions - IP trung tâm dữ liệu, User-Agent của
+ * Node - nhận 403 kèm `cf-mitigated: challenge` ở sitemap.xml và trang chủ.
+ * robots.txt và /.well-known/ vẫn qua vì Cloudflare miễn hai đường dẫn đó khỏi
+ * Bot Fight Mode. Từ máy người dùng thật mọi thứ trả 200.
+ *
+ * Tách riêng khỏi `loi` vì đây không phải sai lệch nội dung: người dân vẫn nhận
+ * đúng trang, chỉ có máy canh bị chặn. Báo đỏ mỗi ngày cho chuyện đó thì chẳng
+ * bao lâu không ai đọc log nữa. Nhưng cũng KHÔNG được im lặng - bản trước bỏ
+ * qua mẫu hỏng của trang chủ bằng filter(ok), nên khi cả 5 mẫu bị chặn, phần
+ * kiểm CSP không chạy mà script vẫn in "khớp đúng".
+ */
+const khongKiemDuoc = [];
+const chiThachThuc = (mau) => mau.every((m) => !m.ok && m.thachThuc);
 
 for (const [duongDan, tuongUng, chuanHoa] of TEP_DOI_CHIEU) {
   const mongDoi = chuanHoa(await readFile(path.join(THU_MUC, tuongUng), "utf8"));
   const mau = await laySoMau(duongDan);
 
   const hong = mau.filter((m) => !m.ok);
+  if (hong.length > 0 && chiThachThuc(hong) && hong.length === mau.length) {
+    khongKiemDuoc.push(`${duongDan}: Cloudflare thách thức ${hong.length}/${mau.length} lượt ` +
+      `(HTTP ${hong[0].ma}, cf-ray ${hong[0].ray})`);
+    continue;
+  }
   if (hong.length > 0) {
     loi.push(`${duongDan}: ${hong.length}/${mau.length} lượt không tải được ` +
       `(${hong[0].loiMang ?? `HTTP ${hong[0].ma}`})`);
@@ -165,6 +197,17 @@ for (const [duongDan, tuongUng, chuanHoa] of TEP_DOI_CHIEU) {
 const RE_META = /<meta http-equiv="Content-Security-Policy" content="([^"]*)">/;
 const RE_SCRIPT = /<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g;
 const mauTrang = await laySoMau("/");
+
+if (!mauTrang.some((m) => m.ok)) {
+  if (chiThachThuc(mauTrang)) {
+    khongKiemDuoc.push(`/ (CSP trang chủ): Cloudflare thách thức ${mauTrang.length}/${mauTrang.length} ` +
+      `lượt (HTTP ${mauTrang[0].ma}, cf-ray ${mauTrang[0].ray})`);
+  } else {
+    const m = mauTrang[0];
+    loi.push(`/: ${mauTrang.length}/${mauTrang.length} lượt không tải được ` +
+      `(${m.loiMang ?? `HTTP ${m.ma}`})`);
+  }
+}
 
 for (const m of mauTrang.filter((x) => x.ok)) {
   const csp = m.than.match(RE_META)?.[1];
@@ -214,11 +257,24 @@ if (cspHeader) {
 
 for (const c of canhBao) console.warn(`  CẢNH BÁO: ${c}`);
 
+if (khongKiemDuoc.length > 0) {
+  console.warn(`  KHÔNG KIỂM ĐƯỢC ${khongKiemDuoc.length} mục - Cloudflare thách thức máy chạy ` +
+    "script (Bot Fight Mode chặn IP trung tâm dữ liệu).\n" +
+    "  Người dân không bị ảnh hưởng. Muốn kiểm đủ, chạy `npm run build && npm run " +
+    "kiem-tra-san-xuat` từ một máy trong mạng thường.");
+  for (const d of khongKiemDuoc) console.warn(`    - ${d}`);
+  if (process.env.GITHUB_ACTIONS) {
+    console.log(`::warning::Không kiểm được ${khongKiemDuoc.length} mục vì Cloudflare thách thức ` +
+      "máy chạy GitHub Actions. Xem log để biết chi tiết.");
+  }
+}
+
 if (loi.length > 0) {
   console.error(`SẢN XUẤT: ${loi.length} sai lệch giữa ${GOC} và out/ (mỗi mục ${SO_MAU} mẫu):`);
   for (const d of loi) console.error(`  - ${d}`);
   process.exit(1);
 }
 
-console.log(`SẢN XUẤT: ${GOC} khớp đúng bản trong out/ ` +
-  `(${TEP_DOI_CHIEU.length} tệp + CSP trang chủ, mỗi mục ${SO_MAU} mẫu).`);
+const daKiem = TEP_DOI_CHIEU.length + 1 - khongKiemDuoc.length;
+console.log(`SẢN XUẤT: ${daKiem}/${TEP_DOI_CHIEU.length + 1} mục kiểm được đều khớp giữa ${GOC} ` +
+  `và out/ (${TEP_DOI_CHIEU.length} tệp + CSP trang chủ, mỗi mục ${SO_MAU} mẫu).`);

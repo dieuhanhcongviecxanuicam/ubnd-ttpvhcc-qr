@@ -74,6 +74,11 @@ jobs:
       - name: Kiểm tra trợ năng WCAG 2.1 AA
         run: npm run kiem-tra-tro-nang
 
+      # Canh các chi tiết giao diện từng hỏng âm thầm vì CSS thừa kế: màu biểu
+      # tượng bảng niêm yết, canh giữa thẻ QR tổng, tên đơn vị ở header.
+      - name: Kiểm tra giao diện
+        run: npm run kiem-tra-giao-dien
+
       # Dựng thử ba bản in PDF ngay trong PR, để lỗi bố cục in hoặc mã QR thiếu tệp
       # lộ ra trước khi hợp nhất, không phải ở lượt triển khai production.
       - name: Dựng thử bản in PDF

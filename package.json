@@ -1,6 +1,6 @@
 {
   "name": "ubnd-ttpvhcc-qr",
-  "version": "1.20.1",
+  "version": "1.21.0",
   "private": true,
   "description": "Hệ thống tra cứu thủ tục hành chính qua mã QR - Trung tâm Phục vụ hành chính công",
   "license": "MIT",
@@ -23,6 +23,7 @@
     "kiem-tra-csp": "node scripts/kiem-tra-csp.mjs",
     "kiem-tra-phien-ban": "node scripts/kiem-tra-phien-ban.mjs",
     "kiem-tra-tro-nang": "node scripts/kiem-tra-tro-nang.mjs",
+    "kiem-tra-giao-dien": "node scripts/kiem-tra-giao-dien.mjs",
     "kiem-tra-san-xuat": "node scripts/kiem-tra-san-xuat.mjs",
     "dung-ban-in": "tsx scripts/dung-ban-in.ts",
     "test": "node --import tsx --test tests/*.test.ts"
