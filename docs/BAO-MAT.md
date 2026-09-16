@@ -236,7 +236,7 @@ WAF và một luật chống brute-force cho `POST /api/auth/login`. Ba nguyên 
 | Cài đặt zone: HSTS 1 năm + preload, TLS ≥ 1.2, luôn HTTPS, Browser Integrity Check, Security Level `medium` | **Đã đúng sẵn**, không phải ghi | Không |
 | Công tắc chống tấn công | **Có sẵn, đang tắt** - đã thử bật/tắt thật | Chỉ khi bật |
 | Giới hạn tần suất | **Nhường chỗ**, xem dưới | - |
-| Bot Fight Mode | **Đang bật** (đơn vị bật tay 15/09/2026) - kèm xung đột với CSP, xem dưới | Không |
+| Bot Fight Mode | **Đang bật** (đơn vị bật tay 15/09, tắt 16/09, bật lại 16/09 vì hệ thống khác trên zone cần) - xung đột với CSP đã xử lý bằng `no-transform`, xem dưới | Không |
 
 Ngoài các lớp trên, Cloudflare luôn chạy lớp chống DDoS tầng mạng và tầng HTTP tự
 động ở mọi gói, không cần cấu hình.
@@ -265,11 +265,24 @@ luật của họ.
 > 0/30 trang còn script chèn, trên ba loại bố cục. Phần còn lại của mục này giữ
 > nguyên để ghi lại quá trình, và vì nó giải thích vì sao KHÔNG nới CSP.
 >
-> Một hệ quả đáng cân nhắc: lý do ban đầu để tắt Bot Fight Mode là script của nó
-> phá CSP. Lý do đó không còn. Bật lại Bot Fight Mode giờ lấy lại được các tín
-> hiệu chặn bot khác của nó mà không mất gì về CSP - đổi lại, tín hiệu JavaScript
-> của chính Bot Fight Mode sẽ không hoạt động vì script không được chèn nữa. Đây
-> là quyết định cần cân nhắc riêng, chưa thực hiện.
+> **Bot Fight Mode đã bật lại, cùng ngày.** Đơn vị bật lại vì hệ thống khác trên
+> zone `xanuicam.vn` cần tính năng này - và Bot Fight Mode là cài đặt cấp zone,
+> không tách theo từng tên miền con được.
+>
+> Đây là phép thử thật cho `no-transform`, vì Bot Fight Mode bật đồng nghĩa
+> JavaScript Detections bật theo. Đo sau khi bật: **0/30 trang còn script**, trên
+> ba loại bố cục. Header giữ vững.
+>
+> Nhờ đó hai yêu cầu vốn xung khắc cùng thoả mãn: hệ thống khác trên zone dùng
+> được Bot Fight Mode đầy đủ, còn site này không phải trả giá bằng lỗi CSP. Luật
+> `no-transform` chỉ áp cho `ttpvhcc.xanuicam.vn` nên không làm hệ thống khác mất
+> tín hiệu JavaScript của họ.
+>
+> Cái giá cho riêng site này: Bot Fight Mode ở đây mất tín hiệu JavaScript, vì
+> script không còn được chèn. Các tín hiệu khác vẫn chạy, cộng với luật WAF chặn
+> đường dẫn quét, Browser Integrity Check và chống DDoS tự động. Với một trang
+> tĩnh không đăng nhập, không biểu mẫu, không cơ sở dữ liệu, mất tín hiệu đó gần
+> như không ảnh hưởng.
 
 ### Bối cảnh xung đột (giữ lại để tham khảo)
 
@@ -297,8 +310,15 @@ Hậu quả thực tế:
 
 **Trên gói Free KHÔNG tắt riêng được phần JavaScript Detections.** Tài liệu
 Cloudflare nói rõ: với Bot Fight Mode, JS detections bật kèm và không tắt được;
-chỉ Super Bot Fight Mode (từ gói Pro) mới tách công tắc riêng. Nên lựa chọn thật
-sự chỉ còn:
+chỉ Super Bot Fight Mode (từ gói Pro) mới tách công tắc riêng.
+
+> **Bốn lựa chọn dưới đây đã lỗi thời.** Lúc viết chúng, chưa biết tới
+> `Cache-Control: no-transform` - lối thoát thứ năm, tốt hơn cả bốn: giữ nguyên
+> Bot Fight Mode, giữ nguyên CSP chặt, và script không được chèn. Giữ lại danh
+> sách này vì nó ghi đúng những gì đã cân nhắc và vì sao loại từng phương án,
+> nhất là mục 4.
+
+Khi chưa biết tới `no-transform`, lựa chọn chỉ còn:
 
 1. **Tắt hẳn Bot Fight Mode** (chọn tên miền `xanuicam.vn` > Security > Settings >
    Bot fight mode). Các lớp còn lại vẫn nguyên: luật WAF chặn đường dẫn quét lỗ

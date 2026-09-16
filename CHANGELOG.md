@@ -2,6 +2,29 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.19.3] - 2026-09-16
+
+### Tài liệu
+
+- **Ghi nhận Bot Fight Mode đã bật lại, và `no-transform` giữ vững.** Đơn vị bật
+  lại Bot Fight Mode vì hệ thống khác trên zone `xanuicam.vn` cần tính năng này -
+  đây là cài đặt cấp zone, không tách theo từng tên miền con được.
+
+  Đây là phép thử thật cho luật `no-transform`, vì Bot Fight Mode bật đồng nghĩa
+  JavaScript Detections bật theo. Đo sau khi bật: **0/30 trang còn script**, trên
+  ba loại bố cục. Kiểm thêm đường đi thật của người dân bằng User-Agent điện
+  thoại Android: trang chủ, danh mục, lĩnh vực, chi tiết TTHC, ảnh QR và cả ba
+  tệp PDF bản in đều trả 200.
+
+  Nhờ đó hai yêu cầu vốn xung khắc cùng thoả mãn: hệ thống khác trên zone dùng
+  được Bot Fight Mode đầy đủ, còn site này không phải trả giá bằng lỗi CSP. Luật
+  `no-transform` chỉ áp cho `ttpvhcc.xanuicam.vn`.
+
+  Đánh dấu bốn lựa chọn xử lý xung đột trong mục 9 là **đã lỗi thời**: lúc viết
+  chúng chưa biết tới `no-transform`, vốn là lối thoát thứ năm và tốt hơn cả bốn.
+  Giữ lại danh sách vì nó ghi đúng những gì đã cân nhắc và vì sao loại từng
+  phương án.
+
 ## [1.19.2] - 2026-09-16
 
 ### Tài liệu
