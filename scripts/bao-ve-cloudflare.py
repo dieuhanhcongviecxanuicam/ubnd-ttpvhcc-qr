@@ -290,11 +290,13 @@ def luat_waf(mien: str) -> list[dict]:
 # năng của Cloudflare Pages và Netlify, GitHub Pages không đọc nó), nên phải đặt
 # header ở biên bằng một luật biến đổi.
 #
-# CHƯA CHẮC ĂN, và đừng ghi vào tài liệu như thể chắc: tài liệu viết "if the
-# origin response includes", mà luật này chạy SAU khi phản hồi rời origin. Có
-# thể Cloudflare vẫn thấy header và bỏ qua việc chèn, có thể không. Cách duy
-# nhất để biết là đo sau khi áp - xem npm run kiem-tra-san-xuat, nó đếm số mẫu
-# còn dính script.
+# ĐÃ ĐO VÀ NÓ ĂN (16/09/2026): 0/30 trang còn script, trên ba loại bố cục; trước
+# khi áp là 10/10. Ghi lại vì lúc viết luật này từng lo là không ăn - tài liệu
+# viết "if the ORIGIN response includes", mà luật chạy SAU khi phản hồi rời
+# origin. Cloudflare vẫn thấy header.
+#
+# Kiểm lại bất cứ lúc nào bằng npm run kiem-tra-san-xuat: nó đếm số mẫu còn dính
+# script và in thành dòng cảnh báo. Không có dòng đó là sạch.
 #
 # Giữ nguyên max-age=600 của GitHub Pages thay vì đặt giá trị mới: chiến lược
 # cache đã cân nhắc riêng (xem docs/HIEU-NANG.md), luật này chỉ thêm no-transform

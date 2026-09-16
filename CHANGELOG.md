@@ -2,6 +2,28 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.19.2] - 2026-09-16
+
+### Tài liệu
+
+- **Ghi nhận `Cache-Control: no-transform` đã chặn được script chèn.** Luật thêm
+  ở 1.19.0 được áp lên Cloudflare ngày 16/09 và đo ngay sau đó: 0/10 trang chủ,
+  0/10 trang chi tiết TTHC, 0/10 trang lĩnh vực còn script `__CF$cv$params` -
+  trước khi áp là 10/10.
+
+  Chú thích trong mã và tài liệu trước đó nói rõ "chưa chắc ăn", vì tài liệu
+  Cloudflare viết *"if the **origin** response includes"* trong khi luật biến đổi
+  chạy sau khi phản hồi rời origin. Thực tế Cloudflare vẫn thấy header. Đã thay
+  phần phỏng đoán bằng số đo.
+
+  Lỗi CSP trong console của người dùng biến mất, và CSP không phải nới một chút
+  nào - không `unsafe-inline`, không chuyển sang nonce.
+
+  Mục "Bot Fight Mode và CSP chặt: xung đột đã biết" đổi thành "đã giải quyết",
+  kèm một hệ quả cần cân nhắc riêng: lý do ban đầu để tắt Bot Fight Mode không
+  còn, nên bật lại nó giờ lấy được các tín hiệu chặn bot khác mà không mất gì về
+  CSP. Chưa thực hiện.
+
 ## [1.19.1] - 2026-09-16
 
 ### Đã sửa
