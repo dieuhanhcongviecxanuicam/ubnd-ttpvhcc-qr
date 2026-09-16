@@ -374,6 +374,12 @@ mã nguồn. **Hai trong ba đã xử lý xong ngày 26/08/2026** (mục 5.2 và
 
 ### 5.1. SEO bị giữ ở 92 vì `robots.txt`
 
+> **Cập nhật 16/09/2026 - không còn áp dụng.** Khối "Cloudflare Managed Content"
+> đến từ tính năng Bot Preference Sync, đã tắt ở **AI Crawl Control > Overview**
+> (xem `CHANGELOG.md` bản 1.16.x). `robots.txt` trên site thật nay đúng 5 dòng như
+> trong kho mã, không còn `Content-Signal`, và job "Canh nội dung trên sản xuất"
+> sẽ báo nếu Cloudflare chèn lại. Phần dưới giữ để ghi lại nguyên nhân.
+
 Lighthouse báo `robots.txt is not valid - 1 error found`, tại dòng 30:
 
 ```

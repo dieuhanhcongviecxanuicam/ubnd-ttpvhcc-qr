@@ -7,7 +7,7 @@ import KhungXemTruoc from "@/components/ban-in/KhungXemTruoc";
 import TemMa from "@/components/ban-in/TemMa";
 import ToNhom from "@/components/ban-in/ToNhom";
 import s from "@/components/ban-in/ban-in.module.css";
-import { BAN_IN, banIn, tenTepAnh, tenTepPdf, THU_MUC_BAN_IN, type BanIn } from "@/lib/ban-in";
+import { banIn, tenTepAnh, tenTepPdf, THU_MUC_BAN_IN, type BanIn } from "@/lib/ban-in";
 import { layDanhSachTem, layMeta, layThongKeNhom } from "@/lib/data";
 import { duongDan, SITE_URL } from "@/lib/site-config";
 import type { DuLieuTaiVe } from "@/lib/types";

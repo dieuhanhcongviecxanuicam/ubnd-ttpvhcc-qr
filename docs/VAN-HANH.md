@@ -16,8 +16,12 @@ Tài liệu dành cho cán bộ phụ trách hệ thống. Ba việc thường g
 Khi có quyết định công bố TTHC mới (thêm, sửa, bãi bỏ thủ tục):
 
 ```bash
-# Kích hoạt môi trường Python (lần đầu xem mục 5)
+# Kích hoạt môi trường Python (lần đầu xem mục 6)
 source .venv/bin/activate
+
+# 0. Tạo nhánh riêng - nhánh main được bảo vệ, không đẩy thẳng vào được
+git switch main && git pull
+git switch -c cap-nhat-danh-muc-tthc
 
 # 1. Chép file Excel danh mục mới vào data/source/
 # 2. Trích xuất lại dữ liệu
@@ -29,10 +33,18 @@ python3 scripts/tao-ma-qr.py
 # 4. Xác nhận mã QR trỏ đúng
 python3 scripts/kiem-tra-ma-qr.py
 
-# 5. Đẩy lên - hệ thống tự triển khai sau khoảng 2-3 phút
-git add data public/qr
+# 5. Ghi nhận thay đổi: thêm một mục vào CHANGELOG.md và nâng "version" trong
+#    package.json cho khớp (CI sẽ chặn nếu hai chỗ lệch nhau)
+
+# 6. Đẩy lên và mở pull request
+git add data public/qr CHANGELOG.md package.json
 git commit -m "Cập nhật danh mục TTHC theo Quyết định số ..."
-git push
+git push -u origin cap-nhat-danh-muc-tthc
+gh pr create --fill
+
+# 7. Chờ các bước kiểm tra xanh rồi hợp nhất - hệ thống tự triển khai sau
+#    khoảng 2-3 phút
+gh pr merge --squash --delete-branch
 ```
 
 **Quan trọng:** nếu danh sách lĩnh vực thay đổi thì mã QR của các lĩnh vực đó cũng

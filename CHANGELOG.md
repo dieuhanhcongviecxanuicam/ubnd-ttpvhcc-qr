@@ -2,6 +2,67 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.21.0] - 2026-09-16
+
+### Đã thêm
+
+- **`npm run kiem-tra-giao-dien`, chạy trong CI ngay sau kiểm tra trợ năng.** 42
+  phép so bằng trên trang chủ (1440 px và 390 px), bảng niêm yết, `/in-ma-qr` và ba
+  trang bản in: màu biểu tượng hỗ trợ, canh giữa thẻ QR tổng, tên đơn vị ở header,
+  độ phân giải logo, không tràn ngang, không lỗi console. Mỗi mục là phép so giá
+  trị đo với giá trị mong đợi, không phải dòng log - lỗi biểu tượng đen ở 1.20.0
+  lọt qua mọi bước CI, và lượt kiểm tay trên site thật đã in ra màu đen mà không
+  ai đối chiếu. Đã thử tái tạo đúng lỗi đó trên bản build: script báo trượt.
+
+  Không so ảnh chụp từng điểm ảnh, vì build không tất định và khử răng cưa khác
+  nhau giữa các máy sẽ báo động giả liên tục.
+
+- **`docs/VIEC-CUA-DON-VI.md`:** bảy việc cần người vận hành tự làm hoặc tự quyết,
+  kèm lệnh và lựa chọn - dọn nhánh, tên site trên tab, xem trước liên kết Zalo,
+  đối chiếu sản xuất hằng tháng, cập nhật dữ liệu, rà soát bảo mật tài khoản, hai
+  phụ thuộc đang hoãn.
+
+### Đã sửa
+
+- **Job "Canh nội dung trên sản xuất" đỏ mỗi ngày từ khi Bot Fight Mode bật lại.**
+  Máy chạy GitHub Actions (IP trung tâm dữ liệu) nhận HTTP 403 kèm
+  `cf-mitigated: challenge` ở `sitemap.xml`; `robots.txt` và `/.well-known/` vẫn
+  qua vì Cloudflare miễn hai đường dẫn đó. Đã xác nhận bằng một lượt chạy trên
+  chính máy GitHub. Nay lượt bị thách thức được xếp riêng thành "KHÔNG KIỂM ĐƯỢC",
+  in cảnh báo vàng kèm `cf-ray`, không làm đỏ job - người dân không bị ảnh hưởng
+  và báo đỏ vô ích mỗi ngày thì chẳng bao lâu không ai đọc log.
+
+- **Kiểm tra CSP trang chủ im lặng bỏ qua khi trang chủ không tải được.** Script lọc
+  mẫu bằng `filter(ok)`, nên khi cả 5 mẫu bị chặn thì phần kiểm CSP không chạy mà
+  vẫn in "khớp đúng". Lượt chạy xác nhận ở trên cho thấy trang chủ **cũng** bị
+  thách thức - tức phần canh CSP chưa từng chạy trên GitHub kể từ khi Bot Fight
+  Mode bật. Nay trang chủ không tải được thì báo lỗi, bị thách thức thì báo
+  "KHÔNG KIỂM ĐƯỢC"; dòng tổng kết ghi rõ số mục thực sự đã kiểm.
+
+- **Cảnh báo CodeQL #8:** import `BAN_IN` không dùng trong `src/app/in-ma-qr/page.tsx`.
+
+- **Tài liệu lỗi thời:**
+  - `docs/VAN-HANH.md` mục 1 hướng dẫn `git push` thẳng lên `main`, trong khi `main`
+    được bảo vệ từ lâu. Nay đi qua nhánh, cập nhật `CHANGELOG.md`, pull request.
+    Sửa luôn tham chiếu "mục 5" thành mục 6 (chuẩn bị môi trường).
+  - `docs/BAO-MAT.md` mục 2 còn ghi Cloudflare Web Analytics "cần quyết định",
+    trong khi đơn vị đã tắt từ 26/08 (bản 1.7.1). Kiểm lại: 0/3 lượt tải còn beacon.
+  - `docs/HIEU-NANG.md` mục 5.1 còn coi `Content-Signal` trong `robots.txt` là việc
+    chờ đơn vị quyết định; Bot Preference Sync đã tắt, `robots.txt` trên site thật
+    đúng 5 dòng như kho mã.
+  - Chú thích `BIET_TRUOC` trong `scripts/kiem-tra-san-xuat.mjs` còn nói script
+    Cloudflare chèn là "lỗi đã chấp nhận"; từ 1.19.0 luật `no-transform` đã chặn
+    được, nên nếu script quay lại thì là dấu hiệu luật mất tác dụng.
+
+### Thay đổi
+
+- Máy chủ tĩnh phục vụ `out/` cho các script chạy trình duyệt tách thành
+  `scripts/may-chu-out.mjs`, dùng chung cho kiểm tra trợ năng và kiểm tra giao
+  diện - hai bản chép sớm muộn lệch nhau ở đúng chỗ nguy hiểm (cách phân giải URL
+  và lớp chống path traversal).
+- `docs/BAO-MAT.md` mục 5 thêm việc đối chiếu sản xuất đầy đủ hằng tháng từ mạng
+  thường.
+
 ## [1.20.1] - 2026-09-16
 
 ### Đã sửa
