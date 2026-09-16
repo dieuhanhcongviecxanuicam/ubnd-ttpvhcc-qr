@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { duongDan, SITE_CONFIG } from "@/lib/site-config";
+import { duongDan } from "@/lib/site-config";
 import TimKiemHeader from "./TimKiemHeader";
 
 export default function SiteHeader() {
@@ -18,8 +18,8 @@ export default function SiteHeader() {
             unoptimized
           />
           <div className="brand">
-            <span className="brand-ten">{SITE_CONFIG.ten}</span>
-            <span className="brand-phu">Mã QR danh mục thủ tục</span>
+            <span className="brand-ten">Trung tâm Phục vụ Hành chính công</span>
+            <span className="brand-phu">Xã Núi Cấm</span>
           </div>
         </Link>
         <TimKiemHeader />

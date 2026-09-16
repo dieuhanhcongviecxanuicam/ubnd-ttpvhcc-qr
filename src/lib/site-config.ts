@@ -61,8 +61,8 @@ export const LIEN_HE = {
 
 /** Khẩu hiệu in trên bảng niêm yết, lấy nguyên văn từ mẫu bảng giấy của đơn vị. */
 export const KHAU_HIEU = {
-  /* Chỉ "Hành chính phục vụ": vế "Vì Nhân dân phục vụ" đã nằm ngay dưới logo ở
-     góc trái bảng niêm yết, lặp lại ở góc phải là thừa. */
+  /* In ở đầu tờ A4. Bảng niêm yết A1 không dùng: vế "Vì Nhân dân phục vụ" đã nằm
+     ngay cạnh logo, đặt thêm khẩu hiệu này ở góc phải là thừa. */
   phucVu: "Hành chính phục vụ",
   caiCach: "Cải cách hành chính - Kiến tạo - Phục vụ - Hài lòng",
 } as const;

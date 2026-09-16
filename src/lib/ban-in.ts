@@ -8,7 +8,6 @@
 export interface BanIn {
   id: "bang-niem-yet" | "to-nhom" | "tem-ma-qr";
   ten: string;
-  moTa: string;
   /** Trang HTML dùng làm nguồn dựng PDF - cũng là bản xem trước toàn trang. */
   route: string;
   /** Tên tệp không đuôi, đặt trong THU_MUC_BAN_IN. */
@@ -25,7 +24,6 @@ export const BAN_IN: readonly BanIn[] = [
   {
     id: "bang-niem-yet",
     ten: "Bảng niêm yết tổng",
-    moTa: "Một tờ khổ lớn treo tại sảnh.",
     route: "/in-ma-qr/bang-niem-yet",
     tep: "ttpvhcc-bang-niem-yet-a1",
     khoGiay: "A1 ngang",
@@ -37,7 +35,6 @@ export const BAN_IN: readonly BanIn[] = [
   {
     id: "to-nhom",
     ten: "Tờ niêm yết theo nhóm",
-    moTa: "Mỗi nhóm lĩnh vực một tờ A4 (dán tại quầy).",
     route: "/in-ma-qr/to-nhom",
     tep: "ttpvhcc-to-nhom-a4",
     khoGiay: "A4 dọc",
@@ -48,8 +45,6 @@ export const BAN_IN: readonly BanIn[] = [
   {
     id: "tem-ma-qr",
     ten: "Tem mã QR cỡ lớn",
-    moTa:
-      "Mỗi mã QR một tờ A4: mã tổng, 13 mã nhóm và từng mã lĩnh vực, xếp theo nhóm để dễ chia về các quầy.",
     route: "/in-ma-qr/tem-ma-qr",
     tep: "ttpvhcc-tem-ma-qr-a4",
     khoGiay: "A4 dọc",

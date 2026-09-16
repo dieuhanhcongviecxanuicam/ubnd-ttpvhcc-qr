@@ -47,7 +47,9 @@ MEM_TU, MEM_DEN = 4, 40
 # khung vuông thì nằm ngoài vòng tròn nên bị cắt mất. Đã gặp thật: bàn tay bên
 # phải bị xén phẳng. Lề 12% cho bản in đưa toàn bộ năm bàn tay vào trong vòng tròn.
 KICH_THUOC_LOGO = [
-    ("logo.png", 128, 0.0),      # logo trên thanh điều hướng, khung vuông
+    # Logo thanh điều hướng hiển thị 32px nhưng phải nét khi phóng to trình duyệt
+    # tới 500% (160px) - bản 128px vỡ nét và mép bàn tay trái chạm khung bị xén.
+    ("logo.png", 256, 0.06),
     ("logo-512.png", 512, 0.0),  # ảnh chia sẻ mạng xã hội
     # Bảng niêm yết in khổ A1-A0: logo rộng khoảng 110 mm, 1200 px cho ~280 dpi.
     # logo-512.png phóng tới cỡ đó chỉ còn ~120 dpi, nhoè thấy rõ khi đứng gần.

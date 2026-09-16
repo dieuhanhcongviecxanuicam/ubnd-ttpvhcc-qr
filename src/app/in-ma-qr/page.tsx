@@ -68,7 +68,6 @@ export default function TrangInMaQr() {
           <div className={s.hubDau}>
             <div>
               <h2 id="ban-bang">{bang.ten}</h2>
-              <p>{bang.moTa}</p>
               <div className={s.hubNhan}>
                 <span>{bang.khoGiay}</span>
                 <span>1 trang</span>
@@ -96,7 +95,6 @@ export default function TrangInMaQr() {
           <div className={s.hubDau}>
             <div>
               <h2 id="ban-nhom">{toNhom.ten}</h2>
-              <p>{toNhom.moTa}</p>
               <div className={s.hubNhan}>
                 <span>{toNhom.khoGiay}</span>
                 <span>{nhom.length} trang</span>
@@ -126,7 +124,6 @@ export default function TrangInMaQr() {
           <div className={s.hubDau}>
             <div>
               <h2 id="ban-tem">{temMa.ten}</h2>
-              <p>{temMa.moTa}</p>
               <div className={s.hubNhan}>
                 <span>{temMa.khoGiay}</span>
                 <span>{tem.length} trang</span>

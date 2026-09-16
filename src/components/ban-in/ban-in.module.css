@@ -42,7 +42,9 @@
 .bangDau {
   flex: 0 0 76mm;
   display: grid;
-  grid-template-columns: 138mm 1fr 112mm;
+  /* Hai cột bên bằng nhau để tiêu đề luôn nằm giữa khổ giấy; cột phải để trống
+     từ khi bỏ khẩu hiệu góc phải. */
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 10mm;
   padding: 0 16mm;
@@ -54,10 +56,22 @@
    tiếp = đường kính / căn 2). Đệm 3mm trước đây khiến bốn góc ảnh bị bo tròn cắt
    mất, thấy rõ nhất ở cánh tay bên trái của logo. */
 .bangLogoAnh { width: 50mm; height: 50mm; background: #fff; border-radius: 50%; padding: 7.5mm; }
-.bangLogo p { display: flex; flex-direction: column; gap: 1mm; }
-.bangLogo strong { font-size: 6.6mm; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; white-space: nowrap; }
-.bangLogo span { font-size: 4.4mm; font-weight: 500; }
+/* Hai dòng dùng đúng kiểu chữ của khẩu hiệu "Hành chính phục vụ" từng đặt ở góc
+   phải - khẩu hiệu đó đã bỏ vì trùng ý với dòng "Vì Nhân dân phục vụ". */
+.bangLogo p {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5mm;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 9.5mm;
+  line-height: 1.22;
+  color: #fff1c2;
+  white-space: nowrap;
+}
+.bangLogo strong { font-weight: 700; }
 .bangTieuDe {
+  grid-column: 2;
   font-family: var(--font-body);
   color: #ffd54a;
   font-size: 14.5mm;
@@ -67,14 +81,6 @@
   text-transform: uppercase;
 }
 .bangTieuDe span { display: block; margin-top: 1.5mm; font-size: 11mm; }
-.bangKhauHieu {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 9.5mm;
-  line-height: 1.22;
-  text-align: right;
-  color: #fff1c2;
-}
 
 .bangLuoi {
   flex: 1;
@@ -204,10 +210,10 @@
   width: 20mm;
   height: 20mm;
   border-radius: 50%;
-  background: #0e5fa4;
+  background: #9b2226;
   color: #fff;
-  /* Quầng sáng mỏng cùng sắc xanh để khối hỗ trợ nổi hẳn trên nền trắng. */
-  box-shadow: 0 0 0 1.4mm rgba(14, 95, 164, 0.18);
+  /* Quầng sáng mỏng cùng sắc đỏ son để khối hỗ trợ nổi hẳn trên nền trắng. */
+  box-shadow: 0 0 0 1.4mm rgba(155, 34, 38, 0.18);
 }
 .chanIcon svg { width: 11mm; height: 11mm; }
 .chanKhoi .chanHotline { font-size: 8.2mm; font-weight: 700; color: #9b2226; letter-spacing: 0.01em; }

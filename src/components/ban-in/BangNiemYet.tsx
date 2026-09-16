@@ -52,7 +52,6 @@ export default function BangNiemYet({
           Bảng niêm yết các thủ tục hành chính
           <span>thuộc phạm vi giải quyết của {LIEN_HE.coQuan}</span>
         </h2>
-        <p className={s.bangKhauHieu}>{KHAU_HIEU.phucVu}</p>
       </header>
 
       <div className={s.bangLuoi}>
