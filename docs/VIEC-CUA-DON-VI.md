@@ -4,7 +4,7 @@ Danh sách những việc **người vận hành phải tự làm hoặc tự qu
 quản trị, cần truy cập bảng điều khiển bên ngoài, hoặc là quyết định thuộc thẩm
 quyền của đơn vị. Mọi việc kỹ thuật còn lại đã làm xong trong kho mã.
 
-Cập nhật lần cuối: **16/09/2026** (bản 1.21.0).
+Cập nhật lần cuối: **17/09/2026** (bản 1.21.1).
 
 Làm xong mục nào thì đánh dấu `[x]` và ghi ngày vào cột ghi chú, hoặc xoá mục đó
 qua một pull request.
@@ -13,7 +13,7 @@ qua một pull request.
 
 | # | Việc | Mức ưu tiên | Thời gian |
 |---|---|---|---|
-| 1 | Dọn 4 nhánh cũ trên GitHub, bật tự xoá nhánh | Thấp | 2 phút |
+| 1 | ~~Dọn 4 nhánh cũ trên GitHub, bật tự xoá nhánh~~ | **Đã xong 17/09/2026** | - |
 | 2 | Quyết định tên site trên tab trình duyệt và màn hình chính điện thoại | Trung bình | 5 phút |
 | 3 | Kiểm tra xem trước liên kết khi chia sẻ qua Zalo | Trung bình | 5 phút |
 | 4 | Chạy đối chiếu sản xuất đầy đủ từ mạng thường, hằng tháng | Trung bình | 5 phút/lần |
@@ -23,10 +23,10 @@ qua một pull request.
 
 ---
 
-## 1. Dọn nhánh cũ trên GitHub
+## 1. Dọn nhánh cũ trên GitHub - ĐÃ XONG
 
-- [ ] Xoá 4 nhánh
-- [ ] Bật tự xoá nhánh sau khi hợp nhất
+- [x] Xoá 4 nhánh - 17/09/2026, trên GitHub chỉ còn `main`
+- [x] Bật tự xoá nhánh sau khi hợp nhất - 17/09/2026, `delete_branch_on_merge: true`
 
 Bốn nhánh dưới đây thuộc các pull request **đã hợp nhất** (#53, #54, #58, #59) nhưng
 vẫn còn trên GitHub. Không gây hại, chỉ làm rối danh sách nhánh.
@@ -35,8 +35,7 @@ vẫn còn trên GitHub. Không gây hại, chỉ làm rối danh sách nhánh.
 git push origin --delete canh-san-xuat chan-chen-script ghi-nhan-xung-dot-bfm-csp quyen-transform
 ```
 
-Để không phải dọn tay về sau, bật tự xoá nhánh khi hợp nhất pull request (hiện
-đang tắt):
+Để không phải dọn tay về sau, bật tự xoá nhánh khi hợp nhất pull request:
 
 ```bash
 gh api -X PATCH repos/dieuhanhcongviecxanuicam/ubnd-ttpvhcc-qr -F delete_branch_on_merge=true

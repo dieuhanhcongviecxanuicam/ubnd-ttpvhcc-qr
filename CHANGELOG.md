@@ -2,6 +2,16 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.21.1] - 2026-09-17
+
+### Tài liệu
+
+- **Đánh dấu xong mục 1 của `docs/VIEC-CUA-DON-VI.md`.** Đơn vị đã xoá 4 nhánh cũ
+  của các pull request đã hợp nhất (#53, #54, #58, #59) và bật **Automatically
+  delete head branches** cho kho. Kiểm lại: trên GitHub chỉ còn `main`,
+  `delete_branch_on_merge` là `true` - từ nay nhánh tự xoá khi hợp nhất pull
+  request, không phải dọn tay.
+
 ## [1.21.0] - 2026-09-16
 
 ### Đã thêm
