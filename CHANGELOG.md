@@ -2,6 +2,23 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.17.1] - 2026-09-16
+
+### Tài liệu
+
+- **Đính chính nguyên nhân Cloudflare trả hai phiên bản `robots.txt`.** Bản
+  1.17.0 quy hiện tượng này cho việc cấu hình lan dần giữa các nút edge. Phép đo
+  bác bỏ: 24 lượt gọi kèm ghi mã `cf-ray` cho thấy cả hai kết quả cùng đến từ
+  một trung tâm dữ liệu (`SIN`, 5 lượt sạch / 19 lượt cũ). Mã `cf-ray` chỉ cho
+  biết trung tâm chứ không cho biết máy nào trong đó, nên phép đo không phân
+  biệt được "nhiều máy khác trạng thái" với "một máy hành xử không nhất quán" -
+  chỉ khẳng định được là **không phải chuyện lan theo vị trí địa lý**.
+
+  Kèm theo đó, bỏ lời khuyên "chạy lại sau vài phút" trong thông báo lỗi của
+  `scripts/kiem-tra-san-xuat.mjs`: tỉ lệ đo được đứng yên quanh 20% suốt mười
+  phút chứ không đi lên, nên chờ thêm chưa chắc hết. Quan sát và quyết định
+  thiết kế lấy nhiều mẫu vẫn giữ nguyên - chúng không phụ thuộc vào nguyên nhân.
+
 ## [1.17.0] - 2026-09-16
 
 ### Đã thêm
@@ -21,11 +38,10 @@
 
   Hai quyết định thiết kế rút từ chính lần đo hôm nay:
 
-  - **Lấy nhiều mẫu, không lấy một.** Sau khi tắt công tắc, 20 lượt gọi liên
-    tiếp trả 4 lượt bản mới và 16 lượt bản cũ - mỗi request rơi vào một nút edge
-    có trạng thái khác nhau. Một mẫu đơn lẻ vừa báo động giả được vừa bỏ lọt
-    được. Script lấy 5 mẫu mỗi mục và báo tỉ lệ, để phân biệt "hỏng" với
-    "đang lan".
+  - **Lấy nhiều mẫu, không lấy một.** Sau khi tắt công tắc, các lượt gọi liên
+    tiếp trả về lẫn lộn bản mới và bản cũ, tỉ lệ sạch đứng yên quanh 20% suốt
+    mười phút. Một mẫu đơn lẻ vì thế vừa báo động giả được vừa bỏ lọt được.
+    Script lấy 5 mẫu mỗi mục và báo tỉ lệ.
   - **Không so những phần sinh theo lần build.** Build của dự án không tất định,
     nên `<lastmod>` trong sitemap và băm sha256 trong CSP luôn lệch giữa bản cục
     bộ và bản đã phát hành. Sitemap được chuẩn hoá bỏ `<lastmod>`; CSP chuyển

@@ -349,10 +349,22 @@ Sync**. Không phải hộp thoại *Configure AI bot policies* trong `Security`
 thông báo "AI bot access updated" nhưng mở lại thấy vẫn bật. Đã mất một lượt thử
 nhầm chỗ vì chuyện này.
 
-**Edge không đổi đồng loạt.** Sau khi tắt, 20 lượt gọi liên tiếp trả về 4 lượt
-bản mới và 16 lượt bản cũ - mỗi request rơi vào một nút edge có trạng thái khác
-nhau, và tỉ lệ không tăng đều. Khi kiểm chứng phải lấy nhiều mẫu rồi nhìn tỉ lệ;
-một lượt `curl` đơn lẻ không kết luận được gì, theo cả hai chiều.
+**Tắt rồi vẫn chưa hết, và không phải chuyện chờ lan.** Sau khi tắt, các lượt
+gọi liên tiếp trả về lẫn lộn bản mới và bản cũ. Đo 10 mẫu mỗi 2 phút trong 10
+phút: 2/10, 1/10, 2/10, 2/10, 1/10 - **đứng yên quanh 20%, không đi lên**, tức
+không phải hình dạng của một thay đổi đang lan dần.
+
+Đã thử quy cho việc cấu hình lan giữa các trung tâm dữ liệu. Phép đo bác bỏ:
+24 lượt gọi kèm ghi mã `cf-ray` cho thấy **cả hai kết quả cùng đến từ một trung
+tâm** (`SIN`, 5 lượt sạch / 19 lượt cũ). Lưu ý mã `cf-ray` chỉ cho biết trung
+tâm dữ liệu chứ không cho biết máy nào trong đó, nên phép đo này không phân biệt
+được "nhiều máy trong cùng trung tâm, trạng thái khác nhau" với "cùng một máy,
+hành xử không nhất quán". Chỉ khẳng định được một điều: **không phải chuyện lan
+theo vị trí địa lý**, và chờ thêm chưa chắc hết.
+
+Hệ quả thực dụng: khi kiểm chứng bất kỳ công tắc nào ở Cloudflare, phải lấy
+nhiều mẫu rồi nhìn tỉ lệ. Một lượt `curl` đơn lẻ không kết luận được gì, theo cả
+hai chiều - trúng lượt sạch thì tưởng xong, trúng lượt cũ thì tưởng hỏng.
 
 **Đã đặt canh gác.** `scripts/kiem-tra-san-xuat.mjs` đối chiếu `robots.txt`,
 `.well-known/security.txt`, `sitemap.xml` và tính nhất quán của CSP trên trang
