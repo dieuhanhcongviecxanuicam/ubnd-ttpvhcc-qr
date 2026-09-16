@@ -2,6 +2,42 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.20.0] - 2026-09-16
+
+### Thay đổi
+
+- **Header mang tên đơn vị.** "Tra cứu TTHC / Mã QR danh mục thủ tục" đổi thành
+  "TRUNG TÂM PHỤC VỤ HÀNH CHÍNH CÔNG / XÃ NÚI CẤM". Chữ viết thường trong mã và
+  in hoa bằng CSS, để trình đọc màn hình đọc thành từ chứ không đánh vần. Trên
+  điện thoại tên tự xuống dòng, không tràn. Tên ngắn trong tiêu đề tab và
+  manifest (`SITE_CONFIG.ten`) giữ nguyên.
+
+- **Bảng niêm yết A1:**
+  - Biểu tượng "Hỗ trợ, hướng dẫn" ở chân bảng đổi nền xanh thành nền đỏ son,
+    biểu tượng trắng, cho cùng tông với số hotline.
+  - Bỏ khẩu hiệu "Hành chính phục vụ" ở góc phải vì trùng ý với "Vì Nhân dân
+    phục vụ". Cặp chữ "Hành chính công / Vì Nhân dân phục vụ" cạnh logo dùng lại
+    đúng kiểu chữ của khẩu hiệu đó (Lora, vàng nhạt): cỡ chữ từ 6,6 mm và 4,4 mm
+    lên 9,5 mm.
+  - Lưới đầu bảng đổi sang hai cột bên bằng nhau để tiêu đề vẫn nằm giữa khổ giấy
+    sau khi cột phải trống.
+
+- **Trang `/in-ma-qr` bỏ đoạn mô tả** dưới tên ba bản in; nhãn thông số và ảnh
+  xem trước đã đủ thông tin. Trường `moTa` bỏ khỏi `src/lib/ban-in.ts` vì không
+  còn nơi dùng.
+
+- **Ba con số ở trang chủ (376 / 77 / 100%) canh giữa trên nhãn của chúng.**
+
+### Đã sửa
+
+- **Logo ở header bị xén mép trái và vỡ nét khi phóng to trình duyệt.** `logo.png`
+  chỉ 128 px và hình chạm sát mép ảnh - bước tách nền cắt ở ngưỡng alpha 8 nên
+  viền khử răng cưa của bàn tay trái bị cắt phẳng. Ở 100% không thấy, phóng
+  400-500% thì lộ rõ. Nay `scripts/tao-bo-nhan-dien.py` sinh `logo.png` 256 px
+  với lề trong suốt 6%, đệm đĩa trắng giảm 7 → 6 px để logo giữ nguyên cỡ hiển
+  thị và vẫn nằm trọn trong vòng tròn. Các tệp nhận diện khác sinh lại không đổi
+  một byte.
+
 ## [1.19.4] - 2026-09-16
 
 ### Thay đổi
