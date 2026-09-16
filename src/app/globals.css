@@ -287,19 +287,20 @@ h1, h2, h3, h4 {
   border: 6px solid var(--trang);
   box-shadow: 0 2px 10px rgba(36,31,28,0.12);
 }
-.qr-tong-the .qr-mo-ta {
+/* Thẻ nằm trong .hero nên thừa hưởng `.hero p` (max-width 46ch, lề trái 0):
+   đoạn chữ thành một khối hẹp dạt sang trái, chữ canh giữa trong khối đó nhưng
+   lệch khỏi trục của mã QR. Gỡ cả hai để chữ canh giữa theo thẻ. */
+.qr-tong-the p { max-width: none; margin: 0 auto; }
+.qr-tong-the .qr-mo-ta,
+.qr-tong-the .qr-lienket {
+  font-family: var(--font-body);
   font-size: 13px;
   color: var(--muc-nhat);
-  margin-top: 16px;
+  overflow-wrap: anywhere;
 }
-.qr-lienket {
-  display: inline-block;
-  margin-top: 10px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--dong);
-  word-break: break-all;
-}
+.qr-tong-the .qr-nhan { margin: 8px 0 22px; }
+.qr-tong-the .qr-mo-ta { margin-top: 16px; }
+.qr-tong-the .qr-lienket { margin-top: 4px; }
 .btn-taixuong {
   display: inline-flex;
   align-items: center;

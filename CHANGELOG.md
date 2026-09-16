@@ -2,6 +2,29 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.20.1] - 2026-09-16
+
+### Đã sửa
+
+- **Biểu tượng "Hỗ trợ, hướng dẫn" trên bảng niêm yết ra màu đen thay vì trắng.**
+  Bản 1.20.0 đổi nền sang đỏ và đặt `color: #fff` cho `.chanIcon`, nhưng luật
+  `.chanKhoi span` (tô chữ tối cho dòng mô tả) cụ thể hơn nên đè mất; biểu tượng
+  vẽ bằng `currentColor` nên ra đen trên nền đỏ. Lần kiểm tra trên site thật
+  hôm đó đã đo ra `rgb(36, 31, 28)` mà không được đối chiếu với yêu cầu - đã
+  sửa bằng bộ chọn `.chanKhoi .chanIcon`, kiểm lại ra `rgb(255, 255, 255)`.
+
+- **Chữ dưới mã QR tổng ở trang chủ lệch trái so với mã.** Thẻ nằm trong `.hero`
+  nên đoạn chữ thừa hưởng `.hero p` (`max-width: 46ch`, lề trái 0): khối chữ
+  hẹp dạt sang trái, chữ canh giữa trong khối đó nhưng lệch khỏi trục của mã
+  QR khoảng 15 px. Nay gỡ hai thuộc tính đó trong thẻ; tâm của thẻ, mã QR, dòng
+  mô tả và địa chỉ trùng nhau ở cả 1440 px lẫn 390 px.
+
+### Thay đổi
+
+- **Địa chỉ `https://ttpvhcc.xanuicam.vn/` dưới mã QR tổng dùng cùng kiểu chữ với
+  dòng "Quét để mở toàn bộ 376 thủ tục hành chính"** (Inter 13 px, màu chữ phụ)
+  thay cho chữ đơn cách màu đồng, và đứng sát ngay dưới dòng đó.
+
 ## [1.20.0] - 2026-09-16
 
 ### Thay đổi
