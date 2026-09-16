@@ -258,7 +258,20 @@ luật của họ.
 **Bot Fight Mode** cần bật tay: Cloudflare > Security > Bots > Bot Fight Mode.
 Đơn vị đã bật ngày 15/09/2026 - kèm theo một xung đột phải biết, xem ngay dưới.
 
-### Bot Fight Mode và CSP chặt: xung đột đã biết
+### Bot Fight Mode và CSP chặt: xung đột đã giải quyết
+
+> **Cập nhật 16/09/2026.** Xung đột mô tả dưới đây **đã xử lý xong** bằng
+> `Cache-Control: no-transform` (xem mục "Chặn Cloudflare chèn script"). Đo được
+> 0/30 trang còn script chèn, trên ba loại bố cục. Phần còn lại của mục này giữ
+> nguyên để ghi lại quá trình, và vì nó giải thích vì sao KHÔNG nới CSP.
+>
+> Một hệ quả đáng cân nhắc: lý do ban đầu để tắt Bot Fight Mode là script của nó
+> phá CSP. Lý do đó không còn. Bật lại Bot Fight Mode giờ lấy lại được các tín
+> hiệu chặn bot khác của nó mà không mất gì về CSP - đổi lại, tín hiệu JavaScript
+> của chính Bot Fight Mode sẽ không hoạt động vì script không được chèn nữa. Đây
+> là quyết định cần cân nhắc riêng, chưa thực hiện.
+
+### Bối cảnh xung đột (giữ lại để tham khảo)
 
 Phần "JavaScript Detections" của Bot Fight Mode **chèn một script nội tuyến vào
 mọi trang HTML** để dò trình duyệt thật. CSP của site chặn script đó, và mỗi lượt
@@ -440,11 +453,25 @@ thường. GitHub Pages cũng không có cơ chế header tuỳ chỉnh nào kh�
 header phản hồi (`http_response_headers_transform`), do
 `scripts/bao-ve-cloudflare.py` quản lý như mọi luật khác.
 
-**Chưa chắc ăn.** Tài liệu viết *"if the origin response includes"*, mà luật biến
-đổi chạy sau khi phản hồi rời origin. Có thể Cloudflare vẫn thấy header và bỏ qua
-việc chèn, có thể không. Cách duy nhất để biết là áp rồi đo: chạy
-`npm run kiem-tra-san-xuat`, dòng cảnh báo in ra số mẫu còn dính script. Còn
-`5/5` là không ăn thua, gỡ luật đi cho gọn.
+**Đã đo, và nó ăn.** Trước khi áp từng lo rằng không ăn: tài liệu viết *"if the
+**origin** response includes"*, mà luật biến đổi chạy sau khi phản hồi rời
+origin. Thực tế Cloudflare vẫn thấy header và bỏ qua việc chèn.
+
+Đo ngay sau khi áp, 16/09/2026:
+
+```
+cache-control: max-age=600, no-transform
+
+/                      0/10 trang còn script
+/tthc/1.000110         0/10
+/linh-vuc/ho-tich      0/10
+```
+
+Trước khi áp là 10/10. Lỗi CSP trong console của người dùng biến mất, và CSP
+không phải nới một chút nào - không `unsafe-inline`, không chuyển sang nonce.
+
+Muốn kiểm lại bất cứ lúc nào: `npm run kiem-tra-san-xuat` in dòng cảnh báo kèm
+số mẫu còn dính script. Không có dòng đó là sạch.
 
 **Không tốn suất WAF.** Luật biến đổi header nằm ở phase riêng, hạn mức riêng,
 không chia chỗ với 5 luật WAF tuỳ chỉnh của gói Free.
