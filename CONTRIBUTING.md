@@ -18,8 +18,8 @@ Ba kiểm tra bắt buộc phải xanh mới hợp nhất được:
 
 | Kiểm tra | Nội dung |
 |---|---|
-| `Typecheck, lint, test, build` | Phiên bản, kiểu TypeScript, ESLint, test, build, CSP, CNAME, trợ năng, lỗ hổng npm |
-| `Đối chiếu mã QR với route` | Giải mã ngược 78 mã QR, đối chiếu URL, bộ chữ, quét CVE Python |
+| `Typecheck, lint, test, build` | Phiên bản, kiểu TypeScript, ESLint, test, build, CSP, CNAME, trợ năng, kiểm tra giao diện, dựng thử bản in PDF, lỗ hổng npm |
+| `Đối chiếu mã QR với route` | Giải mã ngược 92 mã QR, đối chiếu URL, bộ chữ, quét CVE Python |
 | `Phân tích JavaScript/TypeScript` | CodeQL |
 
 > Nếu đổi tên job trong `.github/workflows/ci.yml`, **phải cập nhật tên check
