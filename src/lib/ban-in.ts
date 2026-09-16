@@ -25,8 +25,7 @@ export const BAN_IN: readonly BanIn[] = [
   {
     id: "bang-niem-yet",
     ten: "Bảng niêm yết tổng",
-    moTa:
-      "Một tờ khổ lớn treo tại sảnh: 13 nhóm lĩnh vực, mỗi nhóm một mã QR, kèm hướng dẫn tra cứu, số hỗ trợ và mã QR Cổng Dịch vụ công.",
+    moTa: "Một tờ khổ lớn treo tại sảnh.",
     route: "/in-ma-qr/bang-niem-yet",
     tep: "ttpvhcc-bang-niem-yet-a1",
     khoGiay: "A1 ngang",
@@ -38,8 +37,7 @@ export const BAN_IN: readonly BanIn[] = [
   {
     id: "to-nhom",
     ten: "Tờ niêm yết theo nhóm",
-    moTa:
-      "Mỗi nhóm lĩnh vực một tờ A4: mã QR của nhóm và mã QR từng lĩnh vực trong nhóm - dán tại quầy phụ trách.",
+    moTa: "Mỗi nhóm lĩnh vực một tờ A4 (dán tại quầy).",
     route: "/in-ma-qr/to-nhom",
     tep: "ttpvhcc-to-nhom-a4",
     khoGiay: "A4 dọc",
