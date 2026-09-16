@@ -118,6 +118,10 @@ QUYEN = (
     "    Zone / Zone / Read\n"
     "    Zone / Zone Settings / Read và Edit\n"
     "    Zone / Zone WAF / Edit\n"
+    # Quyền RIÊNG, không nằm trong Zone WAF: luật biến đổi header phản hồi
+    # (phase http_response_headers_transform) đặt Cache-Control: no-transform.
+    # Thiếu quyền này thì đọc phase đó trả 403, không phải 404.
+    "    Zone / Transform Rules / Edit\n"
     "    Zone / Bot Management / Edit (tuỳ chọn)"
 )
 
@@ -395,9 +399,23 @@ def dong_bo_luat(zone: str, token: str, phase: str, moi: list[dict],
 
     Tạo, sửa, xoá từng luật qua endpoint theo luật. Luật không mang REF_TIEN_TO
     giữ nguyên ID, nội dung và vị trí. Trả False nếu có luật không ghi được.
+
+    Thiếu quyền cho MỘT phase thì bỏ qua phase đó rồi đi tiếp, chứ không dừng cả
+    script. Trước đây hàm này thoát ngay khi không đọc được phase, và hệ quả là
+    một token thiếu một quyền sẽ để lại trạng thái áp một nửa: luật WAF đã ghi,
+    cài đặt zone chưa - người chạy không biết mình đang ở đâu giữa chừng. Báo
+    thiếu quyền rồi hoàn tất phần làm được thì trạng thái cuối luôn đọc được
+    bằng --kiem-tra.
     """
     duong_entry = f"/zones/{zone}/rulesets/phases/{phase}/entrypoint"
-    kq = goi_hoac_dung(duong_entry, token, cho_phep_404=True, goi_y_quyen=QUYEN)
+    try:
+        kq = goi(duong_entry, token, cho_phep_404=True)
+    except LoiAPI as loi:
+        print(f"  {ten_phase}: BỎ QUA - {loi.thong_diep} (HTTP {loi.ma})",
+              file=sys.stderr)
+        if loi.ma in (401, 403):
+            print(f"    Token thiếu quyền. Cần:\n{QUYEN}", file=sys.stderr)
+        return False
     bo_luat = kq.get("result") or {}
 
     if not bo_luat.get("id"):

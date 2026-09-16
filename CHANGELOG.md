@@ -2,6 +2,24 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.19.1] - 2026-09-16
+
+### Đã sửa
+
+- **Bổ sung quyền `Zone / Transform Rules / Edit` vào danh sách token.** Phase
+  `http_response_headers_transform` thêm ở 1.19.0 không nằm trong `Zone WAF /
+  Edit` mà đòi quyền riêng. Danh sách quyền trong `scripts/bao-ve-cloudflare.py`
+  và `.github/workflows/chong-tan-cong.yml` chưa cập nhật theo, nên token tạo
+  đúng theo hướng dẫn vẫn đọc phase đó trả 403 và `--kiem-tra` in
+  `luật biến đổi header (không đọc được)`.
+
+- **Thiếu quyền một phase không còn làm dừng cả script.** `dong_bo_luat()` trước
+  đây thoát ngay khi không đọc được phase. Hệ quả: một token thiếu một quyền sẽ
+  để lại trạng thái áp một nửa - luật WAF đã ghi, cài đặt zone chưa - và người
+  chạy không biết mình đang ở đâu giữa chừng. Nay hàm báo thiếu quyền kèm danh
+  sách quyền cần, bỏ qua phase đó, rồi hoàn tất phần làm được; trạng thái cuối
+  luôn đọc lại được bằng `--kiem-tra`.
+
 ## [1.19.0] - 2026-09-16
 
 ### Đã thêm
