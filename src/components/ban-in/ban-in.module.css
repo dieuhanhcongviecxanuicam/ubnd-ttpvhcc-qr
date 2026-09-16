@@ -216,6 +216,9 @@
   box-shadow: 0 0 0 1.4mm rgba(155, 34, 38, 0.18);
 }
 .chanIcon svg { width: 11mm; height: 11mm; }
+/* `.chanKhoi span` (tô chữ tối cho dòng mô tả) cụ thể hơn `.chanIcon` và đè mất
+   màu trắng, biểu tượng vẽ bằng currentColor nên ra đen trên nền đỏ. */
+.chanKhoi .chanIcon { color: #fff; }
 .chanKhoi .chanHotline { font-size: 8.2mm; font-weight: 700; color: #9b2226; letter-spacing: 0.01em; }
 
 /* ==================== TỜ A4: phần dùng chung ==================== */
