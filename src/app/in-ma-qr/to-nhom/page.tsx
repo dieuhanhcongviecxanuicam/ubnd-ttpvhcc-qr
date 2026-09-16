@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import KhungXemTruoc from "@/components/ban-in/KhungXemTruoc";
 import ToNhom from "@/components/ban-in/ToNhom";
 import s from "@/components/ban-in/ban-in.module.css";
@@ -19,7 +20,11 @@ export default function TrangToNhom() {
     <main id="noi-dung" className={s.trangIn}>
       <h1 className={s.anChu}>{BAN.ten}</h1>
       <p className={s.trangInGhiChu}>
-        {nhom.length} tờ khổ {BAN.khoGiay}. Tải PDF tại trang In bộ mã QR.
+        {nhom.length} tờ khổ {BAN.khoGiay}. Tải PDF tại trang{" "}
+        <Link className={s.trangInLienKet} href="/in-ma-qr">
+          In bộ mã QR
+        </Link>
+        .
       </p>
       {nhom.map((tk) => (
         <KhungXemTruoc key={tk.nhom.id} rongMm={BAN.rongMm} caoMm={BAN.caoMm} tiLeBanDau={1}>

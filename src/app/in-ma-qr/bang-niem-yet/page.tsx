@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import BangNiemYet from "@/components/ban-in/BangNiemYet";
 import KhungXemTruoc from "@/components/ban-in/KhungXemTruoc";
 import s from "@/components/ban-in/ban-in.module.css";
@@ -19,7 +20,11 @@ export default function TrangBangNiemYet() {
     <main id="noi-dung" className={s.trangIn}>
       <h1 className={s.anChu}>{BAN.ten}</h1>
       <p className={s.trangInGhiChu}>
-        Bản xem trước khổ {BAN.khoGiay} ({BAN.rongMm} × {BAN.caoMm} mm). Tải PDF tại trang In bộ mã QR.
+        Bản xem trước khổ {BAN.khoGiay} ({BAN.rongMm} × {BAN.caoMm} mm). Tải PDF tại trang{" "}
+        <Link className={s.trangInLienKet} href="/in-ma-qr">
+          In bộ mã QR
+        </Link>
+        .
       </p>
       <KhungXemTruoc rongMm={BAN.rongMm} caoMm={BAN.caoMm}>
         <BangNiemYet

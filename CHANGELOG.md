@@ -2,6 +2,23 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.19.4] - 2026-09-16
+
+### Thay đổi
+
+- **"In bộ mã QR" trong dòng ghi chú của ba trang bản in nay là nút bấm được.**
+  Ở `/in-ma-qr/bang-niem-yet`, `/in-ma-qr/to-nhom` và `/in-ma-qr/tem-ma-qr`, câu
+  "Tải PDF tại trang In bộ mã QR" trước đây chỉ là chữ thường: người xem được bảo
+  sang trang khác để tải PDF nhưng không có cách nào sang ngoài tự gõ địa chỉ,
+  vì các trang này không có đường dẫn điều hướng. Cụm "In bộ mã QR" nay có viền
+  và nền, dẫn về `/in-ma-qr`; di chuột vào thì đổi sang nền đỏ son chữ trắng như
+  nút "Xem toàn trang". Dòng ghi chú vốn bị ẩn khi in nên PDF không đổi.
+
+- **Rút gọn mô tả hai bản in ở trang `/in-ma-qr`.** "Bảng niêm yết tổng" còn
+  "Một tờ khổ lớn treo tại sảnh.", "Tờ niêm yết theo nhóm" còn "Mỗi nhóm lĩnh
+  vực một tờ A4 (dán tại quầy)." Phần bị bỏ (số nhóm, loại mã QR trên tờ) vốn
+  đã hiện ngay bên dưới qua nhãn thông số và ảnh xem trước.
+
 ## [1.19.3] - 2026-09-16
 
 ### Tài liệu

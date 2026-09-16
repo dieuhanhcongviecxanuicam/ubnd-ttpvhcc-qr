@@ -339,6 +339,20 @@
   background: #e7e4dc;
 }
 .trangInGhiChu { max-width: 70ch; margin: 0; font-size: 14px; color: #4a453e; text-align: center; }
+.trangInLienKet {
+  display: inline-block;
+  margin-left: 2px;
+  padding: 2px 10px;
+  border: 1px solid var(--son);
+  border-radius: 999px;
+  background: var(--nga);
+  color: var(--son);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.trangInLienKet:hover { background: var(--son); color: var(--trang); }
+.trangInLienKet:focus-visible { outline: 2px solid var(--son); outline-offset: 2px; }
 .anChu {
   position: absolute;
   width: 1px;
