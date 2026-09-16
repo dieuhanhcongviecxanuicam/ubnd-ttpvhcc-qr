@@ -349,22 +349,37 @@ Sync**. Không phải hộp thoại *Configure AI bot policies* trong `Security`
 thông báo "AI bot access updated" nhưng mở lại thấy vẫn bật. Đã mất một lượt thử
 nhầm chỗ vì chuyện này.
 
-**Tắt rồi vẫn chưa hết, và không phải chuyện chờ lan.** Sau khi tắt, các lượt
-gọi liên tiếp trả về lẫn lộn bản mới và bản cũ. Đo 10 mẫu mỗi 2 phút trong 10
-phút: 2/10, 1/10, 2/10, 2/10, 1/10 - **đứng yên quanh 20%, không đi lên**, tức
-không phải hình dạng của một thay đổi đang lan dần.
+**Mất khoảng một tiếng mới hết, và trong nửa giờ đầu trông như hỏng hẳn.** Đây
+là phần dễ kết luận sai nhất, nên ghi lại đầy đủ cả những gì đã kết luận nhầm.
 
-Đã thử quy cho việc cấu hình lan giữa các trung tâm dữ liệu. Phép đo bác bỏ:
-24 lượt gọi kèm ghi mã `cf-ray` cho thấy **cả hai kết quả cùng đến từ một trung
-tâm** (`SIN`, 5 lượt sạch / 19 lượt cũ). Lưu ý mã `cf-ray` chỉ cho biết trung
-tâm dữ liệu chứ không cho biết máy nào trong đó, nên phép đo này không phân biệt
-được "nhiều máy trong cùng trung tâm, trạng thái khác nhau" với "cùng một máy,
-hành xử không nhất quán". Chỉ khẳng định được một điều: **không phải chuyện lan
-theo vị trí địa lý**, và chờ thêm chưa chắc hết.
+Sau khi tắt công tắc, đo 10 mẫu mỗi 2 phút trong 26 phút:
 
-Hệ quả thực dụng: khi kiểm chứng bất kỳ công tắc nào ở Cloudflare, phải lấy
-nhiều mẫu rồi nhìn tỉ lệ. Một lượt `curl` đơn lẻ không kết luận được gì, theo cả
-hai chiều - trúng lượt sạch thì tưởng xong, trúng lượt cũ thì tưởng hỏng.
+```
+2, 1, 2, 2, 1, 2, 0, 3, 0, 0, 3, 0, 3   (số mẫu sạch trên 10)
+```
+
+Dao động ngẫu nhiên quanh 15%, **không có xu hướng tăng**. Lúc đó đã kết luận là
+chờ thêm không giải quyết được. **Kết luận đó sai**: đo lại sau khoảng một tiếng
+thì 40/40 lượt đều sạch. Cửa sổ quan sát nửa giờ là quá hẹp cho một thay đổi cần
+một tiếng, và trong cửa sổ đó nhiễu lấn át tín hiệu.
+
+Đã thử quy hiện tượng cho việc cấu hình lan giữa các trung tâm dữ liệu. Phép đo
+bác bỏ cách giải thích đó: 24 lượt gọi kèm ghi mã `cf-ray` cho thấy cả hai kết
+quả cùng đến từ một trung tâm (`SIN`, 5 lượt sạch / 19 lượt cũ). Mã `cf-ray` chỉ
+cho biết trung tâm chứ không cho biết máy nào trong đó, nên phép đo không phân
+biệt được "nhiều máy khác trạng thái" với "một máy hành xử không nhất quán".
+
+Cloudflare Support đưa một cách giải thích khác: tỉ lệ ~20% là do Cloudflare
+phân loại từng request, chỉ chèn nội dung khi nhận diện bên gọi là crawler.
+**Dữ liệu không ủng hộ cách này**: nếu đúng thì `curl` - vốn dễ bị xếp vào nhóm
+tự động - phải bị chèn đều đặn, trong khi đo lại bằng chính `curl` cho 40/40
+sạch, và bằng User-Agent của Chrome cho 10/10 sạch. Nguyên nhân thật vẫn chưa
+xác định được; điều chắc chắn là nó tự hết sau khoảng một tiếng.
+
+Hệ quả thực dụng, và là lý do `scripts/kiem-tra-san-xuat.mjs` tồn tại: khi kiểm
+chứng bất kỳ công tắc nào ở Cloudflare, phải lấy nhiều mẫu rồi nhìn tỉ lệ, **và
+đo lại sau ít nhất một tiếng trước khi kết luận là hỏng**. Một lượt `curl` đơn
+lẻ không kết luận được gì theo cả hai chiều; một cửa sổ nửa giờ cũng vậy.
 
 **Đã đặt canh gác.** `scripts/kiem-tra-san-xuat.mjs` đối chiếu `robots.txt`,
 `.well-known/security.txt`, `sitemap.xml` và tính nhất quán của CSP trên trang
@@ -406,6 +421,36 @@ lúc gọi API - thông điệp lỗi của Cloudflare không nói rõ nguyên n
 **Cách áp.** Không cần máy có token: chạy workflow *Chế độ chống tấn công* trên
 GitHub, chọn `ap-dung-bao-ve`, gõ `DONG Y`. Muốn xem trước mà không đổi gì thì
 chọn `kiem-tra`.
+
+### Chặn Cloudflare chèn script bằng `Cache-Control: no-transform`
+
+Cloudflare chèn script JavaScript Detections vào mọi trang HTML, kể cả khi Bot
+Fight Mode đã tắt (xem phần trên). Trên gói Free không có công tắc riêng cho
+JavaScript Detections - tài liệu Cloudflare ghi rõ nó đi kèm Bot Fight Mode và
+không tắt riêng được.
+
+Tài liệu cũng nêu một lối thoát: **Cloudflare không chèn script nếu phản hồi
+mang chỉ thị `Cache-Control: no-transform`.** Đây là cách giải quyết sạch nhất -
+không phải nới CSP bằng `unsafe-inline`, không phải đổi sang cơ chế nonce.
+
+**Không đặt được bằng tệp `_headers`.** Tệp đó là tính năng của Cloudflare Pages
+và Netlify; GitHub Pages không đọc nó, chỉ phục vụ nó như một tệp tĩnh bình
+thường. GitHub Pages cũng không có cơ chế header tuỳ chỉnh nào khác, và đặt cứng
+`cache-control: max-age=600`. Nên header phải đặt ở biên, bằng một luật biến đổi
+header phản hồi (`http_response_headers_transform`), do
+`scripts/bao-ve-cloudflare.py` quản lý như mọi luật khác.
+
+**Chưa chắc ăn.** Tài liệu viết *"if the origin response includes"*, mà luật biến
+đổi chạy sau khi phản hồi rời origin. Có thể Cloudflare vẫn thấy header và bỏ qua
+việc chèn, có thể không. Cách duy nhất để biết là áp rồi đo: chạy
+`npm run kiem-tra-san-xuat`, dòng cảnh báo in ra số mẫu còn dính script. Còn
+`5/5` là không ăn thua, gỡ luật đi cho gọn.
+
+**Không tốn suất WAF.** Luật biến đổi header nằm ở phase riêng, hạn mức riêng,
+không chia chỗ với 5 luật WAF tuỳ chỉnh của gói Free.
+
+Luật giữ nguyên `max-age=600` của GitHub Pages và chỉ thêm `no-transform`.
+Chiến lược cache đã cân nhắc riêng (`docs/HIEU-NANG.md`), không nhân tiện đổi.
 
 ### Cảnh giác với số liệu "successful requests" trong AI Crawl Control
 

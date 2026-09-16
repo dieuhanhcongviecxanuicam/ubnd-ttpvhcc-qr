@@ -270,6 +270,58 @@ def luat_waf(mien: str) -> list[dict]:
     ]
 
 
+# ---------------------------------------------------------------------------
+# Chặn Cloudflare chèn script JavaScript Detections vào HTML
+#
+# Bối cảnh: CSP của site băm từng script nội tuyến và không có 'unsafe-inline'.
+# Cloudflare chèn một script mang mã định danh riêng cho từng lượt tải
+# (window.__CF$cv$params) nên không băm trước được, và trình duyệt chặn nó - mỗi
+# lượt xem trang ghi một lỗi trong console. Đã tắt Bot Fight Mode mà script vẫn
+# còn; tài liệu Cloudflare nói JavaScript Detections không tắt riêng được trên
+# gói Free.
+#
+# Lối thoát nằm trong chính tài liệu đó: Cloudflare KHÔNG chèn script nếu phản
+# hồi mang chỉ thị `Cache-Control: no-transform`. GitHub Pages đặt cứng
+# `max-age=600` và không có cơ chế header tuỳ chỉnh nào (tệp _headers là tính
+# năng của Cloudflare Pages và Netlify, GitHub Pages không đọc nó), nên phải đặt
+# header ở biên bằng một luật biến đổi.
+#
+# CHƯA CHẮC ĂN, và đừng ghi vào tài liệu như thể chắc: tài liệu viết "if the
+# origin response includes", mà luật này chạy SAU khi phản hồi rời origin. Có
+# thể Cloudflare vẫn thấy header và bỏ qua việc chèn, có thể không. Cách duy
+# nhất để biết là đo sau khi áp - xem npm run kiem-tra-san-xuat, nó đếm số mẫu
+# còn dính script.
+#
+# Giữ nguyên max-age=600 của GitHub Pages thay vì đặt giá trị mới: chiến lược
+# cache đã cân nhắc riêng (xem docs/HIEU-NANG.md), luật này chỉ thêm no-transform
+# chứ không nhân tiện đổi thứ khác.
+#
+# Phạm vi chỉ ttpvhcc.xanuicam.vn. Zone dùng chung; hệ thống khác có thể đang
+# dựa vào một tính năng biến đổi nội dung nào đó của Cloudflare.
+# ---------------------------------------------------------------------------
+CACHE_CONTROL_GOC = "max-age=600"
+
+
+def luat_bien_doi_header(mien: str) -> list[dict]:
+    return [
+        {
+            "ref": f"{REF_TIEN_TO}chan-chen-script",
+            "description": f"{DAU} no-transform - chặn Cloudflare chèn script vào HTML",
+            "expression": f'(http.host eq "{mien}")',
+            "action": "rewrite",
+            "action_parameters": {
+                "headers": {
+                    "Cache-Control": {
+                        "operation": "set",
+                        "value": f"{CACHE_CONTROL_GOC}, no-transform",
+                    }
+                }
+            },
+            "enabled": True,
+        },
+    ]
+
+
 def kiem_do_dai_bieu_thuc(luat: list[dict]) -> None:
     """Dừng sớm nếu biểu thức vượt trần, kèm chỉ dẫn cách xử lý."""
     for r in luat:
@@ -441,6 +493,7 @@ def in_trang_thai(zone: str, token: str, mien: str) -> None:
         print(f"  {ten:26s} {doc_cai_dat(zone, token, ten)}")
 
     for phase, nhan in (("http_request_firewall_custom", "luật WAF"),
+                        ("http_response_headers_transform", "luật biến đổi header"),
                         ("http_ratelimit", "luật giới hạn tần suất")):
         try:
             luat = doc_luat(zone, token, phase)
@@ -524,11 +577,19 @@ def main() -> int:
     waf = luat_waf(mien)
     kiem_do_dai_bieu_thuc(waf)
     tan_suat = luat_tan_suat(mien)
+    bien_doi = luat_bien_doi_header(mien)
 
     print(f"\nSẽ đặt {len(waf)} luật WAF:")
     for r in waf:
         print(f"  - [{r['action']}] {r['description']}")
         print(f"      khi: {r['expression'][:150]}")
+    print(f"\nSẽ đặt {len(bien_doi)} luật biến đổi header phản hồi:")
+    for r in bien_doi:
+        dat = r["action_parameters"]["headers"]
+        for ten, gt in dat.items():
+            print(f"  - {ten}: {gt['value']}")
+        print(f"      khi: {r['expression']}")
+
     print(f"\nSẽ đặt {len(tan_suat)} luật giới hạn tần suất:")
     for r in tan_suat:
         rl = r["ratelimit"]
@@ -555,6 +616,8 @@ def main() -> int:
 
     print("\nĐang ghi:")
     on = dong_bo_luat(zone, token, "http_request_firewall_custom", waf, "WAF")
+    on = dong_bo_luat(zone, token, "http_response_headers_transform",
+                      bien_doi, "biến đổi header") and on
 
     if con_cho:
         on = dong_bo_luat(zone, token, "http_ratelimit", tan_suat, "tần suất") and on

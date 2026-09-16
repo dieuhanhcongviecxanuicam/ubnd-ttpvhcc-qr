@@ -2,6 +2,43 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.19.0] - 2026-09-16
+
+### Đã thêm
+
+- **Luật biến đổi header đặt `Cache-Control: no-transform`**, nhằm chặn
+  Cloudflare chèn script JavaScript Detections vào HTML. Trên gói Free không có
+  công tắc riêng cho tính năng đó - tài liệu Cloudflare ghi rõ nó đi kèm Bot
+  Fight Mode và không tắt riêng được - nhưng cũng chính tài liệu đó nêu rằng
+  Cloudflare bỏ qua việc chèn nếu phản hồi mang `no-transform`. Cách này không
+  phải nới CSP bằng `unsafe-inline` cũng không phải đổi sang nonce.
+
+  Không đặt được bằng tệp `_headers`: đó là tính năng của Cloudflare Pages và
+  Netlify, GitHub Pages không đọc nó (đã kiểm: `/_headers` trả 404) và cũng
+  không có cơ chế header tuỳ chỉnh nào khác. Nên header đặt ở biên, bằng luật
+  `http_response_headers_transform` do `scripts/bao-ve-cloudflare.py` quản lý.
+  Phase này có hạn mức riêng nên không tốn suất nào trong 5 luật WAF của gói Free.
+
+  **Chưa biết có ăn thua không.** Tài liệu viết "if the origin response
+  includes", mà luật biến đổi chạy sau khi phản hồi rời origin. Áp xong phải đo:
+  `npm run kiem-tra-san-xuat` in ra số mẫu còn dính script.
+
+### Tài liệu
+
+- **Đính chính lần hai về `robots.txt`.** Bản 1.17.1 kết luận "chờ thêm chưa chắc
+  hết", dựa trên 26 phút đo thấy tỉ lệ sạch dao động quanh 15% mà không tăng.
+  Kết luận đó **sai**: đo lại sau khoảng một tiếng thì 40/40 lượt đều sạch. Cửa
+  sổ quan sát nửa giờ là quá hẹp cho một thay đổi cần một tiếng, và trong cửa sổ
+  đó nhiễu lấn át tín hiệu.
+
+  Ghi thêm cách giải thích của Cloudflare Support - rằng tỉ lệ ~20% là do phân
+  loại từng request, chỉ chèn khi nhận diện bên gọi là crawler - kèm lý do dữ
+  liệu không ủng hộ: nếu đúng thì `curl` phải bị chèn đều đặn, trong khi đo lại
+  bằng chính `curl` cho 40/40 sạch và bằng User-Agent Chrome cho 10/10 sạch.
+
+  Bài học ghi vào tài liệu: khi kiểm chứng công tắc ở Cloudflare, đo lại sau ít
+  nhất một tiếng trước khi kết luận là hỏng.
+
 ## [1.18.0] - 2026-09-16
 
 ### Đã thêm
