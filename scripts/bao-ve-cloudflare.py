@@ -156,6 +156,37 @@ DUONG_DAN_LA = [
 ]
 DUOI_LA = [".php", ".asp", ".aspx", ".jsp", ".cgi", ".sql", ".bak", ".old", ".env"]
 
+# ---------------------------------------------------------------------------
+# Danh sách áp cho TOÀN ZONE, không riêng ttpvhcc.xanuicam.vn
+#
+# Zone xanuicam.vn còn phục vụ hệ thống của đơn vị khác. Danh sách DUONG_DAN_LA
+# ở trên KHÔNG được đem ra toàn zone: nó chặn /wp-admin, /phpmyadmin, /vendor/
+# và đuôi .php - toàn thứ hợp lệ trên một site WordPress hay PHP. Áp ra toàn
+# zone là khoá cửa quản trị của đồng nghiệp, và họ sẽ không biết vì sao.
+#
+# Danh sách dưới đây hẹp hơn hẳn, chỉ gồm những đường dẫn KHÔNG một máy chủ web
+# nào nên phục vụ, bất kể chạy nền tảng gì: tệp bí mật và siêu dữ liệu hệ thống
+# quản lý mã nguồn. Chặn nhầm người dùng thật là điều không thể xảy ra, vì không
+# có người dùng thật nào mở /.git/config.
+#
+# Lý do có mặt: AI Crawl Control ghi nhận /dev/.env trên thongtin.xanuicam.vn là
+# đường dẫn bị bot dò nhiều nhất zone. Lần đó máy chủ trả 404 nên không mất gì,
+# nhưng nó cho thấy bot đang rà zone này, và một hệ thống anh em cấu hình lỏng
+# hơn một chút là đủ để mất khoá cơ sở dữ liệu.
+#
+# KHÔNG thêm /.well-known/ vào đây: đó là đường dẫn hợp lệ, security.txt và
+# chứng thư ACME đều nằm trong đó.
+# ---------------------------------------------------------------------------
+DUONG_DAN_BI_MAT = [
+    "/.env", "/.git", "/.svn", "/.hg", "/.aws", "/.ssh",
+    "/.htpasswd", "/.htaccess", "/.ds_store", "/.npmrc", "/.dockerenv",
+]
+# Cố ý KHÔNG có ".key": đuôi này vừa là khoá riêng vừa là tệp trình chiếu
+# Keynote của Apple. Một cơ quan đăng bài trình chiếu .key lên trang là chuyện
+# có thể xảy ra, và khi đó tệp biến mất không lời giải thích. Bốn đuôi còn lại
+# không mang nghĩa nào khác ngoài khoá và chứng thư.
+DUOI_BI_MAT = [".env", ".pem", ".p12", ".keystore"]
+
 # Cài đặt zone. Giá trị chọn theo mục 3 của docs/BAO-MAT.md.
 CAI_DAT_ZONE = {
     "always_use_https": "on",
@@ -192,6 +223,24 @@ def bieu_thuc_duong_dan_la() -> str:
     return f"({duong} or {duoi})"
 
 
+def bieu_thuc_bi_mat() -> str:
+    """Biểu thức khớp tệp bí mật, KHÔNG giới hạn theo host - áp cho cả zone."""
+    duong = " or ".join(
+        f'starts_with(lower(http.request.uri.path), "{d}")' for d in DUONG_DAN_BI_MAT
+    )
+    duoi = " or ".join(
+        f'ends_with(lower(http.request.uri.path), "{d}")' for d in DUOI_BI_MAT
+    )
+    return f"({duong} or {duoi})"
+
+
+# Giới hạn độ dài biểu thức của một luật WAF (tài liệu Cloudflare, 09/2026).
+# Gộp nhiều phạm vi vào một luật để tiết kiệm suất thì phải canh trần này, nếu
+# không lần thêm đường dẫn tiếp theo sẽ hỏng lúc gọi API chứ không phải lúc đọc
+# mã, và thông điệp lỗi của Cloudflare không nói rõ nguyên nhân.
+DAI_BIEU_THUC_TOI_DA = 4096
+
+
 def luat_waf(mien: str) -> list[dict]:
     thuoc_mien = f'http.host eq "{mien}"'
     return [
@@ -205,13 +254,35 @@ def luat_waf(mien: str) -> list[dict]:
             "enabled": True,
         },
         {
+            # Gộp hai phạm vi vào MỘT luật thay vì tách thành hai. Gói Free chỉ
+            # cho 5 luật WAF tuỳ chỉnh trên toàn zone, và zone này dùng chung -
+            # mỗi suất tiêu thêm là một suất hệ thống khác không còn để dùng.
+            # Biểu thức dài không tốn gì, luật thứ ba thì có.
             "ref": f"{REF_TIEN_TO}chan-duong-dan-quet",
-            "description": f"{DAU} chặn đường dẫn quét lỗ hổng - site tĩnh không có",
-            "expression": f"({thuoc_mien} and {bieu_thuc_duong_dan_la()})",
+            "description": f"{DAU} chặn đường dẫn quét lỗ hổng (site) và tệp bí mật (toàn zone)",
+            "expression": (
+                f"(({thuoc_mien} and {bieu_thuc_duong_dan_la()})"
+                f" or {bieu_thuc_bi_mat()})"
+            ),
             "action": "block",
             "enabled": True,
         },
     ]
+
+
+def kiem_do_dai_bieu_thuc(luat: list[dict]) -> None:
+    """Dừng sớm nếu biểu thức vượt trần, kèm chỉ dẫn cách xử lý."""
+    for r in luat:
+        dai = len(r["expression"])
+        if dai > DAI_BIEU_THUC_TOI_DA:
+            print(
+                f"Biểu thức của luật {r['ref']} dài {dai} ký tự, vượt trần "
+                f"{DAI_BIEU_THUC_TOI_DA}.\n"
+                "  Rút bớt DUONG_DAN_LA / DUONG_DAN_BI_MAT, hoặc tách thành luật "
+                "riêng nếu\n  zone còn suất trống (gói Free cho 5 luật WAF tuỳ chỉnh).",
+                file=sys.stderr,
+            )
+            raise SystemExit(1)
 
 
 REF_CONG_TAC = f"{REF_TIEN_TO}che-do-tan-cong"
@@ -451,6 +522,7 @@ def main() -> int:
         return 0
 
     waf = luat_waf(mien)
+    kiem_do_dai_bieu_thuc(waf)
     tan_suat = luat_tan_suat(mien)
 
     print(f"\nSẽ đặt {len(waf)} luật WAF:")

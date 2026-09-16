@@ -2,6 +2,35 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.18.0] - 2026-09-16
+
+### Đã thêm
+
+- **Chặn truy cập tệp bí mật trên toàn zone `xanuicam.vn`**, không chỉ trên site
+  này. Luật WAF `chan-duong-dan-quet` nay có thêm một vế không giới hạn theo
+  host, khớp `/.env`, `/.git`, `/.svn`, `/.hg`, `/.aws`, `/.ssh`, `/.htpasswd`,
+  `/.htaccess`, `/.npmrc`, `/.dockerenv` và đuôi `.env`, `.pem`, `.p12`,
+  `.keystore`.
+
+  Lý do: AI Crawl Control ghi nhận `/dev/.env` trên `thongtin.xanuicam.vn` là
+  đường dẫn bị bot dò nhiều nhất zone. Lần kiểm tra đó máy chủ trả 404 nên không
+  mất gì, nhưng nó cho thấy bot đang rà zone này - và một hệ thống anh em cấu
+  hình lỏng hơn một chút là đủ để mất khoá cơ sở dữ liệu.
+
+  **Danh sách áp toàn zone hẹp hơn hẳn danh sách áp cho site này.** Danh sách của
+  site gồm `/wp-admin`, `/phpmyadmin`, `/vendor/`, đuôi `.php` - đem ra toàn zone
+  là khoá cửa quản trị của đơn vị khác đang dùng chung tên miền. Vế toàn zone chỉ
+  gồm những đường dẫn không máy chủ web nào nên phục vụ, bất kể nền tảng.
+
+  Cố ý để ngoài: `/.well-known/` (hợp lệ - `security.txt`, chứng thư ACME) và
+  đuôi `.key` (vừa là khoá riêng vừa là tệp trình chiếu Keynote).
+
+  **Không tốn thêm suất luật.** Gói Free cho 5 luật WAF tuỳ chỉnh trên toàn zone,
+  chia chung với hệ thống khác; hai vế gộp vào một luật nên số luật vẫn là 2.
+  Thêm `kiem_do_dai_bieu_thuc()` canh trần 4096 ký tự của biểu thức (hiện dùng
+  2159), để lần mở rộng sau hỏng lúc chạy script kèm chỉ dẫn, chứ không hỏng lúc
+  gọi API với thông điệp không nói rõ nguyên nhân.
+
 ## [1.17.1] - 2026-09-16
 
 ### Tài liệu
