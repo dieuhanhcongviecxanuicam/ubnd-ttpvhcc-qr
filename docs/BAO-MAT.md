@@ -372,6 +372,41 @@ chủ với bản trong `out/`, chạy hằng ngày qua
 `.github/workflows/canh-san-xuat.yml`. Lần này mất nhiều ngày mới phát hiện vì
 không có bước nào nhìn vào sản xuất - mọi kiểm tra đều chạy trước khi phát hành.
 
+### Che tệp bí mật cho toàn zone, không chỉ cho site này
+
+Luật `chan-duong-dan-quet` có hai vế, phạm vi khác nhau, cố ý:
+
+| Vế | Phạm vi | Danh sách | Vì sao |
+|---|---|---|---|
+| 1 | chỉ `ttpvhcc.xanuicam.vn` | `DUONG_DAN_LA` + `DUOI_LA` | Gồm `/wp-admin`, `/phpmyadmin`, `/vendor/`, đuôi `.php`. Site này là trang tĩnh nên không có gì để mất. |
+| 2 | **toàn zone** `xanuicam.vn` | `DUONG_DAN_BI_MAT` + `DUOI_BI_MAT` | Chỉ tệp bí mật và siêu dữ liệu quản lý mã nguồn. |
+
+**Vì sao không đem nguyên vế 1 ra toàn zone.** Zone còn phục vụ hệ thống của đơn
+vị khác, và rất có thể một trong số đó chạy WordPress hoặc PHP. Chặn `/wp-admin`
+ra toàn zone là khoá cửa quản trị của đồng nghiệp - họ sẽ thấy trang trắng, không
+có thông báo, và không có lý do gì để nghĩ nguyên nhân nằm ở kho mã của một dự án
+khác. Vế 2 hẹp lại còn những đường dẫn mà **không máy chủ web nào nên phục vụ**,
+bất kể nền tảng: `/.env`, `/.git`, `/.ssh`, `/.htpasswd`, đuôi `.pem`, `.p12`.
+Không có người dùng thật nào mở `/.git/config`, nên không có cách nào chặn nhầm.
+
+**Hai thứ cố ý để ngoài danh sách.**
+
+- `/.well-known/` - đường dẫn hợp lệ, `security.txt` và chứng thư ACME nằm trong đó.
+- Đuôi `.key` - vừa là khoá riêng vừa là tệp trình chiếu Keynote của Apple. Một
+  cơ quan đăng bài trình chiếu `.key` là chuyện có thể xảy ra, và khi đó tệp biến
+  mất không lời giải thích. Bốn đuôi còn lại không mang nghĩa nào khác.
+
+**Gộp vào một luật, không tách thành hai.** Gói Free cho **5 luật WAF tuỳ chỉnh
+trên toàn zone**, và con số đó chia chung với hệ thống khác. Mỗi suất tiêu thêm
+là một suất đồng nghiệp không còn để dùng. Biểu thức dài không tốn gì (hiện 2159
+ký tự trên trần 4096); luật thứ ba thì có. Hàm `kiem_do_dai_bieu_thuc()` canh
+trần này, để lần thêm đường dẫn tiếp theo hỏng lúc chạy script chứ không phải
+lúc gọi API - thông điệp lỗi của Cloudflare không nói rõ nguyên nhân.
+
+**Cách áp.** Không cần máy có token: chạy workflow *Chế độ chống tấn công* trên
+GitHub, chọn `ap-dung-bao-ve`, gõ `DONG Y`. Muốn xem trước mà không đổi gì thì
+chọn `kiem-tra`.
+
 ### Cảnh giác với số liệu "successful requests" trong AI Crawl Control
 
 Bảng Overview của AI Crawl Control từng báo:
