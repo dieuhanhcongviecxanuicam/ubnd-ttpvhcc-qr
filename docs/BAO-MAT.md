@@ -449,6 +449,12 @@ việc chèn, có thể không. Cách duy nhất để biết là áp rồi đo:
 **Không tốn suất WAF.** Luật biến đổi header nằm ở phase riêng, hạn mức riêng,
 không chia chỗ với 5 luật WAF tuỳ chỉnh của gói Free.
 
+**Cần thêm một quyền token.** Phase `http_response_headers_transform` KHÔNG nằm
+trong `Zone WAF / Edit`; nó đòi `Zone / Transform Rules / Edit` riêng. Token chỉ
+có quyền WAF sẽ đọc phase này trả 403, và `--kiem-tra` in
+`luật biến đổi header (không đọc được)`. Đã gặp đúng lỗi này lần đầu chạy, vì
+phase mới được thêm mà danh sách quyền trong workflow chưa cập nhật theo.
+
 Luật giữ nguyên `max-age=600` của GitHub Pages và chỉ thêm `no-transform`.
 Chiến lược cache đã cân nhắc riêng (`docs/HIEU-NANG.md`), không nhân tiện đổi.
 

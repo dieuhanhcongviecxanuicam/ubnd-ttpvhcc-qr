@@ -50,8 +50,9 @@ jobs:
           echo "::error::Chưa có secret CLOUDFLARE_API_TOKEN_BAO_VE."
           echo "Token này cần quyền rộng hơn token xoá cache, nên để RIÊNG:"
           echo "  Zone / Zone / Read"
-          echo "  Zone / Zone Settings / Read"
+          echo "  Zone / Zone Settings / Read và Edit"
           echo "  Zone / Zone WAF / Edit"
+          echo "  Zone / Transform Rules / Edit"
           echo "Xem docs/BAO-MAT.md mục 9."
           exit 1
 
