@@ -2,6 +2,30 @@
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 
+## [1.22.0] - 2026-09-17
+
+### Tài liệu
+
+- **Viết lại `README.md` theo trạng thái thật của dự án**, kèm 8 ảnh giao diện chụp
+  từ site thật trong `docs/anh-giao-dien/` (tối ưu bảng màu, tổng khoảng 500 KB):
+  bảng niêm yết A1, trang chủ, lưới mã QR theo lĩnh vực, tra cứu danh mục, chi
+  tiết thủ tục, trang In bộ mã QR, và hai ảnh khung điện thoại.
+
+  Thêm các phần: tính năng cho người dân và cho cán bộ một cửa (ba bản in PDF),
+  trạng thái hiện tại, kiểm soát chất lượng (ba kiểm tra bắt buộc và các workflow
+  chạy theo lịch), bảng tài liệu, badge CodeQL và canh sản xuất.
+
+  Sửa những chỗ README đã sai so với thực tế:
+  - Mục hạ tầng ghi DNS "chỉ DNS, không bật proxy" và chứng chỉ Let's Encrypt của
+    GitHub - thực tế proxy Cloudflare đã bật từ 25/08, chứng chỉ là Cloudflare
+    Universal SSL (Google Trust Services), có cache biên, WAF, HSTS preload. Làm
+    theo lời khuyên cũ "đừng bật proxy" sẽ gỡ mất toàn bộ lớp bảo vệ.
+  - Quy trình cập nhật dữ liệu `git commit -am ... && git push` thẳng lên `main`,
+    trong khi `main` được bảo vệ.
+  - "78 mã QR" (thực tế 92, cả trong `CONTRIBUTING.md`), "455 trang" (hơn 470).
+  - Bảng lệnh thiếu `kiem-tra-giao-dien`, `dung-ban-in`, `kiem-tra-san-xuat`,
+    `kiem-tra-phien-ban`, `kiem-tra-bo-chu`.
+
 ## [1.21.1] - 2026-09-17
 
 ### Tài liệu
