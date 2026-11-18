@@ -86,8 +86,12 @@ jobs:
 
       # Rà lỗ hổng đã biết của phụ thuộc npm. Dùng --audit-level=high để bản vá
       # mức thấp không chặn triển khai, nhưng Dependabot vẫn mở PR cho chúng.
+      # --omit=dev: site xuất TĨNH (`output: "export"`) - chỉ gói ở `dependencies`
+      # (next, react) đi vào tệp gửi cho người dùng; công cụ dev (eslint, playwright,
+      # tsx) chỉ chạy trong CI, Dependabot vẫn canh và mở PR cho chúng. Chủ dự án
+      # quyết 18/11/2026 (phiếu 20261118-AN1, như phương án (a) của các site tĩnh khác).
       - name: Rà lỗ hổng phụ thuộc npm
-        run: npm audit --audit-level=high
+        run: npm audit --omit=dev --audit-level=high
 
   kiem-tra-ma-qr:
     name: Đối chiếu mã QR với route
