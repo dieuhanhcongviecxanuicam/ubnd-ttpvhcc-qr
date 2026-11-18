@@ -6,6 +6,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Token mặc định chỉ đọc (AN1 mục 2.4): hai job chỉ checkout, kiểm tra, dựng.
+permissions:
+  contents: read
+
 jobs:
   kiem-tra:
     name: Typecheck, lint, test, build
